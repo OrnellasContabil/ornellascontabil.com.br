@@ -4,6 +4,15 @@
 [functions]
   node_bundler = "esbuild"
 
+# Necessário para o pdfkit (usado em gerar_pdf.js): a biblioteca carrega arquivos
+# de métricas de fonte (.afm) em runtime via __dirname + "/data/<fonte>.afm".
+# Depois do bundle com esbuild, __dirname aponta para a pasta da function
+# (netlify/functions), então os .afm precisam estar em netlify/functions/data/
+# e serem incluídos explicitamente — o esbuild não os detecta automaticamente
+# porque são lidos dinamicamente (fs.readFileSync), não via require/import.
+[functions."gerar_pdf"]
+  included_files = ["netlify/functions/data/**"]
+
 [[headers]]
   for = "/.netlify/functions/*"
   [headers.values]

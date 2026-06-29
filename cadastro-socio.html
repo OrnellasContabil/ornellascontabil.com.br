@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro de Sócios — Ornellas Gestor</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --pri:#1565C0; --dark:#0D1E2C; --t2:#5b6b7a; --t3:#94a3b8; --bdr:#e2e8f0; --bg:#f7f8fa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--dark)}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 60px}
+  .topbar{display:flex;align-items:center;gap:10px;padding:16px 0;margin-bottom:18px}
+  .topbar img{height:32px}
+  .topbar .ttl{font-weight:800;font-size:15px}
+  .card{background:#fff;border:1px solid var(--bdr);border-radius:14px;padding:20px;margin-bottom:16px}
+  h1{font-size:19px;margin:0 0 4px}
+  .sub{font-size:13px;color:var(--t2);margin-bottom:18px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+  .field input,.field select{width:100%;padding:9px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;outline:none;font-family:inherit;background:#fff}
+  .field input:focus,.field select:focus{border-color:var(--pri)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  @media(max-width:560px){.grid2,.grid3{grid-template-columns:1fr}}
+  .socio-card{border:1.5px solid var(--bdr);border-radius:12px;padding:16px;margin-bottom:16px;position:relative}
+  .socio-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .socio-head .tit{font-weight:800;font-size:14px;color:var(--pri)}
+  .btn-rm-socio{background:none;border:none;color:#C62828;font-size:12px;font-weight:700;cursor:pointer}
+  .sec-title{font-size:12px;font-weight:700;color:var(--t2);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.4px}
+  .doc-upload{border:1.5px dashed var(--bdr);border-radius:10px;padding:12px;text-align:center;cursor:pointer;font-size:12px;color:var(--t2);transition:all .15s}
+  .doc-upload:hover{border-color:var(--pri);background:#EEF4FF}
+  .doc-upload.has-file{border-color:#2E7D32;background:#E8F5E9;color:#2E7D32;border-style:solid}
+  .doc-row{margin-bottom:10px}
+  .doc-row label{display:block;font-size:11px;font-weight:700;color:var(--t2);margin-bottom:5px}
+  .btn-add{width:100%;padding:11px;border:1.5px dashed var(--pri);border-radius:10px;background:none;color:var(--pri);font-weight:700;font-size:13px;cursor:pointer;margin-bottom:10px}
+  .btn-submit{width:100%;padding:14px;border:none;border-radius:10px;background:var(--pri);color:#fff;font-weight:800;font-size:14px;cursor:pointer}
+  .btn-submit:disabled{opacity:.5;cursor:not-allowed}
+  .state-box{text-align:center;padding:60px 20px}
+  .state-box .ico{font-size:40px;margin-bottom:12px}
+  .state-box h2{font-size:16px;margin:0 0 8px}
+  .state-box p{font-size:13px;color:var(--t2)}
+  .hidden{display:none !important}
+  input[type=file]{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span style="font-size:22px">🏛️</span>
+    <span class="ttl">Ornellas Gestor — Cadastro de Sócios</span>
+  </div>
+
+  <div id="state-loading" class="card state-box">
+    <div class="ico">⏳</div>
+    <h2>Carregando...</h2>
+  </div>
+
+  <div id="state-invalid" class="card state-box hidden">
+    <div class="ico">⚠️</div>
+    <h2>Link inválido ou expirado</h2>
+    <p>Este link de cadastro não é válido, já foi utilizado, ou expirou. Entre em contato com o escritório para solicitar um novo link.</p>
+  </div>
+
+  <div id="state-submitted" class="card state-box hidden">
+    <div class="ico">✅</div>
+    <h2>Cadastro enviado com sucesso!</h2>
+    <p>Seus dados e documentos foram recebidos e serão revisados pelo escritório em breve. Você pode fechar esta página.</p>
+  </div>
+
+  <div id="state-form" class="hidden">
+    <div class="card">
+      <h1 id="form-title">Cadastro de Sócios</h1>
+      <p class="sub">Preencha os dados de cada sócio e envie os documentos solicitados (RG, comprovante de residência e, se houver, contrato social anterior). Revise tudo antes de enviar — o escritório fará uma conferência final.</p>
+    </div>
+
+    <div id="socios-container"></div>
+
+    <button class="btn-add" onclick="addSocio()">＋ Adicionar outro sócio</button>
+
+    <div class="card">
+      <button class="btn-submit" id="btn-submit" onclick="submitForm()">Enviar Cadastro</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://agsjhkcleuwbbtkqvbsq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_NFSU8LKRU6EXKVietWZztg_KzGAJ-rg';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const params = new URLSearchParams(location.search);
+const TOKEN = params.get('token');
+
+let socios = [];
+let socioCount = 0;
+
+function showState(id){
+  ['state-loading','state-invalid','state-submitted','state-form'].forEach(s=>{
+    document.getElementById(s).classList.toggle('hidden', s!==id);
+  });
+}
+
+async function init(){
+  if(!TOKEN){ showState('state-invalid'); return; }
+  try{
+    const { data, error } = await sb.from('leg_external_forms').select('*').eq('token', TOKEN).maybeSingle();
+    if(error || !data){ showState('state-invalid'); return; }
+    const status = (data.data||{}).status;
+    if(status==='pending_review' || status==='reviewed'){ showState('state-submitted'); return; }
+    document.getElementById('form-title').textContent = `Cadastro de Sócios — ${(data.data||{}).proc_name||''}`;
+    addSocio();
+    showState('state-form');
+  }catch(e){
+    console.error(e);
+    showState('state-invalid');
+  }
+}
+
+function addSocio(){
+  const idx = socioCount++;
+  socios.push({ idx, docs:{} });
+  const wrap = document.createElement('div');
+  wrap.className = 'socio-card';
+  wrap.id = 'socio-'+idx;
+  wrap.innerHTML = `
+    <div class="socio-head">
+      <span class="tit">👤 Sócio ${document.querySelectorAll('.socio-card').length+1}</span>
+      ${idx>0?`<button class="btn-rm-socio" onclick="removeSocio(${idx})">✕ Remover</button>`:''}
+    </div>
+
+    <div class="field"><label>Nome completo *</label><input id="s${idx}-nome" placeholder="Nome completo do sócio"></div>
+
+    <div class="grid3">
+      <div class="field"><label>Gênero</label><select id="s${idx}-genero"><option value="F">Feminino</option><option value="M">Masculino</option></select></div>
+      <div class="field"><label>Nacionalidade</label><input id="s${idx}-nac" placeholder="Ex: Brasileira"></div>
+      <div class="field"><label>Estado Civil</label>
+        <select id="s${idx}-ecivil">
+          <option value="">Selecione...</option>
+          <option>Solteiro(a)</option><option>Casado(a)</option><option>Divorciado(a)</option><option>Viúvo(a)</option><option>União Estável</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>Profissão</label><input id="s${idx}-prof" placeholder="Ex: Empresário"></div>
+      <div class="field"><label>Data de Nascimento</label><input type="date" id="s${idx}-nasc"></div>
+      <div class="field"><label>Naturalidade</label><input id="s${idx}-nat" placeholder="Cidade/UF de nascimento"></div>
+    </div>
+
+    <div class="grid3">
+      <div class="field"><label>CPF *</label><input id="s${idx}-cpf" placeholder="000.000.000-00"></div>
+      <div class="field"><label>Tipo de Documento</label>
+        <select id="s${idx}-tipodoc"><option>RG</option><option>CNH</option><option>RNE</option><option>Passaporte</option></select>
+      </div>
+      <div class="field"><label>Número do Documento</label><input id="s${idx}-rg" placeholder="Número"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Data de Emissão do Documento</label><input type="date" id="s${idx}-rgdata"></div>
+      <div class="field"><label>Regime de Bens (se casado/união estável)</label>
+        <select id="s${idx}-regimecas">
+          <option value="">Não se aplica</option>
+          <option>Comunhão Parcial de Bens</option><option>Comunhão Universal de Bens</option><option>Separação Total de Bens</option><option>Participação Final nos Aquestos</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sec-title">Endereço</div>
+    <div class="grid3">
+      <div class="field"><label>CEP</label><input id="s${idx}-cep" placeholder="00000-000"></div>
+      <div class="field" style="grid-column:span 2"><label>Logradouro</label><input id="s${idx}-logr" placeholder="Rua, Avenida..."></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>Número</label><input id="s${idx}-num"></div>
+      <div class="field"><label>Complemento</label><input id="s${idx}-compl"></div>
+      <div class="field"><label>Bairro</label><input id="s${idx}-bairro"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Cidade</label><input id="s${idx}-cidade"></div>
+      <div class="field"><label>UF</label><input id="s${idx}-uf" maxlength="2" placeholder="Ex: RJ"></div>
+    </div>
+
+    <div class="sec-title">Participação na Empresa</div>
+    <div class="grid3">
+      <div class="field"><label>Quotas</label><input id="s${idx}-quotas" placeholder="Nº de quotas"></div>
+      <div class="field"><label>Valor (R$)</label><input id="s${idx}-valor" placeholder="Ex: 10.000,00"></div>
+      <div class="field"><label>Percentual (%)</label><input id="s${idx}-pct" placeholder="Ex: 50"></div>
+    </div>
+    <div class="field"><label>Papel na Empresa</label>
+      <select id="s${idx}-papel">
+        <option value="">Selecione...</option>
+        <option>Sócio(a) Administrador(a)</option>
+        <option>Sócio(a) não administrador(a)</option>
+      </select>
+    </div>
+
+    <div class="sec-title">Documentos</div>
+    <div class="doc-row">
+      <label>📄 RG ou documento de identidade (frente e verso, PDF ou foto) *</label>
+      <div class="doc-upload" id="s${idx}-doc-rg-box" onclick="document.getElementById('s${idx}-doc-rg').click()">📎 Toque para enviar</div>
+      <input type="file" id="s${idx}-doc-rg" accept=".pdf,.png,.jpg,.jpeg" onchange="handleDocUpload(${idx},'rg')">
+    </div>
+    <div class="doc-row">
+      <label>🏠 Comprovante de Residência (até 90 dias, PDF ou foto) *</label>
+      <div class="doc-upload" id="s${idx}-doc-comprovante-box" onclick="document.getElementById('s${idx}-doc-comprovante').click()">📎 Toque para enviar</div>
+      <input type="file" id="s${idx}-doc-comprovante" accept=".pdf,.png,.jpg,.jpeg" onchange="handleDocUpload(${idx},'comprovante')">
+    </div>
+    <div class="doc-row">
+      <label>📜 Contrato Social Anterior (se já tiver uma empresa, opcional)</label>
+      <div class="doc-upload" id="s${idx}-doc-contrato_anterior-box" onclick="document.getElementById('s${idx}-doc-contrato_anterior').click()">📎 Toque para enviar</div>
+      <input type="file" id="s${idx}-doc-contrato_anterior" accept=".pdf,.png,.jpg,.jpeg" onchange="handleDocUpload(${idx},'contrato_anterior')">
+    </div>
+  `;
+  document.getElementById('socios-container').appendChild(wrap);
+}
+
+function removeSocio(idx){
+  const el=document.getElementById('socio-'+idx);
+  if(el) el.remove();
+  socios = socios.filter(s=>s.idx!==idx);
+}
+
+function handleDocUpload(idx, key){
+  const inp = document.getElementById(`s${idx}-doc-${key}`);
+  const f = inp.files[0];
+  if(!f) return;
+  if(f.size > 8*1024*1024){ alert('Arquivo muito grande. Envie um arquivo de até 8MB.'); inp.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    const s = socios.find(x=>x.idx===idx);
+    if(s){ s.docs[key] = { name: f.name, data: ev.target.result }; }
+    const box = document.getElementById(`s${idx}-doc-${key}-box`);
+    box.classList.add('has-file');
+    box.textContent = `✅ ${f.name}`;
+  };
+  reader.readAsDataURL(f);
+}
+
+function readSocioFields(idx){
+  const g = id => (document.getElementById(id)||{}).value||'';
+  return {
+    nome: g(`s${idx}-nome`).trim(),
+    genero: g(`s${idx}-genero`)||'F',
+    nac: g(`s${idx}-nac`),
+    ecivil: g(`s${idx}-ecivil`),
+    prof: g(`s${idx}-prof`),
+    nasc: g(`s${idx}-nasc`),
+    nat: g(`s${idx}-nat`),
+    cpf: g(`s${idx}-cpf`),
+    tipodoc: g(`s${idx}-tipodoc`)||'RG',
+    rg: g(`s${idx}-rg`),
+    rgdata: g(`s${idx}-rgdata`),
+    regimecas: g(`s${idx}-regimecas`),
+    endereco: {
+      cep: g(`s${idx}-cep`), logr: g(`s${idx}-logr`), num: g(`s${idx}-num`),
+      compl: g(`s${idx}-compl`), bairro: g(`s${idx}-bairro`), cidade: g(`s${idx}-cidade`), uf: g(`s${idx}-uf`)
+    },
+    quotas: g(`s${idx}-quotas`),
+    valor: g(`s${idx}-valor`),
+    pct: g(`s${idx}-pct`),
+    papel: g(`s${idx}-papel`),
+  };
+}
+
+async function submitForm(){
+  const btn = document.getElementById('btn-submit');
+  const activeCards = Array.from(document.querySelectorAll('.socio-card')).map(el=>parseInt(el.id.replace('socio-','')));
+  const finalSocios = [];
+  for(const idx of activeCards){
+    const fields = readSocioFields(idx);
+    if(!fields.nome){ alert(`Informe o nome do sócio ${activeCards.indexOf(idx)+1}.`); return; }
+    if(!fields.cpf){ alert(`Informe o CPF do sócio ${activeCards.indexOf(idx)+1}.`); return; }
+    const sData = socios.find(s=>s.idx===idx);
+    const docs = sData ? sData.docs : {};
+    if(!docs.rg){ alert(`Envie o RG do sócio ${activeCards.indexOf(idx)+1}.`); return; }
+    if(!docs.comprovante){ alert(`Envie o comprovante de residência do sócio ${activeCards.indexOf(idx)+1}.`); return; }
+    finalSocios.push({ ...fields, docs });
+  }
+  if(!finalSocios.length){ alert('Adicione ao menos um sócio.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  try{
+    const { data: existing, error: getErr } = await sb.from('leg_external_forms').select('data').eq('token', TOKEN).maybeSingle();
+    if(getErr || !existing){ alert('Erro ao localizar o formulário. Atualize a página e tente novamente.'); btn.disabled=false; btn.textContent='Enviar Cadastro'; return; }
+    const { error } = await sb.from('leg_external_forms').update({
+      data: { ...existing.data, socios: finalSocios, status: 'pending_review', submitted_at: new Date().toISOString() }
+    }).eq('token', TOKEN);
+    if(error){ console.error(error); alert('Erro ao enviar. Verifique sua conexão e tente novamente.'); btn.disabled=false; btn.textContent='Enviar Cadastro'; return; }
+    showState('state-submitted');
+  }catch(e){
+    console.error(e);
+    alert('Erro ao enviar. Verifique sua conexão e tente novamente.');
+    btn.disabled = false;
+    btn.textContent = 'Enviar Cadastro';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

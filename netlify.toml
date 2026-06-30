@@ -10,3 +10,31 @@
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "POST, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type"
+
+# =====================================================================
+# ORNELLAS GESTOR — Multi-tenant via subdomínio (ornellasgestor.com.br)
+# =====================================================================
+# Garante que qualquer subdomínio (ex: ornellas.ornellasgestor.com.br,
+# escritoriox.ornellasgestor.com.br) sirva o mesmo index.html, sem dar
+# erro de "página não encontrada".
+#
+# status = 200 faz um REWRITE (serve o conteúdo sem redirecionar o
+# navegador), preservando a URL original com o subdomínio — é isso que
+# permite o JavaScript ler o slug correto via getCurrentTenantSlug()
+# no index.html.
+#
+# Estas regras são específicas do domínio ornellasgestor.com.br e não
+# afetam o ornellascontabil.com.br, que continua funcionando como hoje.
+# =====================================================================
+
+[[redirects]]
+  from = "https://*.ornellasgestor.com.br/*"
+  to = "/:splat"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "https://ornellasgestor.com.br/*"
+  to = "/:splat"
+  status = 200
+  force = false

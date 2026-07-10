@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Acompanhamento do Processo — Ornellas Gestor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --pri:#4A7FA5;--prid:#2F5F80;--gold:#C9A96E;
+    --bg:#F8F9FC;--card:#fff;--bdr:#E2E8F0;--t1:#1A1D2E;--t2:#5A6171;--t3:#9AA0B8;
+    --dark:#0D1E2C;--darker:#08141F;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t1)}
+  .wrap{max-width:680px;margin:0 auto;padding:28px 18px 60px}
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+  .top-badge{width:38px;height:38px;border-radius:10px;background:var(--dark);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .top-title{font-size:13px;font-weight:800;color:var(--dark)}
+  .top-sub{font-size:11px;color:var(--t3)}
+  .card{background:var(--card);border-radius:14px;border:1px solid var(--bdr);padding:20px;margin-bottom:14px;box-shadow:0 2px 8px rgba(13,30,44,.05)}
+  .state{text-align:center;padding:50px 20px;color:var(--t3)}
+  .state-ico{font-size:38px;margin-bottom:12px}
+  .state-t{font-size:14px;font-weight:700;color:var(--t2)}
+  .state-s{font-size:12px;margin-top:6px}
+  h2{font-size:16px;font-weight:800;color:var(--dark);margin:0}
+  .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700}
+  .meta{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;font-size:11px;color:var(--t2)}
+  .prog-label{display:flex;justify-content:space-between;font-size:12px;color:var(--t2);margin-bottom:8px}
+  .prog-bar{height:9px;background:#E2E8F0;border-radius:20px;overflow:hidden}
+  .prog-fill{height:100%;background:linear-gradient(90deg,var(--pri),var(--gold));border-radius:20px;transition:width .3s}
+  .step{display:flex;gap:12px;position:relative}
+  .step-line{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+  .step-dot{width:26px;height:26px;border-radius:50%;background:#E2E8F0;color:var(--t2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+  .step.done .step-dot{background:#2E7D32;color:#fff}
+  .step.active .step-dot{background:var(--pri);color:#fff}
+  .step-connector{width:2px;flex:1;background:#E2E8F0;margin:3px 0}
+  .step.done .step-connector{background:#2E7D32}
+  .step-body{padding-bottom:20px;flex:1;min-width:0}
+  .step-header{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px}
+  .step-title{font-size:13px;font-weight:700;color:var(--dark)}
+  .step-desc{font-size:11px;color:var(--t3);line-height:1.5;margin-bottom:6px}
+  .step-extra{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:11px;color:var(--t3)}
+  .step-obs{font-size:11.5px;color:var(--t2);background:var(--bg);border-radius:8px;padding:7px 10px;margin-top:6px}
+  .step-file{font-size:11px;background:none;border:1.5px solid var(--bdr);border-radius:6px;padding:3px 9px;cursor:pointer;color:var(--t2);text-decoration:none;display:inline-block}
+  .footer-note{text-align:center;font-size:11px;color:var(--t3);margin-top:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="top-badge">⚖️</div>
+    <div><div class="top-title">Acompanhamento de Processo</div><div class="top-sub">Ornellas Gestor — link de visualização, sem necessidade de login</div></div>
+  </div>
+  <div id="content"><div class="state"><div class="state-ico">⏳</div><div class="state-t">Carregando...</div></div></div>
+  <div class="footer-note" id="footer-note" style="display:none">Esta página mostra só o andamento das etapas. Dúvidas? Fale diretamente com o escritório de contabilidade.</div>
+</div>
+<script>
+const SUPABASE_URL = 'https://agsjhkcleuwbbtkqvbsq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_NFSU8LKRU6EXKVietWZztg_KzGAJ-rg';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* Mesmas tabelas de referência do app principal (Ornellas Gestor),
+   duplicadas aqui porque esta é uma página pública independente. */
+const LEG_TIPO_CONFIG = {
+  abertura:  { label:'Abertura',             emoji:'🟢', bg:'#E8F5E9', color:'#2E7D32' },
+  alteracao: { label:'Alteração Contratual', emoji:'🟡', bg:'#FFF8E1', color:'#8A5A00' },
+  baixa:     { label:'Baixa / Encerramento', emoji:'🔴', bg:'#FFEBEE', color:'#C62828' },
+};
+const LEG_ETAPAS_MAP = {
+  abertura: [
+    { id:'contrato',    label:'Elaboração do Contrato Social',     ico:'✍️', desc:'Redação do contrato social conforme os dados dos sócios e objeto social' },
+    { id:'consulta',    label:'Consulta Prévia de Viabilidade',    ico:'🔍', desc:'Verificação de viabilidade do nome empresarial e atividade na prefeitura' },
+    { id:'viabilidade', label:'Viabilidade (REDESIM)',             ico:'✅', desc:'Aprovação da viabilidade no portal REDESIM / Junta Comercial' },
+    { id:'dbe',         label:'DBE — Ficha Cadastral',             ico:'📝', desc:'Preenchimento da Ficha Cadastral da Pessoa Jurídica na RFB' },
+    { id:'assinatura',  label:'Assinatura do Contrato',            ico:'🖋️', desc:'Coleta das assinaturas dos sócios e reconhecimento de firma' },
+    { id:'junta',       label:'Junta Comercial/Cartório',         ico:'🏛️', desc:'Registro do contrato social no órgão competente' },
+    { id:'cnpj',        label:'CNPJ no REDESIM',                   ico:'🆔', desc:'Obtenção do CNPJ no portal REDESIM / Receita Federal' },
+    { id:'ie',          label:'Inscrição Estadual',                ico:'🧾', desc:'Cadastro na Secretaria de Fazenda Estadual (SEFAZ)' },
+    { id:'alvara',      label:'Alvará de Funcionamento',           ico:'🏢', desc:'Solicitação e obtenção do Alvará junto à Prefeitura Municipal' },
+    { id:'nire',        label:'NIRE / Certificado',                ico:'📜', desc:'Recebimento do Número de Identificação do Registro de Empresa' },
+    { id:'outros',      label:'Outros / Complementares',           ico:'📎', desc:'Registros adicionais: Vigilância Sanitária, AVCB, Licenças específicas' },
+  ],
+  alteracao: [
+    { id:'consulta_local', label:'Consulta Prévia de Local',        ico:'📍', desc:'Verificação de viabilidade do endereço/local junto à Prefeitura, se aplicável' },
+    { id:'viabilidade',    label:'Viabilidade',                     ico:'🔍', desc:'Aprovação da viabilidade no portal REDESIM / Junta Comercial' },
+    { id:'dbe',            label:'DBE',                             ico:'📝', desc:'Preenchimento da Ficha Cadastral (DBE) na Receita Federal' },
+    { id:'guia',           label:'Emissão da Guia (Taxa)',          ico:'💳', desc:'Emissão e pagamento da guia de taxa da Junta Comercial/Cartório' },
+    { id:'contrato',       label:'Elaboração do Contrato',          ico:'✍️', desc:'Redação da alteração contratual conforme os subtipos selecionados' },
+    { id:'entrada',        label:'Dar Entrada no Processo',         ico:'📤', desc:'Protocolo do processo de alteração na Junta Comercial/Cartório' },
+    { id:'assinatura',     label:'Assinatura do Processo e Contrato', ico:'🖋️', desc:'Coleta das assinaturas dos sócios no processo e no contrato' },
+    { id:'deferimento',    label:'Deferimento / NIRE',              ico:'✅', desc:'Aguardar deferimento e recebimento do NIRE atualizado' },
+    { id:'rfb',            label:'Atualização na Receita Federal',  ico:'🆔', desc:'Atualização do cadastro CNPJ na RFB / REDESIM' },
+    { id:'sefaz',          label:'Atualização SEFAZ (se necessário)', ico:'🧾', desc:'Atualização da IE se houver alteração de atividade/endereço' },
+    { id:'alvara',         label:'Atualização Alvará (se necessário)', ico:'🏢', desc:'Renovação ou atualização do Alvará Municipal' },
+    { id:'outros',         label:'Outros / Complementares',         ico:'📎', desc:'Providências adicionais decorrentes da alteração' },
+  ],
+  baixa: [
+    { id:'distrato',    label:'Elaboração do Distrato Social',    ico:'✍️', desc:'Redação do distrato social com data de encerramento e situação do ativo/passivo' },
+    { id:'pgfn',        label:'Certidão PGFN / Débitos Federais', ico:'📋', desc:'Obtenção de certidão de regularidade de débitos junto à PGFN' },
+    { id:'assinatura',  label:'Assinatura do Distrato',           ico:'🖋️', desc:'Coleta das assinaturas dos sócios' },
+    { id:'junta',       label:'Baixa na Junta Comercial/Cartório',ico:'🏛️', desc:'Protocolo e deferimento da baixa na Junta Comercial/Cartório' },
+    { id:'rfb',         label:'Baixa na Receita Federal',         ico:'🆔', desc:'Solicitação de baixa do CNPJ na RFB / REDESIM' },
+    { id:'sefaz',       label:'Baixa na SEFAZ',                   ico:'🧾', desc:'Encerramento da Inscrição Estadual' },
+    { id:'prefeitura',  label:'Baixa / Comunicado à Prefeitura',  ico:'🏢', desc:'Comunicado de encerramento de atividades ao município' },
+    { id:'esocial',     label:'Baixa no eSocial / INSS',          ico:'🛡️', desc:'Encerramento dos vínculos no eSocial e INSS' },
+    { id:'outros',      label:'Outros / Complementares',          ico:'📎', desc:'Providências finais: contas bancárias, registros específicos, etc.' },
+  ],
+};
+const LEG_STATUS = {
+  pending:    { label:'Pendente',     color:'var(--t3)', bg:'#F1F5F9' },
+  progress:   { label:'Em andamento', color:'#E65100',   bg:'#FFF3E0' },
+  done:       { label:'Concluído',    color:'#2E7D32',   bg:'#E8F5E9' },
+  blocked:    { label:'Bloqueado',    color:'#C62828',   bg:'#FFEBEE' },
+  dispensado: { label:'Dispensado',   color:'#5A6171',   bg:'#ECEFF1' },
+};
+function etapaConcluida(et){ return !!(et && (et.status==='done'||et.status==='dispensado')); }
+
+function showState(ico, titulo, sub){
+  document.getElementById('content').innerHTML = `<div class="card"><div class="state"><div class="state-ico">${ico}</div><div class="state-t">${titulo}</div>${sub?`<div class="state-s">${sub}</div>`:''}</div></div>`;
+}
+
+function abrirArquivo(dataUrl){
+  const w=window.open();
+  w.document.write(`<iframe src="${dataUrl}" style="width:100%;height:100vh;border:none"></iframe>`);
+}
+window._verArquivoEtapa = function(idx){ window._arquivosEtapas && window._arquivosEtapas[idx] && abrirArquivo(window._arquivosEtapas[idx]); };
+
+async function carregar(){
+  const params = new URLSearchParams(location.search);
+  const token = params.get('token');
+  if(!token){ showState('🔗','Link inválido','Nenhum token foi informado nesta URL.'); return; }
+
+  let proc;
+  try{
+    const { data, error } = await sb.rpc('obter_legalizacao_publica', { p_token: token });
+    if(error){ console.error(error); showState('⚠️','Não foi possível carregar','Tente novamente em instantes.'); return; }
+    proc = data;
+  }catch(e){
+    console.error(e);
+    showState('⚠️','Não foi possível carregar','Verifique sua conexão e tente novamente.');
+    return;
+  }
+  if(!proc){ showState('🔒','Este link não está mais disponível','Ele pode ter sido encerrado pelo escritório. Fale diretamente com o seu contador.'); return; }
+
+  const tipo = proc.tipoProcesso || 'abertura';
+  const tc = LEG_TIPO_CONFIG[tipo] || LEG_TIPO_CONFIG.abertura;
+  const listaEt = LEG_ETAPAS_MAP[tipo] || LEG_ETAPAS_MAP.abertura;
+  const etapas = proc.etapas || {};
+  const done = listaEt.filter(e=>etapaConcluida(etapas[e.id])).length;
+  const pct = Math.round((done/listaEt.length)*100);
+
+  window._arquivosEtapas = [];
+  const stepsHTML = listaEt.map((etapa,idx)=>{
+    const et = etapas[etapa.id] || { status:'pending' };
+    const st = LEG_STATUS[et.status] || LEG_STATUS.pending;
+    const dateHtml = et.data ? `<span>📅 ${new Date(et.data+'T12:00:00').toLocaleDateString('pt-BR')}</span>` : '';
+    let fileHtml = '';
+    if(et.file && et.file.data){
+      window._arquivosEtapas.push(et.file.data);
+      fileHtml = `<a class="step-file" href="javascript:void(0)" onclick="_verArquivoEtapa(${window._arquivosEtapas.length-1})">📎 Ver arquivo</a>`;
+    }
+    return `<div class="step ${etapaConcluida(et)?'done':''} ${et.status==='progress'?'active':''}">
+      <div class="step-line">
+        <div class="step-dot">${etapaConcluida(et)?'✓':idx+1}</div>
+        ${idx<listaEt.length-1?'<div class="step-connector"></div>':''}
+      </div>
+      <div class="step-body">
+        <div class="step-header">
+          <span>${etapa.ico}</span>
+          <span class="step-title">${etapa.label}</span>
+          <span class="badge" style="background:${st.bg};color:${st.color}">${st.label}</span>
+        </div>
+        <div class="step-desc">${etapa.desc}</div>
+        <div class="step-extra">${dateHtml}${fileHtml}</div>
+        ${et.obs?`<div class="step-obs">${et.obs}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+        <h2>${proc.nome||'Processo'}</h2>
+        <span class="badge" style="background:${tc.bg};color:${tc.color}">${tc.emoji} ${tc.label}</span>
+      </div>
+      <div class="meta">
+        ${proc.cnpj?`<span style="font-family:monospace">${proc.cnpj}</span>`:''}
+        ${proc.regime?`<span>${proc.regime}</span>`:''}
+        ${proc.resp?`<span>👤 ${proc.resp}</span>`:''}
+      </div>
+    </div>
+    <div class="card">
+      <div class="prog-label"><span>${done} de ${listaEt.length} etapas concluídas</span><span style="font-weight:700;color:${pct===100?'#2E7D32':'#4A7FA5'}">${pct}%</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="card">${stepsHTML}</div>
+  `;
+  document.getElementById('footer-note').style.display='block';
+}
+carregar();
+</script>
+</body>
+</html>

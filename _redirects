@@ -1,0 +1,39 @@
+# =====================================================================
+# REGRAS DO DOMÍNIO RAIZ ornellasgestor.com.br (landing page de vendas)
+# ---------------------------------------------------------------------
+# • A ordem importa: a primeira regra que casar, vale.
+# • Estas regras valem SÓ para o domínio raiz (com e sem www).
+#   Os subdomínios dos tenants (ex: ornellas.ornellasgestor.com.br)
+#   NÃO casam com nenhuma regra daqui e continuam caindo nas regras
+#   do netlify.toml, servindo o sistema normalmente.
+# • ornellascontabil.com.br não é citado aqui: continua igual a hoje.
+# =====================================================================
+
+# ── 1) Porta do sistema: /app abre o index.html (tela de login) ──────
+https://ornellasgestor.com.br/app          /index.html   200!
+https://www.ornellasgestor.com.br/app      /index.html   200!
+http://ornellasgestor.com.br/app           /index.html   200!
+http://www.ornellasgestor.com.br/app       /index.html   200!
+
+# ── 2) Páginas com link compartilhado com clientes (não podem quebrar) ─
+https://ornellasgestor.com.br/acompanhar-legalizacao.html      /acompanhar-legalizacao.html  200!
+https://www.ornellasgestor.com.br/acompanhar-legalizacao.html  /acompanhar-legalizacao.html  200!
+http://ornellasgestor.com.br/acompanhar-legalizacao.html       /acompanhar-legalizacao.html  200!
+http://www.ornellasgestor.com.br/acompanhar-legalizacao.html   /acompanhar-legalizacao.html  200!
+
+https://ornellasgestor.com.br/cadastro-socio.html      /cadastro-socio.html  200!
+https://www.ornellasgestor.com.br/cadastro-socio.html  /cadastro-socio.html  200!
+http://ornellasgestor.com.br/cadastro-socio.html       /cadastro-socio.html  200!
+http://www.ornellasgestor.com.br/cadastro-socio.html   /cadastro-socio.html  200!
+
+# ── 3) Netlify Functions (boletos, integrações) seguem funcionando ───
+https://ornellasgestor.com.br/.netlify/*      /.netlify/:splat  200!
+https://www.ornellasgestor.com.br/.netlify/*  /.netlify/:splat  200!
+http://ornellasgestor.com.br/.netlify/*       /.netlify/:splat  200!
+http://www.ornellasgestor.com.br/.netlify/*   /.netlify/:splat  200!
+
+# ── 4) Todo o resto do domínio raiz mostra a landing page de vendas ──
+https://ornellasgestor.com.br/*      /gestor.html  200!
+https://www.ornellasgestor.com.br/*  /gestor.html  200!
+http://ornellasgestor.com.br/*       /gestor.html  200!
+http://www.ornellasgestor.com.br/*   /gestor.html  200!

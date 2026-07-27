@@ -1983,6 +1983,7 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
       <button class="aptab" onclick="toggleAptabGroup('trabalho')" title="Trabalho"><span class="aptab-ico"><i class="ti ti-checklist"></i></span><span class="aptab-lbl">Trabalho</span></button>
       <div class="aptab-flyout" id="aptab-flyout-trabalho">
         <button class="aptab-flyout-item" data-tab="obr" onclick="sTabFromGroup('obr','trabalho')"><span class="aptab-flyout-ico"><i class="ti ti-clipboard-list"></i></span><span>Obrigações</span></button>
+        <button class="aptab-flyout-item" data-tab="rotina" id="aptab-rotina" onclick="sTabFromGroup('rotina','trabalho')"><span class="aptab-flyout-ico"><i class="ti ti-calendar-time"></i></span><span>Rotina de Trabalho</span></button>
         <button class="aptab-flyout-item" data-tab="protocolo" data-modulo="protocolo" id="aptab-protocolo" onclick="sTabFromGroup('protocolo','trabalho')"><span class="aptab-flyout-ico"><i class="ti ti-robot"></i></span><span>Protocolo (Robô de Baixa)</span></button>
         <button class="aptab-flyout-item" data-tab="avisos" data-modulo="avisosperiodicos" id="aptab-avisos" onclick="sTabFromGroup('avisos','trabalho')"><span class="aptab-flyout-ico"><i class="ti ti-bell-ringing"></i></span><span>Avisos Periódicos</span></button>
         <button class="aptab-flyout-item" data-tab="gg" onclick="sTabFromGroup('gg','trabalho')"><span class="aptab-flyout-ico"><i class="ti ti-list-check"></i></span><span>Gestão Geral</span></button>
@@ -2044,7 +2045,6 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
         <button class="aptab-flyout-item" data-tab="hon" id="aptab-hon" onclick="sTabFromGroup('hon','admin')" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-cash"></i></span><span>Honorários</span></button>
         <button class="aptab-flyout-item" data-tab="esc" id="aptab-escritorios" onclick="sTabFromGroup('esc','admin')" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-building"></i></span><span>Escritórios</span></button>
         <button class="aptab-flyout-item" data-tab="cfg" id="aptab-config" onclick="sTabFromGroup('cfg','admin')" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-settings"></i></span><span>Configurações</span></button>
-        <button class="aptab-flyout-item" data-tab="rotina" id="aptab-rotina" onclick="sTabFromGroup('rotina','admin')" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-calendar-time"></i></span><span>Rotina de Trabalho</span></button>
         <button class="aptab-flyout-item" data-tab="svc" onclick="sTabFromGroup('svc','admin')"><span class="aptab-flyout-ico"><i class="ti ti-list-details"></i></span><span>Catálogo de Serviços</span></button>
         <button class="aptab-flyout-item" id="aptab-grupos-obg" onclick="closeAptabFlyouts();openGroupsModal()" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-clipboard-list"></i></span><span>Grupos de Obrigações</span></button>
         <button class="aptab-flyout-item" id="aptab-lista-obg" onclick="closeAptabFlyouts();openObgCatalogModal()" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-tag"></i></span><span>Lista de Obrigações</span></button>
@@ -6544,11 +6544,6 @@ function atualizarVisibilidadeAbaEscritorios(){
   // (canViewHonorarios/isMaster, gerenciado em Equipe).
   const honTab = document.getElementById('aptab-hon');
   if(honTab) honTab.style.display = (moduleEnabled('honorarios') && podeVerHonorarios()) ? '' : 'none';
-  // Rotina de Trabalho — mostra a carga de trabalho do escritório inteiro
-  // (todas as empresas/usuários), então fica visível só para o Gestor
-  // Master do tenant, dentro de Admin.
-  const rotinaTab = document.getElementById('aptab-rotina');
-  if(rotinaTab) rotinaTab.style.display = isGestorMaster() ? '' : 'none';
   atualizarVisibilidadeFerramentas();
   _updateAptabGroupsVisibility();
 }
@@ -14334,7 +14329,7 @@ async function rotinaColetarItens(){
         itens.push({
           tipo:'obg', coId:co.id, empresa:co.name, dept:s.l,
           titulo:o.name, prazo:o.due||'—', duracao:o.execDuracao||_rotinaEstimarDuracaoObg(o.name),
-          prioridade, obgSec:s.k, obgId:o.id,
+          prioridade, obgSec:s.k, obgId:o.id, resp:o.resp||'',
           execDia:(o.execDia===undefined?null:o.execDia), execHora:o.execHora||'',
           gcalEventId:o.gcalEventId||null,
           _uid:'obg:'+co.id+':'+s.k+':'+o.id,
@@ -14360,6 +14355,7 @@ async function rotinaColetarItens(){
     itens.push({
       tipo:'tarefa', coId:t.company||null, empresa:t.company?(coNomeById[t.company]||'Empresa'):'Tarefa Geral',
       dept:deptLbl, titulo:t.title, prazo:t.due||'—', duracao:t.execDuracao||30, prioridade, taskId:t.id,
+      assignees:t.assignees||(t.assigned?[t.assigned]:[]),
       execDia:(t.execDia===undefined?null:t.execDia), execHora:t.execHora||'',
       gcalEventId:t.gcalEventId||null,
       _uid:'tarefa:'+t.id,
@@ -14379,7 +14375,7 @@ async function rotinaColetarItens(){
     itens.push({
       tipo:'leg', legId:proc.id, empresa:proc.nome||'(sem nome)',
       dept:'Legalizações', titulo:`${(LEG_TIPO_CONFIG[tipo]||{}).label||tipo} — ${atual.label}`,
-      prazo:'—', duracao:30, prioridade:2,
+      prazo:'—', duracao:30, prioridade:2, resp:proc.resp||'',
       execDia:null, execHora:'', _uid:'leg:'+proc.id,
     });
   }
@@ -14527,6 +14523,18 @@ function _obgAplicarSugestao(prefixo,dia,hora){
 let _rotinaCache=null;
 let rotinaViewMode='semana'; // 'dia' | 'semana' | 'mes'
 let rotinaRefDate=new Date();
+let rotinaEscopo='minha'; // 'minha' (só o que é meu) | 'todos' (só Gestor Master pode ver)
+
+/* Um item "pertence" à pessoa logada quando ela é a Responsável (Obrigações
+   e Legalizações) ou está entre os responsáveis (Tarefas). Comparação por
+   nome porque é assim que Responsável/Responsáveis já são guardados hoje
+   (mesmo texto usado nos selects de "Equipe"). */
+function _rotinaPertenceAMim(item){
+  if(!CU || !CU.name) return true;
+  const meuNome=CU.name.trim().toLowerCase();
+  if(item.tipo==='tarefa') return (item.assignees||[]).some(a=>(a||'').trim().toLowerCase()===meuNome);
+  return (item.resp||'').trim().toLowerCase()===meuNome;
+}
 const _ROT_OFFSET_FROM_MONDAY={1:0,2:1,3:2,4:3,5:4,6:5,0:6};
 function _rotinaStartOfWeek(d){
   const dt=new Date(d); const day=dt.getDay();
@@ -14555,27 +14563,26 @@ function _rotinaItensBloco(weekdayVal, blocoKey, semanaIdx){
 async function renderRotina(){
   const el=document.getElementById('rotina-content');
   if(!el) return;
-  if(!isGestorMaster()){
-    el.innerHTML=`<div class="empty"><div class="empty-ico">🔒</div><div class="empty-t">Acesso restrito</div><div class="empty-s">A Rotina de Trabalho mostra a carga de todo o escritório e por isso é visível apenas para o Gestor Master.</div></div>`;
-    return;
-  }
   el.innerHTML='<div style="text-align:center;padding:60px;color:var(--t3);font-size:13px">Calculando rotina...</div>';
   const hf=getHorarioFuncionamento();
-  const itensAll=await rotinaColetarItens();
+  const itensTodos=await rotinaColetarItens();
+  const souGestorMaster=isGestorMaster();
+  if(!souGestorMaster) rotinaEscopo='minha'; // só o Gestor Master pode ver a rotina de todo mundo
+  const itensAll = rotinaEscopo==='todos' ? itensTodos : itensTodos.filter(_rotinaPertenceAMim);
   const pinned=itensAll.filter(i=>_rotinaExecDiaValido(i.execDia));
   const livres=itensAll.filter(i=>!_rotinaExecDiaValido(i.execDia));
   const ocupPinned={}; hf.dias.forEach(d=>{ocupPinned[d]={manha:0,tarde:0};});
   pinned.forEach(i=>{ const bloco=_rotinaBlocoDaHora(i.execHora,hf); if(bloco && ocupPinned[i.execDia]) ocupPinned[i.execDia][bloco]+=i.duracao; });
   const capsPorDia=_rotinaCapacidadesPorDia(hf,ocupPinned);
   const semanas=rotinaMontarSemanas(livres,hf,capsPorDia);
-  _rotinaCache={itensAll,pinned,livres,semanas,hf,capsPorDia};
+  _rotinaCache={itensAll,pinned,livres,semanas,hf,capsPorDia,souGestorMaster,totalTodos:itensTodos.length};
 
   if(!hf.dias.length || (_hfMin(hf.manhaFim)-_hfMin(hf.manhaIni))+(_hfMin(hf.tardeFim)-_hfMin(hf.tardeIni))<=0){
     el.innerHTML=`<div class="card" style="text-align:center;padding:48px 24px">
       <div style="font-size:36px;margin-bottom:10px">🕐</div>
       <div style="font-size:14px;font-weight:700;color:var(--dark)">Horário de funcionamento não configurado</div>
-      <div style="font-size:12px;color:var(--t3);margin-top:6px;max-width:380px;margin-left:auto;margin-right:auto">Defina os dias e blocos de horário em Admin → Configurações → Horário de Funcionamento para a rotina calcular sua capacidade semanal.</div>
-      <button class="btn-msave" style="margin-top:16px" onclick="sTab('cfg')">Ir para Configurações</button>
+      <div style="font-size:12px;color:var(--t3);margin-top:6px;max-width:380px;margin-left:auto;margin-right:auto">Peça para o Gestor Master definir os dias e blocos de horário em Admin → Configurações → Horário de Funcionamento para a rotina calcular a capacidade da semana.</div>
+      ${souGestorMaster?`<button class="btn-msave" style="margin-top:16px" onclick="sTab('cfg')">Ir para Configurações</button>`:''}
     </div>`;
     return;
   }
@@ -14583,7 +14590,7 @@ async function renderRotina(){
     el.innerHTML=`<div class="card" style="text-align:center;padding:48px 24px">
       <div style="font-size:36px;margin-bottom:10px">🎉</div>
       <div style="font-size:14px;font-weight:700;color:var(--dark)">Nenhuma pendência no momento</div>
-      <div style="font-size:12px;color:var(--t3);margin-top:6px">Obrigações, tarefas e legalizações estão em dia.</div>
+      <div style="font-size:12px;color:var(--t3);margin-top:6px">${rotinaEscopo==='todos'?'Obrigações, tarefas e legalizações estão em dia.':'Não há nada em seu nome como Responsável no momento.'}</div>
     </div>`;
     return;
   }
@@ -14601,13 +14608,21 @@ function rotinaHeaderHTML(itensAll,hf){
     2:{lbl:'Ciclo corrente',     dot:'#C9A96E'},
     3:{lbl:'Próximo / futuro',   dot:'#4A7FA5'},
   };
+  const souGestorMaster = _rotinaCache && _rotinaCache.souGestorMaster;
+  const subtitulo = rotinaEscopo==='todos'
+    ? 'Vendo a rotina de todo o escritório · Obrigações, Tarefas e Legalizações organizadas pelo horário de funcionamento'
+    : 'Vendo só o que está em seu nome como Responsável · Obrigações, Tarefas e Legalizações organizadas pelo horário de funcionamento';
   return `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
       <div>
         <h2 style="font-size:15px;font-weight:700;color:var(--dark);margin-bottom:2px;font-family:'Inter',sans-serif">Rotina de Trabalho</h2>
-        <p style="font-size:11.5px;color:var(--t3)">Visível apenas para o Gestor Master · Obrigações, Tarefas e Legalizações organizadas pelo seu horário de funcionamento</p>
+        <p style="font-size:11.5px;color:var(--t3)">${subtitulo}</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${souGestorMaster?`<div class="rot-segmented" style="margin-right:4px">
+          <button class="rot-seg-btn ${rotinaEscopo==='minha'?'on':''}" onclick="rotinaSetEscopo('minha')">Minha rotina</button>
+          <button class="rot-seg-btn ${rotinaEscopo==='todos'?'on':''}" onclick="rotinaSetEscopo('todos')">Toda a equipe</button>
+        </div>`:''}
         <button onclick="openNTaskModal()" class="rot-viewbtn on">＋ Tarefa</button>
         <button onclick="closeAptabFlyouts();sTab('obr')" class="rot-viewbtn">＋ Obrigação</button>
         <button onclick="renderRotina()" class="rot-viewbtn" title="Recalcular">↻</button>
@@ -14655,6 +14670,7 @@ function rotinaMetodologiaHTML(){
     </div>`;
 }
 
+function rotinaSetEscopo(escopo){ rotinaEscopo=escopo; renderRotina(); }
 function rotinaSetView(mode){ rotinaViewMode=mode; rotinaRenderView(); }
 function rotinaNav(delta){
   const d=new Date(rotinaRefDate);

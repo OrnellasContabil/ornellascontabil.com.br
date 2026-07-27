@@ -3802,6 +3802,16 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
   <div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-import-esocial')">Cancelar</button><button class="btn-msave" id="esocial-import-confirm-btn" onclick="esocialConfirmarImportacao()">Confirmar Importação</button></div>
 </div></div>
 
+<!-- ══════════════════════ MODAL: PRÉ-VISUALIZAÇÃO DA IMPORTAÇÃO DE CADASTRO VIA EXCEL ══════════════════════ -->
+<div class="mov" id="mod-import-cadastro-excel"><div class="modal" style="max-width:720px;max-height:85vh;overflow-y:auto">
+  <div class="mtit">📋 Importar Cadastro (Excel) <button class="mclose" onclick="closeM('mod-import-cadastro-excel')">✕</button></div>
+  <p style="font-size:11.5px;color:var(--t2);margin-bottom:10px">Lê a planilha de cadastro (baixe o modelo padrão com o botão "Baixar modelo de Cadastro (Excel)" pra ter certeza das colunas certas). Os registros serão importados para a empresa selecionada no momento. Desmarque quem não quiser importar e confira antes de confirmar.</p>
+  <div id="cadastro-excel-import-summary" style="margin-bottom:10px"></div>
+  <div id="cadastro-excel-import-preview" style="max-height:380px;overflow-y:auto;border:1px solid var(--bdr);border-radius:8px"></div>
+  <div class="lerr" id="cadastro-excel-import-err" style="display:none;margin-top:8px"></div>
+  <div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-import-cadastro-excel')">Cancelar</button><button class="btn-msave" id="cadastro-excel-import-confirm-btn" onclick="cadastroExcelConfirmarImportacao()">Confirmar Importação</button></div>
+</div></div>
+
 <!-- ══════════════════════ MODAL: PRÉ-VISUALIZAÇÃO DA IMPORTAÇÃO DE FÉRIAS (eSocial S-2230) ══════════════════════ -->
 <div class="mov" id="mod-import-ferias-esocial"><div class="modal" style="max-width:720px;max-height:85vh;overflow-y:auto">
   <div class="mtit">🛡️ Importar Férias do eSocial <button class="mclose" onclick="closeM('mod-import-ferias-esocial')">✕</button></div>
@@ -15193,8 +15203,11 @@ async function renderFuncionarios(){
     <button class="btn-pdf" style="font-size:11.5px" onclick="fpBaixarModeloExcel()">📄 Baixar modelo (Excel)</button>
     <button class="btn-pdf" style="font-size:11.5px" onclick="fpAbrirImportPicker()">📥 Importar planilha de ponto</button>
     <button class="btn-pdf" style="font-size:11.5px;background:#E3F2FD;border-color:#90CAF9;color:#1565C0" onclick="esocialAbrirImportPicker()">🛡️ Importar do eSocial (XML)</button>
+    <button class="btn-pdf" style="font-size:11.5px;background:#FBF3E7;border-color:#D9BC8C;color:#8A6A3D" onclick="cadastroExcelBaixarModelo()">📄 Baixar modelo de Cadastro (Excel)</button>
+    <button class="btn-pdf" style="font-size:11.5px;background:#FBF3E7;border-color:#D9BC8C;color:#8A6A3D" onclick="cadastroExcelAbrirImportPicker()">📥 Importar Cadastro (Excel)</button>
     <input type="file" id="fp-import-file" accept=".xlsx,.xls" style="display:none" onchange="_fpImportFileSelected(event)">
     <input type="file" id="esocial-import-file" accept=".xml" multiple style="display:none" onchange="_esocialImportFilesSelected(event)">
+    <input type="file" id="cadastro-excel-import-file" accept=".xlsx,.xls" style="display:none" onchange="_cadastroExcelFileSelected(event)">
     ${toggleInativos}
   </div>`;
 
@@ -16352,6 +16365,201 @@ async function esocialConfirmarImportacao(){
     btn.disabled = false; btn.textContent = 'Confirmar Importação';
   }
 }
+
+/* ════════════════════════════════════════════════════════════
+   IMPORTAÇÃO DE CADASTRO DE FUNCIONÁRIOS VIA EXCEL
+   Gera um modelo padrão (colunas fixas) pra o contador preencher ou
+   exportar do sistema do cliente, e importa de volta criando/atualizando
+   os cadastros da empresa selecionada. Casa por CPF: se já existe um
+   funcionário com aquele CPF na empresa, atualiza; senão, cria novo.
+════════════════════════════════════════════════════════════ */
+let _CADASTRO_EXCEL_IMPORT_STATE = { linhas: [], erros: [] };
+
+const _CADASTRO_EXCEL_CABECALHO = ['Nome','CPF','Cargo','Data Admissão','Data Demissão','Salário','Jornada diária (h)','PIS/PASEP','CTPS','E-mail','WhatsApp','Inativo (S/N)'];
+
+function cadastroExcelBaixarModelo(){
+  _fpLoadSheetJS(async ()=>{
+    const exemplo = ['Nome completo do funcionário','000.000.000-00','Cargo/Função','01/07/2026','','2500.00',8,'','','nome@exemplo.com','(21) 90000-0000','N'];
+    const wsData = [_CADASTRO_EXCEL_CABECALHO, exemplo];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{wch:30},{wch:16},{wch:26},{wch:14},{wch:14},{wch:12},{wch:16},{wch:16},{wch:14},{wch:24},{wch:16},{wch:14}];
+
+    // Segunda aba: funcionários já cadastrados nesta empresa, pra o contador
+    // conferir/editar em vez de digitar tudo de novo do zero.
+    let cadSheetData = [_CADASTRO_EXCEL_CABECALHO];
+    if(CC){
+      const funcs = await sbGetFuncionarios(CC, true);
+      cadSheetData = cadSheetData.concat(funcs.map(f=>[
+        f.nome||'', f.cpf||'', f.cargo||'',
+        f.data_admissao ? new Date(f.data_admissao+'T12:00:00').toLocaleDateString('pt-BR') : '',
+        f.data_demissao ? new Date(f.data_demissao+'T12:00:00').toLocaleDateString('pt-BR') : '',
+        f.salario!=null ? f.salario : '', f.jornada_diaria||8,
+        f.pis_pasep||'', f.ctps||'', f.email||'', f.whatsapp||'',
+        f.inactive ? 'S' : 'N',
+      ]));
+    }
+    const wsCad = XLSX.utils.aoa_to_sheet(cadSheetData);
+    wsCad['!cols'] = ws['!cols'];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Modelo');
+    XLSX.utils.book_append_sheet(wb, wsCad, 'Cadastrados atualmente');
+    XLSX.writeFile(wb, 'Modelo_Cadastro_Funcionarios.xlsx');
+  });
+}
+
+function cadastroExcelAbrirImportPicker(){
+  if(!CC){ alert('Selecione uma empresa antes de importar.'); return; }
+  _fpLoadSheetJS(()=>{ document.getElementById('cadastro-excel-import-file').click(); });
+}
+
+function _cadExcelParseNum(val){
+  if(val===undefined||val===null||val==='') return null;
+  if(typeof val==='number') return val;
+  const s = String(val).trim().replace(/\./g,'').replace(',','.');
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
+}
+
+function _cadExcelParseBool(val){
+  const s = String(val||'').trim().toLowerCase();
+  return s==='s' || s==='sim' || s==='true' || s==='1';
+}
+
+async function _cadastroExcelFileSelected(event){
+  const file = event.target.files[0];
+  event.target.value = ''; // permite selecionar o mesmo arquivo de novo depois
+  if(!file) return;
+  if(!CC){ alert('Selecione uma empresa antes de importar.'); return; }
+
+  const reader = new FileReader();
+  reader.onload = async (e)=>{
+    let wb;
+    try{
+      wb = XLSX.read(e.target.result, { type:'array', cellDates:true });
+    }catch(err){
+      alert('Não foi possível ler o arquivo. Verifique se é uma planilha .xlsx válida.');
+      return;
+    }
+    const sheetName = wb.SheetNames.find(n=>n.toLowerCase().includes('modelo')) || wb.SheetNames[0];
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval:'' });
+    if(!rows.length){ alert('A planilha está vazia.'); return; }
+
+    const funcionarios = await sbGetFuncionarios(CC, true);
+    const porCpf = {};
+    funcionarios.forEach(f=>{ if(f.cpf) porCpf[_normDigits(f.cpf)] = f; });
+
+    const linhas = []; const erros = [];
+    rows.forEach((r,i)=>{
+      const linhaNum = i+2; // +1 cabeçalho +1 base 1
+      const nome = String(r['Nome']||'').trim();
+      const cpf = _normDigits(r['CPF']);
+      if(!nome){ erros.push(`Linha ${linhaNum}: nome vazio — linha ignorada.`); return; }
+      if(cpf && cpf.length!==11){ erros.push(`Linha ${linhaNum}: CPF "${r['CPF']}" inválido (deve ter 11 dígitos) — linha ignorada.`); return; }
+
+      linhas.push({
+        nome, cpf,
+        cargo: String(r['Cargo']||'').trim(),
+        dataAdmissao: _fpParseData(r['Data Admissão']||r['Data Admissao']),
+        dataDemissao: _fpParseData(r['Data Demissão']||r['Data Demissao']),
+        salario: _cadExcelParseNum(r['Salário']||r['Salario']),
+        jornada: _cadExcelParseNum(r['Jornada diária (h)']||r['Jornada diaria (h)']) || 8,
+        pis: String(r['PIS/PASEP']||'').trim(),
+        ctps: String(r['CTPS']||'').trim(),
+        email: String(r['E-mail']||r['Email']||'').trim(),
+        whatsapp: String(r['WhatsApp']||'').trim(),
+        inactive: _cadExcelParseBool(r['Inativo (S/N)']||r['Inativo']),
+        existente: cpf ? (porCpf[cpf]||null) : null,
+      });
+    });
+
+    _CADASTRO_EXCEL_IMPORT_STATE = { linhas, erros };
+    _cadastroExcelRenderPreview();
+    openM('mod-import-cadastro-excel');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function _cadastroExcelRenderPreview(){
+  const { linhas, erros } = _CADASTRO_EXCEL_IMPORT_STATE;
+  const novos = linhas.filter(l=>!l.existente).length;
+  const atualizacoes = linhas.filter(l=>l.existente).length;
+
+  document.getElementById('cadastro-excel-import-summary').innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px">
+      <span style="background:#E8F5E9;color:#2E7D32;padding:5px 10px;border-radius:8px"><b>${novos}</b> novo(s) cadastro(s)</span>
+      <span style="background:#E3F2FD;color:#1565C0;padding:5px 10px;border-radius:8px"><b>${atualizacoes}</b> atualização(ões) de cadastro existente</span>
+      ${erros.length?`<span style="background:#FFEBEE;color:#C62828;padding:5px 10px;border-radius:8px"><b>${erros.length}</b> linha(s) ignorada(s)</span>`:''}
+    </div>
+    ${erros.length?`<div class="difal-alert" style="margin-top:10px">${erros.map(e=>'• '+e).join('<br>')}</div>`:''}
+  `;
+
+  document.getElementById('cadastro-excel-import-preview').innerHTML = linhas.length ? linhas.map((l,i)=>{
+    const admTxt = l.dataAdmissao ? new Date(l.dataAdmissao+'T12:00:00').toLocaleDateString('pt-BR') : '—';
+    const tag = l.existente
+      ? '<span style="background:#E3F2FD;color:#1565C0;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700">🔄 Atualizar cadastro</span>'
+      : '<span style="background:#E8F5E9;color:#2E7D32;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700">＋ Novo cadastro</span>';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid #F1F5F9;flex-wrap:wrap">
+      <div style="flex:1;min-width:0">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" class="cadxls-chk" data-idx="${i}" checked style="width:14px;height:14px">
+          <span style="font-size:12px;font-weight:700;color:var(--dark)">${l.nome}</span>
+        </label>
+        <div style="font-size:11px;color:var(--t3);margin-top:2px;margin-left:20px">${l.cpf?('CPF '+l.cpf):'CPF não informado'} · Admissão ${admTxt}${l.cargo?` · ${l.cargo}`:''}${l.salario?` · R$ ${dasNumBR(l.salario)}`:''}</div>
+      </div>
+      <div>${tag}</div>
+    </div>`;
+  }).join('') : '<div style="padding:16px;text-align:center;color:var(--t3);font-size:12px">Nenhuma linha válida para importar.</div>';
+
+  document.getElementById('cadastro-excel-import-err').style.display = 'none';
+  document.getElementById('cadastro-excel-import-confirm-btn').disabled = !linhas.length;
+}
+
+async function cadastroExcelConfirmarImportacao(){
+  const { linhas } = _CADASTRO_EXCEL_IMPORT_STATE;
+  if(!linhas.length) return;
+  const err = document.getElementById('cadastro-excel-import-err');
+  err.style.display = 'none';
+  const btn = document.getElementById('cadastro-excel-import-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Importando...';
+
+  const selecionados = [...document.querySelectorAll('.cadxls-chk')].filter(c=>c.checked).map(c=>parseInt(c.dataset.idx));
+
+  try{
+    let criados=0, atualizados=0;
+    for(const idx of selecionados){
+      const l = linhas[idx];
+      const f = {
+        id: l.existente ? l.existente.id : ('func'+Date.now()+Math.random().toString(36).slice(2,7)),
+        company_id: CC,
+        nome: l.nome,
+        cpf: l.cpf || (l.existente ? l.existente.cpf : ''),
+        cargo: l.cargo || (l.existente ? l.existente.cargo : ''),
+        data_admissao: l.dataAdmissao || (l.existente ? l.existente.data_admissao : ''),
+        data_demissao: l.dataDemissao || (l.existente ? l.existente.data_demissao : ''),
+        salario: l.salario!=null ? l.salario : (l.existente ? l.existente.salario : ''),
+        pis_pasep: l.pis || (l.existente ? l.existente.pis_pasep : ''),
+        ctps: l.ctps || (l.existente ? l.existente.ctps : ''),
+        email: l.email || (l.existente ? l.existente.email : ''),
+        whatsapp: l.whatsapp || (l.existente ? l.existente.whatsapp : ''),
+        jornada_diaria: l.jornada || (l.existente ? l.existente.jornada_diaria : 8),
+        inactive: l.inactive,
+      };
+      const ok = await sbSaveFuncionario(f);
+      if(ok){ l.existente ? atualizados++ : criados++; }
+    }
+    closeM('mod-import-cadastro-excel');
+    alert(`Importação de cadastro concluída: ${criados} novo(s) cadastro(s), ${atualizados} atualização(ões).`);
+    await renderFuncionarios();
+  }catch(e){
+    console.error(e);
+    err.textContent = 'Erro ao importar: ' + e.message;
+    err.style.display = 'block';
+  }finally{
+    btn.disabled = false; btn.textContent = 'Confirmar Importação';
+  }
+}
+
 
 /* ════════════════════════════════════════════════════════════
    AVISOS PERIÓDICOS AO CLIENTE (WhatsApp / E-mail)

@@ -5650,6 +5650,35 @@ async function sbGetCertDigsBatch() {
   return map;
 }
 
+/* Testa se um certificado e-CNPJ de uma empresa consegue ser lido e usado
+   pela integração da NFS-e Nacional — sem emitir nada, só valida que o
+   .pfx abre com a senha cadastrada e que a validade ainda não expirou.
+   Mesmo padrão de chamada de procConsultarSerpro (sb.functions.invoke). */
+async function nfseTestarCertificado(companyId, btnEl){
+  const original = btnEl.textContent;
+  btnEl.disabled = true; btnEl.textContent = '🔄 Testando...';
+  try{
+    const { data, error } = await sb.functions.invoke('emitir-nfse', {
+      body: { action:'verificar_certificado', companyId },
+    });
+    if(error || !data || data.erro){
+      const msg = (data && data.erro) || (error && error.message) || 'Erro desconhecido';
+      alert('🧾 Teste de certificado para NFS-e — não foi possível concluir:\n\n' + msg);
+      console.error('nfseTestarCertificado', error || data);
+      return;
+    }
+    const validadeTxt = data.validade ? new Date(data.validade+'T12:00:00').toLocaleDateString('pt-BR') : '—';
+    alert(`✅ Certificado lido com sucesso!\n\nTitular: ${data.titular||'—'}\nValidade: ${validadeTxt}\n\nEsse certificado está pronto pra ser usado quando a emissão de NFS-e estiver liberada.`);
+  }catch(e){
+    console.error('nfseTestarCertificado', e);
+    alert('Erro inesperado ao testar o certificado: ' + e.message);
+  }finally{
+    if(document.getElementById('nfse-test-'+companyId)){
+      btnEl.disabled = false; btnEl.textContent = original;
+    }
+  }
+}
+
 /* =====================================================================
    8.0.2) CONTRATOS E TERMOS — client_contracts (jsonb por empresa)
    data = [{id, tipo, titulo, inicio, validade, indeterminado, situacao,
@@ -17859,7 +17888,8 @@ async function renderCertDig(){
     const c=r.c;
     const senhaCell=c.senha?`<span id="cdg-pw-${c.id}" data-pw="${_crmEsc(c.senha)}">••••••</span> <button class="difal-btn ghost sm" onclick="certdigTogglePw('${c.id}')" title="Mostrar/ocultar senha">👁</button>`:'—';
     const fileBtn=c.file?`<button class="difal-btn ghost sm" onclick="certdigVerArquivo('${r.cid}','${c.id}')" title="${_crmEsc(c.file.name)}">📎 Baixar</button>`:'<span style="color:var(--t3);font-size:11px">—</span>';
-    const acts=isAdmin?`<button class="difal-btn ghost sm" onclick="certdigOpen('${r.cid}','${c.id}')">✏️</button> <button class="difal-btn ghost sm" style="color:#C62828" onclick="certdigExcluir('${r.cid}','${c.id}')">🗑</button>`:'';
+    const nfseBtn=(c.tipo||'').toUpperCase().includes('E-CNPJ')?`<button class="difal-btn ghost sm" id="nfse-test-${r.cid}" onclick="nfseTestarCertificado('${r.cid}',this)" title="Confere se este certificado consegue ser lido e usado pra emitir NFS-e">🧾 Testar NFS-e</button>`:'';
+    const acts=(isAdmin?`<button class="difal-btn ghost sm" onclick="certdigOpen('${r.cid}','${c.id}')">✏️</button> <button class="difal-btn ghost sm" style="color:#C62828" onclick="certdigExcluir('${r.cid}','${c.id}')">🗑</button>`:'')+' '+nfseBtn;
     return `<tr>
       <td style="white-space:normal;min-width:150px"><b>${_crmEsc(r.coName)}</b>${c.titular?`<br><span style="font-size:11px;color:var(--t2)">${_crmEsc(c.titular)}</span>`:''}</td>
       <td>${_crmEsc(c.tipo)||'—'}</td>

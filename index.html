@@ -1523,6 +1523,7 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
 .tc-canal-lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tc-unread{background:#E53935;color:#fff;font-size:9.5px;font-weight:800;border-radius:10px;padding:1px 6px}
 .tc-canal.on .tc-unread{background:rgba(255,255,255,.3)}
+.tc-navbadge{background:#E53935;color:#fff;font-size:9.5px;font-weight:800;border-radius:10px;padding:1px 6px;margin-left:auto;flex-shrink:0;animation:notifPulse 2.4s ease-in-out infinite}
 .tc-side-sub{padding:12px 14px 6px;font-size:10.5px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-top:1px solid var(--bdr);margin-top:4px}
 .tc-dm-av{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--prid));color:#fff;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;flex-shrink:0}
 .tc-chat{flex:1;background:#fff;border:1px solid var(--bdr);border-radius:12px;display:flex;flex-direction:column;overflow:hidden;min-width:0}
@@ -1542,11 +1543,68 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
 .tc-send{background:var(--pri);color:#fff;border:none;border-radius:50%;width:38px;height:38px;font-size:15px;cursor:pointer;flex-shrink:0}
 @media(max-width:768px){.tc-layout{flex-direction:column;height:auto}.tc-side{width:100%;max-height:180px}.tc-chat{min-height:420px}}
 
+/* ── Rotina de Trabalho — visual refinado e minimalista ──────────────── */
+.rot-block{background:#fff;border:1px solid var(--bdr);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.rot-block-hdr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--bdr)}
+.rot-block-title{display:flex;align-items:baseline;gap:7px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:700;color:var(--dark);letter-spacing:.1px}
+.rot-block-title .rot-block-ico{font-size:13px}
+.rot-block-range{font-size:10.5px;font-weight:500;color:var(--t3)}
+.rot-block-add{background:none;border:1px solid var(--bdr);border-radius:7px;padding:4px 10px;font-size:10.5px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;flex-shrink:0}
+.rot-block-add:hover{background:var(--bg);border-color:var(--pri);color:var(--pri)}
+.rot-empty{padding:16px;font-size:11.5px;color:var(--t3)}
+.rot-list{display:flex;flex-direction:column}
+.rot-item{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid #F1F4F7;transition:background .12s;cursor:default}
+.rot-item:last-child{border-bottom:none}
+.rot-item.clickable{cursor:pointer}
+.rot-item:hover{background:#FAFBFC}
+.rot-item:hover .rot-item-aloc{opacity:1}
+.rot-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.rot-item-main{flex:1;min-width:0;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Inter',sans-serif}
+.rot-item-empresa{font-weight:600;color:var(--t1)}
+.rot-item-sep{color:var(--t3);margin:0 2px}
+.rot-item-titulo{color:var(--t2);font-weight:400}
+.rot-item-dur{font-size:10px;color:var(--t3);font-weight:600;flex-shrink:0;background:var(--bg);padding:2px 8px;border-radius:20px;white-space:nowrap}
+.rot-item-pin{font-size:10px;color:var(--pri);font-weight:700;flex-shrink:0;white-space:nowrap;background:var(--dep-fiscal-soft);padding:2px 8px;border-radius:20px}
+.rot-item-aloc{opacity:0;transition:opacity .15s;flex-shrink:0;cursor:pointer;color:var(--t3);font-size:12.5px}
+.rot-item-aloc:hover{color:var(--pri)}
+.rot-item.compact{padding:6px 0;border-bottom:1px solid #F1F4F7}
+.rot-item.compact .rot-item-main{font-size:11px}
+.rot-item.compact .rot-item-dur,.rot-item.compact .rot-item-pin{font-size:9px;padding:1px 6px}
+.rot-viewbtn{background:var(--bg);color:var(--t2);border:1px solid var(--bdr);border-radius:8px;padding:6px 14px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.rot-viewbtn:hover{border-color:var(--pri);color:var(--pri)}
+.rot-viewbtn.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.rot-navbtn{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:13px;transition:all .15s}
+.rot-navbtn:hover{border-color:var(--pri);color:var(--pri)}
+.rot-week-th{text-align:left;padding:9px 12px;background:var(--bg);border-bottom:1px solid var(--bdr);white-space:nowrap;cursor:pointer;font-size:11px;font-weight:700;color:var(--t2);font-family:'Inter',sans-serif;transition:color .15s}
+.rot-week-th:hover{color:var(--pri)}
+.rot-week-th .d{font-weight:400;color:var(--t3);margin-left:3px}
+.rot-mes-td{vertical-align:top;padding:8px;border:1px solid #F1F4F7;cursor:pointer;min-width:100px;height:70px;transition:background .12s}
+.rot-mes-td:hover{background:#FAFBFC}
+.rot-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;padding:7px 8px;background:#fff;border:1px solid var(--bdr);border-radius:11px}
+.rot-segmented{display:flex;background:var(--bg);border-radius:8px;padding:3px;gap:1px}
+.rot-seg-btn{background:none;border:none;border-radius:6px;padding:6px 15px;font-size:11.5px;font-weight:600;color:var(--t3);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.rot-seg-btn:hover:not(.on){color:var(--t1)}
+.rot-seg-btn.on{background:#fff;color:var(--pri);box-shadow:0 1px 3px rgba(13,30,44,.14)}
+.rot-nav{display:flex;align-items:center;gap:5px}
+.rot-periodo{font-size:12px;font-weight:600;color:var(--t1);min-width:168px;text-align:center;text-transform:capitalize;font-family:'Inter',sans-serif}
+.rot-hoje-btn{background:none;border:1px solid var(--bdr);border-radius:7px;padding:5.5px 12px;font-size:10.5px;font-weight:600;color:var(--t2);cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;margin-left:3px}
+.rot-hoje-btn:hover{border-color:var(--pri);color:var(--pri)}
+.rot-block-ico{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12.5px;flex-shrink:0}
+.rot-block-ico.manha{background:#FBF3E7;color:#B7791F}
+.rot-block-ico.tarde{background:#EAF1FB;color:#3D6B8A}
+.galerts-hdr{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 8px;font-size:11.5px;font-weight:700;color:var(--t2);font-family:'Inter',sans-serif}
+.galerts-toggle{cursor:pointer;color:var(--t3);font-weight:600;display:inline-flex;align-items:center;gap:3px;transition:color .15s}
+.galerts-toggle:hover{color:var(--pri)}
+.galerts-bar{display:flex;align-items:center;justify-content:space-between;background:#FFF3E0;border:1px solid #FFE0B2;color:#8A5A00;border-radius:10px;padding:9px 15px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:8px;transition:background .15s}
+.galerts-bar:hover{background:#FFEBCD}
+.galerts-bar .galerts-toggle{color:#8A5A00}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -1971,9 +2029,9 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
     </div>
 
     <div class="aptab-group" id="aptab-group-comunicacao">
-      <button class="aptab" onclick="toggleAptabGroup('comunicacao')" title="Comunicação"><span class="aptab-ico"><i class="ti ti-message-circle"></i></span><span class="aptab-lbl">Chat</span></button>
+      <button class="aptab" onclick="toggleAptabGroup('comunicacao')" title="Comunicação"><span class="aptab-ico"><i class="ti ti-message-circle"></i></span><span class="aptab-lbl">Chat</span><span id="tc-badge-group" class="tc-navbadge" style="display:none">0</span></button>
       <div class="aptab-flyout" id="aptab-flyout-comunicacao">
-        <button class="aptab-flyout-item" data-tab="teamchat" id="aptab-teamchat" onclick="sTabFromGroup('teamchat','comunicacao')"><span class="aptab-flyout-ico"><i class="ti ti-users"></i></span><span>Chat da Equipe</span></button>
+        <button class="aptab-flyout-item" data-tab="teamchat" id="aptab-teamchat" onclick="sTabFromGroup('teamchat','comunicacao')"><span class="aptab-flyout-ico"><i class="ti ti-users"></i></span><span>Chat da Equipe</span><span id="tc-badge-teamchat" class="tc-navbadge" style="display:none">0</span></button>
         <button class="aptab-flyout-item" data-tab="chat" id="aptab-chat" onclick="sTabFromGroup('chat','comunicacao')"><span class="aptab-flyout-ico"><i class="ti ti-message-circle"></i></span><span>Chat</span></button>
         <button class="aptab-flyout-item" data-tab="whats" data-modulo="whatsapp" id="aptab-whats" onclick="sTabFromGroup('whats','comunicacao')"><span class="aptab-flyout-ico"><i class="ti ti-brand-whatsapp"></i></span><span>WhatsApp</span></button>
         <button class="aptab-flyout-item" data-tab="blog" id="aptab-blog" onclick="sTabFromGroup('blog','comunicacao')"><span class="aptab-flyout-ico"><i class="ti ti-notes"></i></span><span>Blog</span></button>
@@ -1986,6 +2044,7 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
         <button class="aptab-flyout-item" data-tab="hon" id="aptab-hon" onclick="sTabFromGroup('hon','admin')" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-cash"></i></span><span>Honorários</span></button>
         <button class="aptab-flyout-item" data-tab="esc" id="aptab-escritorios" onclick="sTabFromGroup('esc','admin')" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-building"></i></span><span>Escritórios</span></button>
         <button class="aptab-flyout-item" data-tab="cfg" id="aptab-config" onclick="sTabFromGroup('cfg','admin')" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-settings"></i></span><span>Configurações</span></button>
+        <button class="aptab-flyout-item" data-tab="rotina" id="aptab-rotina" onclick="sTabFromGroup('rotina','admin')" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-calendar-time"></i></span><span>Rotina de Trabalho</span></button>
         <button class="aptab-flyout-item" data-tab="svc" onclick="sTabFromGroup('svc','admin')"><span class="aptab-flyout-ico"><i class="ti ti-list-details"></i></span><span>Catálogo de Serviços</span></button>
         <button class="aptab-flyout-item" id="aptab-grupos-obg" onclick="closeAptabFlyouts();openGroupsModal()" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-clipboard-list"></i></span><span>Grupos de Obrigações</span></button>
         <button class="aptab-flyout-item" id="aptab-lista-obg" onclick="closeAptabFlyouts();openObgCatalogModal()" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-tag"></i></span><span>Lista de Obrigações</span></button>
@@ -2080,6 +2139,9 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
         <div class="msel" id="msel"></div>
       </div>
       <div id="obr-content"></div>
+    </div>
+    <div class="tpanel" id="panel-rotina">
+      <div id="rotina-content"></div>
     </div>
     <div class="tpanel" id="panel-gg">
       <div class="gg-head">
@@ -2488,6 +2550,61 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
         <div class="lerr" id="cfg-ok" style="display:none;background:#E8F5E9;color:#2E7D32;border-color:#C8E6C9">✅ Informações salvas com sucesso!</div>
         <button class="btn-msave" id="cfg-save-btn" onclick="salvarConfigEscritorio()" style="width:100%">Salvar Alterações</button>
       </div>
+
+      <div class="card" style="max-width:560px;margin-top:14px">
+        <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--dark);margin-bottom:4px">🕐 Horário de Funcionamento</div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:16px;line-height:1.5">Usado pela <strong>Rotina de Trabalho</strong> para calcular a capacidade semanal do escritório e distribuir automaticamente as pendências de Obrigações, Tarefas e Legalizações.</div>
+        <div class="mfg">
+          <label>Dias de funcionamento</label>
+          <div id="cfg-hf-dias" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;color:var(--t2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">Bloco da Manhã</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="time" id="cfg-hf-manha-ini" style="flex:1;padding:9px 10px;border:1.5px solid var(--bdr);border-radius:9px;font-size:13px;font-family:'Inter',sans-serif">
+              <span style="color:var(--t3);font-size:12px">até</span>
+              <input type="time" id="cfg-hf-manha-fim" style="flex:1;padding:9px 10px;border:1.5px solid var(--bdr);border-radius:9px;font-size:13px;font-family:'Inter',sans-serif">
+            </div>
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;color:var(--t2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px">Bloco da Tarde</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="time" id="cfg-hf-tarde-ini" style="flex:1;padding:9px 10px;border:1.5px solid var(--bdr);border-radius:9px;font-size:13px;font-family:'Inter',sans-serif">
+              <span style="color:var(--t3);font-size:12px">até</span>
+              <input type="time" id="cfg-hf-tarde-fim" style="flex:1;padding:9px 10px;border:1.5px solid var(--bdr);border-radius:9px;font-size:13px;font-family:'Inter',sans-serif">
+            </div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--t3);margin-top:10px" id="cfg-hf-resumo"></div>
+        <div class="lerr" id="cfg-hf-ok" style="display:none;background:#E8F5E9;color:#2E7D32;border-color:#C8E6C9;margin-top:12px">✅ Horário salvo com sucesso!</div>
+        <button class="btn-msave" id="cfg-hf-save-btn" onclick="salvarHorarioFuncionamento()" style="width:100%;margin-top:12px">Salvar Horário</button>
+      </div>
+
+      <div class="card" style="max-width:560px;margin-top:14px">
+        <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--dark);margin-bottom:4px">📅 Google Agenda</div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:14px;line-height:1.6">
+          Sincronize os itens com dia/horário fixado (📌) da <strong>Rotina de Trabalho</strong> com uma agenda do Google, como eventos semanais recorrentes.
+          Cada escritório conecta a <strong>sua própria conta/projeto Google</strong> — nenhum dado é compartilhado entre escritórios.
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px;font-size:11.5px;color:var(--t2);line-height:1.7;margin-bottom:14px">
+          <strong style="color:var(--t1)">Como conseguir o Client ID (uma vez só):</strong><br>
+          1. Acesse o <strong>Google Cloud Console</strong> (console.cloud.google.com) e crie um projeto.<br>
+          2. Em "APIs e Serviços", ative a <strong>Google Calendar API</strong>.<br>
+          3. Configure a "Tela de consentimento OAuth" com o e-mail do escritório.<br>
+          4. Em "Credenciais", crie um <strong>ID do cliente OAuth</strong> do tipo "Aplicativo da Web" e adicione o endereço deste sistema em "Origens JavaScript autorizadas".<br>
+          5. Copie o Client ID gerado e cole no campo abaixo.
+        </div>
+        <div class="mfg"><label>Client ID do Google (do seu escritório)</label><input id="cfg-gcal-clientid" placeholder="xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com"></div>
+        <div class="mfg"><label>ID da Agenda (opcional)</label><input id="cfg-gcal-calendarid" placeholder="primary (padrão) ou um e-mail de agenda compartilhada"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:4px">
+          <div id="cfg-gcal-status" style="font-size:12px"></div>
+          <button type="button" class="rot-viewbtn" onclick="gcalConectar()">🔗 Conectar com o Google</button>
+        </div>
+        <div class="lerr" id="cfg-gcal-ok" style="display:none;background:#E8F5E9;color:#2E7D32;border-color:#C8E6C9;margin-top:12px">✅ Integração salva com sucesso!</div>
+        <button class="btn-msave" id="cfg-gcal-save-btn" onclick="salvarGoogleCalendarConfig()" style="width:100%;margin-top:12px">Salvar Integração</button>
+        <div style="font-size:10.5px;color:var(--t3);margin-top:10px;line-height:1.6">A conexão com o Google vale apenas para a sessão atual do navegador (não há sincronização automática em segundo plano) — quem for sincronizar clica em "Conectar" e depois usa o botão "Google Agenda" dentro da Rotina de Trabalho.</div>
+      </div>
       </div>
 
       <div id="cfg-sub-serpro" style="display:none">
@@ -2687,7 +2804,7 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
 </div>
 
 <!-- MODAIS -->
-<div class="mov" id="mod-task"><div class="modal"><div class="mtit">Nova Tarefa <button class="mclose" onclick="closeM('mod-task')">✕</button></div><div class="mfg"><label>Título *</label><input id="mt-title" placeholder="Descreva a tarefa..."></div><div class="mfg"><label>Departamento *</label><select id="mt-dept" onchange="mtToggleLegWrap()"><option value="fiscal">🟡 Fiscal</option><option value="contabil">🔵 Contábil</option><option value="dp">🔴 Dep. Pessoal</option><option value="leg">🟢 Legalizações</option><option value="financeiro">💰 Financeiro</option><option value="geral">⚙️ Geral</option></select></div><div class="mfg"><label>Responsáveis *</label><div id="mt-assigned-box" class="asgbox"></div><div style="font-size:11px;color:var(--t3);margin-top:4px">Marque um ou mais membros da equipe.</div></div><div class="mfg"><label>Status</label><select id="mt-status"><option value="pending">⏳ Pendente</option><option value="progress">🔄 Em andamento</option><option value="done">✅ Concluída</option></select></div><div class="mfg"><label>Empresa (opcional)</label><select id="mt-company" onchange="mtToggleLegWrap()"><option value="">— Tarefa Geral —</option></select></div><div class="mfg" id="mt-leg-wrap" style="display:none"><label>Processo de Legalização (opcional)</label><select id="mt-leg-processo"><option value="">— Nenhum —</option></select><div style="font-size:11px;color:var(--t3);margin-top:4px">Vincula esta tarefa a um processo já cadastrado em Legalizações — ela aparece lá dentro e pode ser puxada depois.</div></div><div class="mfg"><label>Prazo</label><input type="date" id="mt-due"></div><div class="mfg"><label>Observação</label><textarea id="mt-note" rows="7" style="min-height:160px;resize:vertical" placeholder="Detalhes..."></textarea></div><div class="mfg"><label>Anexos (opcional)</label><div id="mt-pdf-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:6px"></div><button type="button" class="btn-pdf" id="mt-pdf-btn" onclick="mtAddFiles()" style="font-size:12px">📎 Adicionar arquivo(s)</button></div><div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-task')">Cancelar</button><button class="btn-msave" onclick="saveTask()">Salvar</button></div></div></div>
+<div class="mov" id="mod-task"><div class="modal"><div class="mtit">Nova Tarefa <button class="mclose" onclick="closeM('mod-task')">✕</button></div><div class="mfg"><label>Título *</label><input id="mt-title" placeholder="Descreva a tarefa..."></div><div class="mfg"><label>Departamento *</label><select id="mt-dept" onchange="mtToggleLegWrap()"><option value="fiscal">🟡 Fiscal</option><option value="contabil">🔵 Contábil</option><option value="dp">🔴 Dep. Pessoal</option><option value="leg">🟢 Legalizações</option><option value="financeiro">💰 Financeiro</option><option value="geral">⚙️ Geral</option></select></div><div class="mfg"><label>Responsáveis *</label><div id="mt-assigned-box" class="asgbox"></div><div style="font-size:11px;color:var(--t3);margin-top:4px">Marque um ou mais membros da equipe.</div></div><div class="mfg"><label>Status</label><select id="mt-status"><option value="pending">⏳ Pendente</option><option value="progress">🔄 Em andamento</option><option value="done">✅ Concluída</option></select></div><div class="mfg"><label>Empresa (opcional)</label><select id="mt-company" onchange="mtToggleLegWrap()"><option value="">— Tarefa Geral —</option></select></div><div class="mfg" id="mt-leg-wrap" style="display:none"><label>Processo de Legalização (opcional)</label><select id="mt-leg-processo"><option value="">— Nenhum —</option></select><div style="font-size:11px;color:var(--t3);margin-top:4px">Vincula esta tarefa a um processo já cadastrado em Legalizações — ela aparece lá dentro e pode ser puxada depois.</div></div><div class="mfg"><label>Prazo</label><input type="date" id="mt-due"></div><div class="mfg" style="border-top:1px dashed var(--bdr);padding-top:10px"><label>📅 Quando pode ser feito (Rotina de Trabalho)</label><div style="display:flex;gap:8px"><select id="mt-exec-dia" style="flex:1"><option value="">Sem dia fixo (fila automática)</option><option value="1">Segunda</option><option value="2">Terça</option><option value="3">Quarta</option><option value="4">Quinta</option><option value="5">Sexta</option><option value="6">Sábado</option><option value="0">Domingo</option></select><input type="time" id="mt-exec-hora" style="width:110px"></div><div id="mt-sugestoes" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px"></div><button type="button" onclick="obgSugerirHorarios('mt',30)" style="margin-top:6px;background:#f0f4f8;border:1.5px solid var(--bdr);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--t2)">💡 Sugerir horários livres</button><div style="font-size:10.5px;color:var(--t3);margin-top:4px">Usado pela Rotina de Trabalho (Admin, restrita ao Gestor Master) para encaixar esta tarefa automaticamente na agenda.</div></div><div class="mfg"><label>Observação</label><textarea id="mt-note" rows="7" style="min-height:160px;resize:vertical" placeholder="Detalhes..."></textarea></div><div class="mfg"><label>Anexos (opcional)</label><div id="mt-pdf-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:6px"></div><button type="button" class="btn-pdf" id="mt-pdf-btn" onclick="mtAddFiles()" style="font-size:12px">📎 Adicionar arquivo(s)</button></div><div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-task')">Cancelar</button><button class="btn-msave" onclick="saveTask()">Salvar</button></div></div></div>
 <div class="mov" id="mod-novo-doc-cont">
   <div class="modal">
     <div class="mtit">Novo Documento Contábil <button class="mclose" onclick="closeM('mod-novo-doc-cont')">✕</button></div>
@@ -2738,7 +2855,7 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
   </div>
 </div>
 
-<div class="mov" id="mod-edit-task"><div class="modal"><div class="mtit">Editar Tarefa <button class="mclose" onclick="closeM('mod-edit-task')">✕</button></div><input type="hidden" id="et-id"><div class="mfg"><label>Título *</label><input id="et-title"></div><div class="mfg"><label>Departamento *</label><select id="et-dept" onchange="etToggleLegWrap()"><option value="fiscal">🟡 Fiscal</option><option value="contabil">🔵 Contábil</option><option value="dp">🔴 Dep. Pessoal</option><option value="leg">🟢 Legalizações</option><option value="financeiro">💰 Financeiro</option><option value="geral">⚙️ Geral</option></select></div><div class="mfg"><label>Responsáveis *</label><div id="et-assigned-box" class="asgbox"></div><div style="font-size:11px;color:var(--t3);margin-top:4px">Marque um ou mais membros da equipe.</div></div><div class="mfg"><label>Status</label><select id="et-status"><option value="pending">⏳ Pendente</option><option value="progress">🔄 Em andamento</option><option value="done">✅ Concluída</option></select></div><div class="mfg"><label>Empresa</label><select id="et-company" onchange="etToggleLegWrap()"><option value="">— Tarefa Geral —</option></select></div><div class="mfg" id="et-leg-wrap" style="display:none"><label>Processo de Legalização (opcional)</label><select id="et-leg-processo"><option value="">— Nenhum —</option></select><div style="font-size:11px;color:var(--t3);margin-top:4px">Vincula esta tarefa a um processo já cadastrado em Legalizações — ela aparece lá dentro e pode ser puxada depois.</div></div><div class="mfg"><label>Prazo</label><input type="date" id="et-due"></div><div class="mfg"><label>Observação</label><textarea id="et-note"></textarea></div><div class="mfg"><label>Observações / Andamento (com data)</label><div id="et-notes-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px"></div><button type="button" class="btn-pdf" onclick="openTaskNote(document.getElementById('et-id').value)" style="font-size:12px">💬 Adicionar observação</button></div><div class="mfg"><label>Anexos (opcional)</label><div id="et-pdf-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:6px"></div><button type="button" class="btn-pdf" onclick="etAddFiles()" style="font-size:12px">📎 Adicionar arquivo(s)</button></div><div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-edit-task')">Cancelar</button><button class="btn-msave" onclick="updateTask()">Salvar</button></div></div></div>
+<div class="mov" id="mod-edit-task"><div class="modal"><div class="mtit">Editar Tarefa <button class="mclose" onclick="closeM('mod-edit-task')">✕</button></div><input type="hidden" id="et-id"><div class="mfg"><label>Título *</label><input id="et-title"></div><div class="mfg"><label>Departamento *</label><select id="et-dept" onchange="etToggleLegWrap()"><option value="fiscal">🟡 Fiscal</option><option value="contabil">🔵 Contábil</option><option value="dp">🔴 Dep. Pessoal</option><option value="leg">🟢 Legalizações</option><option value="financeiro">💰 Financeiro</option><option value="geral">⚙️ Geral</option></select></div><div class="mfg"><label>Responsáveis *</label><div id="et-assigned-box" class="asgbox"></div><div style="font-size:11px;color:var(--t3);margin-top:4px">Marque um ou mais membros da equipe.</div></div><div class="mfg"><label>Status</label><select id="et-status"><option value="pending">⏳ Pendente</option><option value="progress">🔄 Em andamento</option><option value="done">✅ Concluída</option></select></div><div class="mfg"><label>Empresa</label><select id="et-company" onchange="etToggleLegWrap()"><option value="">— Tarefa Geral —</option></select></div><div class="mfg" id="et-leg-wrap" style="display:none"><label>Processo de Legalização (opcional)</label><select id="et-leg-processo"><option value="">— Nenhum —</option></select><div style="font-size:11px;color:var(--t3);margin-top:4px">Vincula esta tarefa a um processo já cadastrado em Legalizações — ela aparece lá dentro e pode ser puxada depois.</div></div><div class="mfg"><label>Prazo</label><input type="date" id="et-due"></div><div class="mfg" style="border-top:1px dashed var(--bdr);padding-top:10px"><label>📅 Quando pode ser feito (Rotina de Trabalho)</label><div style="display:flex;gap:8px"><select id="et-exec-dia" style="flex:1"><option value="">Sem dia fixo (fila automática)</option><option value="1">Segunda</option><option value="2">Terça</option><option value="3">Quarta</option><option value="4">Quinta</option><option value="5">Sexta</option><option value="6">Sábado</option><option value="0">Domingo</option></select><input type="time" id="et-exec-hora" style="width:110px"></div><div id="et-sugestoes" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px"></div><button type="button" onclick="obgSugerirHorarios('et',30)" style="margin-top:6px;background:#f0f4f8;border:1.5px solid var(--bdr);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--t2)">💡 Sugerir horários livres</button><div style="font-size:10.5px;color:var(--t3);margin-top:4px">Usado pela Rotina de Trabalho (Admin, restrita ao Gestor Master) para encaixar esta tarefa automaticamente na agenda.</div></div><div class="mfg"><label>Observação</label><textarea id="et-note"></textarea></div><div class="mfg"><label>Observações / Andamento (com data)</label><div id="et-notes-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px"></div><button type="button" class="btn-pdf" onclick="openTaskNote(document.getElementById('et-id').value)" style="font-size:12px">💬 Adicionar observação</button></div><div class="mfg"><label>Anexos (opcional)</label><div id="et-pdf-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:6px"></div><button type="button" class="btn-pdf" onclick="etAddFiles()" style="font-size:12px">📎 Adicionar arquivo(s)</button></div><div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-edit-task')">Cancelar</button><button class="btn-msave" onclick="updateTask()">Salvar</button></div></div></div>
 <div class="mov" id="mod-tnote"><div class="modal" style="max-width:420px"><div class="mtit">💬 Observação da Tarefa <button class="mclose" onclick="closeM('mod-tnote')">✕</button></div><input type="hidden" id="tn-taskid"><div class="mfg"><label>Data</label><input type="date" id="tn-date"></div><div class="mfg"><label>Observação *</label><textarea id="tn-text" placeholder="Ex: Protocolo enviado à Receita, aguardando análise..."></textarea></div><div style="font-size:11px;color:var(--t3);margin:-4px 0 8px">A observação fica registrada com a data informada e o seu nome, formando o histórico de andamento da tarefa.</div><div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-tnote')">Cancelar</button><button class="btn-msave" onclick="saveTaskNote()">Salvar observação</button></div></div></div>
 <!-- MODAL: Gerenciar Equipe -->
 <div class="mov" id="mod-equipe"><div class="modal" style="max-width:700px">
@@ -3263,12 +3380,23 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
 </div>
 </div></div>
 
-<div class="mov" id="mod-edobg"><div class="modal" style="max-width:400px"><div class="mtit">✏️ Editar Obrigação <button class="mclose" onclick="closeM('mod-edobg')">✕</button></div><input type="hidden" id="eob-id"><input type="hidden" id="eob-orig-sec"><div class="mfg"><label>Seção</label><select id="eob-sec" onchange="_eobSecChanged()"><option value="fiscal">Fiscal</option><option value="dp">Pessoal (DP)</option><option value="contabil">Contábil</option><option value="anual">Anual</option></select><div style="font-size:10.5px;color:var(--t3);margin-top:4px;text-transform:none;font-weight:400">Mudar aqui move a obrigação para outra aba (ex: de "Fiscal" para "Anual").</div></div><div class="mfg"><label>Nome</label><input id="eob-name" list="obg-name-catalog" autocomplete="off"></div><div class="mfg"><label>Prazo (texto exibido)</label><input id="eob-due" placeholder="Ex: Dia 20"></div><div class="mfg"><label>Dia do vencimento (1-31, opcional — ativa alerta automático)</label><input id="eob-dueday" type="number" min="1" max="31" placeholder="Ex: 20"></div><div class="mfg" id="eob-month-wrap" style="display:none"><label>Mês de Obrigatoriedade</label><select id="eob-month"><option value="">— Selecione —</option><option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option><option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option><option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option><option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option></select></div><div class="mfg"><label>Responsável</label><select id="eob-resp"><option value="—">— Sem responsável —</option></select></div><div class="mfg"><label>Tipo</label><select id="eob-type"><option value="value">Valor (R$)</option><option value="pdf">Anexar PDF</option><option value="status">Status</option><option value="status_pdf">Status + Anexo</option><option value="multi">Multi-entrada</option></select><div style="font-size:10.5px;color:var(--t3);margin-top:4px;text-transform:none;font-weight:400">Mudar o tipo aqui (ex: de "Status" para "Status + Anexo") habilita o anexo sem precisar excluir e recriar a obrigação.</div></div><div class="mfg"><label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;text-transform:none"><input type="checkbox" id="eob-imposto" style="width:15px;height:15px">🧾 É um imposto (mostra ícone e botão "Gerar Guia" para integração SERPRO)</label></div><div class="mfg"><label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;text-transform:none"><input type="checkbox" id="eob-enviar-cliente" style="width:15px;height:15px">📤 Enviar ao cliente (aparece na Área do Cliente, mesmo não sendo imposto)</label></div><div class="mfg"><label>Observação</label><textarea id="eob-obs" rows="2" placeholder="Ex: Pendente do XML de venda que o cliente ainda não mandou"></textarea></div><div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-edobg')">Cancelar</button><button class="btn-msave" onclick="saveEditObg()">Salvar</button></div></div></div>
+<div class="mov" id="mod-edobg"><div class="modal" style="max-width:400px"><div class="mtit">✏️ Editar Obrigação <button class="mclose" onclick="closeM('mod-edobg')">✕</button></div><input type="hidden" id="eob-id"><input type="hidden" id="eob-orig-sec"><div class="mfg"><label>Seção</label><select id="eob-sec" onchange="_eobSecChanged()"><option value="fiscal">Fiscal</option><option value="dp">Pessoal (DP)</option><option value="contabil">Contábil</option><option value="anual">Anual</option></select><div style="font-size:10.5px;color:var(--t3);margin-top:4px;text-transform:none;font-weight:400">Mudar aqui move a obrigação para outra aba (ex: de "Fiscal" para "Anual").</div></div><div class="mfg"><label>Nome</label><input id="eob-name" list="obg-name-catalog" autocomplete="off"></div><div class="mfg"><label>Prazo (texto exibido)</label><input id="eob-due" placeholder="Ex: Dia 20"></div><div class="mfg"><label>Dia do vencimento (1-31, opcional — ativa alerta automático)</label><input id="eob-dueday" type="number" min="1" max="31" placeholder="Ex: 20"></div><div class="mfg" id="eob-month-wrap" style="display:none"><label>Mês de Obrigatoriedade</label><select id="eob-month"><option value="">— Selecione —</option><option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option><option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option><option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option><option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option></select></div><div class="mfg"><label>Responsável</label><select id="eob-resp"><option value="—">— Sem responsável —</option></select></div><div class="mfg"><label>Tipo</label><select id="eob-type"><option value="value">Valor (R$)</option><option value="pdf">Anexar PDF</option><option value="status">Status</option><option value="status_pdf">Status + Anexo</option><option value="multi">Multi-entrada</option></select><div style="font-size:10.5px;color:var(--t3);margin-top:4px;text-transform:none;font-weight:400">Mudar o tipo aqui (ex: de "Status" para "Status + Anexo") habilita o anexo sem precisar excluir e recriar a obrigação.</div></div><div class="mfg" style="border-top:1px dashed var(--bdr);padding-top:10px"><label>📅 Quando pode ser feito (Rotina de Trabalho)</label><div style="display:flex;gap:8px"><select id="eob-exec-dia" style="flex:1"><option value="">Sem dia fixo (fila automática)</option><option value="1">Segunda</option><option value="2">Terça</option><option value="3">Quarta</option><option value="4">Quinta</option><option value="5">Sexta</option><option value="6">Sábado</option><option value="0">Domingo</option></select><input type="time" id="eob-exec-hora" style="width:110px"></div><div id="eob-sugestoes" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px"></div><button type="button" onclick="obgSugerirHorarios('eob')" style="margin-top:6px;background:#f0f4f8;border:1.5px solid var(--bdr);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--t2)">💡 Sugerir horários livres</button><div style="font-size:10.5px;color:var(--t3);margin-top:4px;text-transform:none;font-weight:400">Usado pela Rotina de Trabalho (Admin, restrita ao Gestor Master) para encaixar esta obrigação automaticamente na agenda.</div></div><div class="mfg"><label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;text-transform:none"><input type="checkbox" id="eob-imposto" style="width:15px;height:15px">🧾 É um imposto (mostra ícone e botão "Gerar Guia" para integração SERPRO)</label></div><div class="mfg"><label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;text-transform:none"><input type="checkbox" id="eob-enviar-cliente" style="width:15px;height:15px">📤 Enviar ao cliente (aparece na Área do Cliente, mesmo não sendo imposto)</label></div><div class="mfg"><label>Observação</label><textarea id="eob-obs" rows="2" placeholder="Ex: Pendente do XML de venda que o cliente ainda não mandou"></textarea></div><div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-edobg')">Cancelar</button><button class="btn-msave" onclick="saveEditObg()">Salvar</button></div></div></div>
 <div class="mov" id="mod-send-pagamento"><div class="modal" style="max-width:460px"><div class="mtit">📲 Enviar cobrança pelo WhatsApp <button class="mclose" onclick="closeM('mod-send-pagamento')">✕</button></div><input type="hidden" id="spg-ctx" value="obg"><input type="hidden" id="spg-sec"><input type="hidden" id="spg-id"><p style="font-size:12px;color:var(--t2);margin-bottom:10px">Empresa: <strong id="spg-co-name"></strong></p><div class="mfg" id="spg-wa-wrap" style="display:none"><label>WhatsApp do cliente (ainda não cadastrado)</label><input id="spg-wa-input" placeholder="(21) 99999-9999"></div><div class="mfg"><label>Mensagem</label><textarea id="spg-msg" rows="6" style="width:100%;padding:8px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif"></textarea><div style="font-size:10px;color:var(--t3);margin-top:4px">O trecho {LINK} é substituído pelo link do documento na hora de abrir o WhatsApp.</div></div><div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-send-pagamento')">Agora não</button><button class="btn-msave" onclick="confirmSendPaymentWhatsApp()">📲 Abrir WhatsApp</button></div></div></div>
 <datalist id="obg-name-catalog"></datalist>
 <div class="mov" id="mod-hon"><div class="modal" style="max-width:420px"><div class="mtit" id="hon-modal-title">＋ Novo Honorário <button class="mclose" onclick="closeM('mod-hon')">✕</button></div><input type="hidden" id="hon-id"><div class="mfg"><label>Empresa *</label><select id="hon-company"><option value="">— Selecione —</option></select></div><div class="mfg"><label>Competência (ex: Julho/2026)</label><input id="hon-competencia" placeholder="Ex: 07/2026"></div><div class="mfg"><label>Valor (R$) *</label><input id="hon-valor" type="number" step="0.01" min="0" placeholder="Ex: 850.00"></div><div class="mfg"><label>Vencimento</label><input id="hon-vencimento" type="date"></div><div class="mfg"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="hon-recebido" onchange="_honToggleRecebido()" style="width:15px;height:15px">Já foi recebido</label></div><div id="hon-receb-wrap" style="display:none"><div class="mfg"><label>Data do recebimento</label><input id="hon-data-receb" type="date"></div><div class="mfg"><label>Forma de recebimento</label><select id="hon-forma"><option value="">— Selecione —</option><option value="pix">PIX</option><option value="boleto">Boleto</option><option value="transferencia">Transferência</option><option value="dinheiro">Dinheiro</option><option value="cartao">Cartão</option><option value="outro">Outro</option></select></div></div><div class="mfg"><label>Observação</label><textarea id="hon-obs" placeholder="Detalhes..."></textarea></div><div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-hon')">Cancelar</button><button class="btn-msave" onclick="saveHonorario()">Salvar</button></div></div></div>
 <div class="mov" id="mod-hon-perm"><div class="modal" style="max-width:460px"><div class="mtit">🔐 Quem pode ver Honorários <button class="mclose" onclick="closeM('mod-hon-perm')">✕</button></div><p style="font-size:12px;color:var(--t2);margin-bottom:12px">Somente o Gestor Master pode conceder ou remover a visualização desta aba para outros usuários. A gestão completa (adicionar/editar/excluir) continua exclusiva do(s) Gestor(es) Master.</p><div id="hon-perm-list" style="max-height:340px;overflow-y:auto"></div><div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-hon-perm')">Fechar</button></div></div></div>
-<div class="mov" id="mod-newobg"><div class="modal" style="max-width:400px"><div class="mtit">＋ Nova Obrigação <button class="mclose" onclick="closeM('mod-newobg')">✕</button></div><div class="mfg"><label>Seção</label><select id="nob-sec" onchange="_nobSecChanged()"><option value="fiscal">Fiscal</option><option value="dp">Pessoal (DP)</option><option value="contabil">Contábil</option><option value="anual">Anual</option></select></div><div class="mfg"><label>Nome</label><select id="nob-name-sel" onchange="_nobNameSelChange()" style="margin-bottom:6px"></select><input id="nob-name" placeholder="Digite o nome da nova obrigação" style="display:none"></div><div class="mfg"><label>Prazo (texto exibido)</label><input id="nob-due" placeholder="Ex: Dia 20"></div><div class="mfg"><label>Dia do vencimento (1-31, opcional — ativa alerta automático)</label><input id="nob-dueday" type="number" min="1" max="31" placeholder="Ex: 20"></div><div class="mfg" id="nob-month-wrap" style="display:none"><label>Mês de Obrigatoriedade</label><select id="nob-month"><option value="">— Selecione —</option><option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option><option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option><option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option><option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option></select></div><div class="mfg"><label>Responsável</label><select id="nob-resp"><option value="—">— Sem responsável —</option></select></div><div class="mfg"><label>Tipo</label><select id="nob-type"><option value="value">Valor (R$)</option><option value="pdf">Anexar PDF</option><option value="status">Status</option><option value="status_pdf">Status + Anexo</option><option value="multi">Multi-entrada</option></select></div><div class="mfg"><label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;text-transform:none"><input type="checkbox" id="nob-imposto" style="width:15px;height:15px">🧾 É um imposto (mostra ícone e botão "Gerar Guia" para integração SERPRO)</label></div><div class="mfg"><label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;text-transform:none"><input type="checkbox" id="nob-enviar-cliente" style="width:15px;height:15px">📤 Enviar ao cliente (aparece na Área do Cliente, mesmo não sendo imposto)</label></div><div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-newobg')">Cancelar</button><button class="btn-msave" onclick="saveNewObg()">Adicionar</button></div></div></div>
+<div class="mov" id="mod-newobg"><div class="modal" style="max-width:400px"><div class="mtit">＋ Nova Obrigação <button class="mclose" onclick="closeM('mod-newobg')">✕</button></div><div class="mfg"><label>Seção</label><select id="nob-sec" onchange="_nobSecChanged()"><option value="fiscal">Fiscal</option><option value="dp">Pessoal (DP)</option><option value="contabil">Contábil</option><option value="anual">Anual</option></select></div><div class="mfg"><label>Nome</label><select id="nob-name-sel" onchange="_nobNameSelChange()" style="margin-bottom:6px"></select><input id="nob-name" placeholder="Digite o nome da nova obrigação" style="display:none"></div><div class="mfg"><label>Prazo (texto exibido)</label><input id="nob-due" placeholder="Ex: Dia 20"></div><div class="mfg"><label>Dia do vencimento (1-31, opcional — ativa alerta automático)</label><input id="nob-dueday" type="number" min="1" max="31" placeholder="Ex: 20"></div><div class="mfg" id="nob-month-wrap" style="display:none"><label>Mês de Obrigatoriedade</label><select id="nob-month"><option value="">— Selecione —</option><option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option><option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option><option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option><option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option></select></div><div class="mfg"><label>Responsável</label><select id="nob-resp"><option value="—">— Sem responsável —</option></select></div><div class="mfg"><label>Tipo</label><select id="nob-type"><option value="value">Valor (R$)</option><option value="pdf">Anexar PDF</option><option value="status">Status</option><option value="status_pdf">Status + Anexo</option><option value="multi">Multi-entrada</option></select></div><div class="mfg" style="border-top:1px dashed var(--bdr);padding-top:10px"><label>📅 Quando pode ser feito (Rotina de Trabalho)</label><div style="display:flex;gap:8px"><select id="nob-exec-dia" style="flex:1"><option value="">Sem dia fixo (fila automática)</option><option value="1">Segunda</option><option value="2">Terça</option><option value="3">Quarta</option><option value="4">Quinta</option><option value="5">Sexta</option><option value="6">Sábado</option><option value="0">Domingo</option></select><input type="time" id="nob-exec-hora" style="width:110px"></div><div id="nob-sugestoes" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px"></div><button type="button" onclick="obgSugerirHorarios('nob')" style="margin-top:6px;background:#f0f4f8;border:1.5px solid var(--bdr);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--t2)">💡 Sugerir horários livres</button><div style="font-size:10.5px;color:var(--t3);margin-top:4px;text-transform:none;font-weight:400">Usado pela Rotina de Trabalho (Admin, restrita ao Gestor Master) para encaixar esta obrigação automaticamente na agenda.</div></div><div class="mfg"><label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;text-transform:none"><input type="checkbox" id="nob-imposto" style="width:15px;height:15px">🧾 É um imposto (mostra ícone e botão "Gerar Guia" para integração SERPRO)</label></div><div class="mfg"><label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;text-transform:none"><input type="checkbox" id="nob-enviar-cliente" style="width:15px;height:15px">📤 Enviar ao cliente (aparece na Área do Cliente, mesmo não sendo imposto)</label></div><div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-newobg')">Cancelar</button><button class="btn-msave" onclick="saveNewObg()">Adicionar</button></div></div></div>
+<div class="mov" id="mod-rotina-aloc"><div class="modal" style="max-width:380px">
+  <div class="mtit">🗓️ Alocar na Rotina de Trabalho <button class="mclose" onclick="closeM('mod-rotina-aloc')">✕</button></div>
+  <input type="hidden" id="rot-aloc-uid">
+  <div id="rot-aloc-info" style="font-size:12.5px;color:var(--t2);margin-bottom:10px;background:var(--bg);border-radius:8px;padding:8px 10px"></div>
+  <div class="mfg"><label>Dia da semana</label><select id="rot-aloc-dia"><option value="">— Sem dia fixo (entra na fila automática) —</option><option value="1">Segunda</option><option value="2">Terça</option><option value="3">Quarta</option><option value="4">Quinta</option><option value="5">Sexta</option><option value="6">Sábado</option><option value="0">Domingo</option></select></div>
+  <div class="mfg"><label>Horário</label><input type="time" id="rot-aloc-hora"></div>
+  <div id="rot-aloc-sugestoes" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+  <button type="button" onclick="_rotAlocSugerir()" style="background:#f0f4f8;border:1.5px solid var(--bdr);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;color:var(--t2);margin-bottom:8px">💡 Sugerir horários livres</button>
+  <div style="font-size:10.5px;color:var(--t3);margin-bottom:10px">Deixe "Sem dia fixo" para o item voltar a ser preenchido automaticamente pela fila de prioridades.</div>
+  <div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-rotina-aloc')">Cancelar</button><button class="btn-msave" onclick="rotinaSalvarAlocacao()">Salvar</button></div>
+</div></div>
 <div class="mov" id="mod-crmlead"><div class="modal" style="max-width:460px"><div class="mtit"><span id="crmlead-mtit">＋ Novo Lead</span> <button class="mclose" onclick="closeM('mod-crmlead')">✕</button></div>
   <input type="hidden" id="crml-id">
   <div class="mfg"><label>Nome do contato *</label><input id="crml-nome" placeholder="Nome de quem procurou o escritório"></div>
@@ -6416,6 +6544,11 @@ function atualizarVisibilidadeAbaEscritorios(){
   // (canViewHonorarios/isMaster, gerenciado em Equipe).
   const honTab = document.getElementById('aptab-hon');
   if(honTab) honTab.style.display = (moduleEnabled('honorarios') && podeVerHonorarios()) ? '' : 'none';
+  // Rotina de Trabalho — mostra a carga de trabalho do escritório inteiro
+  // (todas as empresas/usuários), então fica visível só para o Gestor
+  // Master do tenant, dentro de Admin.
+  const rotinaTab = document.getElementById('aptab-rotina');
+  if(rotinaTab) rotinaTab.style.display = isGestorMaster() ? '' : 'none';
   atualizarVisibilidadeFerramentas();
   _updateAptabGroupsVisibility();
 }
@@ -6443,6 +6576,232 @@ function renderConfigEscritorio(){
   else { img.style.display='none'; fb.style.display='block'; }
   document.getElementById('cfg-err').style.display='none';
   document.getElementById('cfg-ok').style.display='none';
+  renderHorarioFuncionamento();
+  renderGoogleCalendarConfig();
+}
+
+/* ── Horário de Funcionamento (usado pela Rotina de Trabalho) ──
+   Guardado dentro de tenants.modulos (jsonb) sob a chave _horarioFuncionamento,
+   sem precisar de coluna nova no banco — mesmo padrão já usado por outras
+   preferências do tenant (ex.: _certProvider em salvarCertConfig). */
+const HF_DIAS = [{v:1,l:'Seg'},{v:2,l:'Ter'},{v:3,l:'Qua'},{v:4,l:'Qui'},{v:5,l:'Sex'},{v:6,l:'Sáb'},{v:0,l:'Dom'}];
+const HF_PADRAO = { dias:[1,2,3,4,5], manhaIni:'10:00', manhaFim:'13:00', tardeIni:'15:00', tardeFim:'20:00' };
+let _hfDiasSel = [];
+
+function getHorarioFuncionamento(){
+  const cfg = (CURRENT_TENANT && CURRENT_TENANT.modulos && CURRENT_TENANT.modulos._horarioFuncionamento) || {};
+  return { ...HF_PADRAO, ...cfg };
+}
+
+function _hfMin(hhmm){ const [h,m]=(hhmm||'0:0').split(':').map(Number); return h*60+(m||0); }
+
+function renderHorarioFuncionamento(){
+  const hf = getHorarioFuncionamento();
+  _hfDiasSel = [...hf.dias];
+  document.getElementById('cfg-hf-manha-ini').value = hf.manhaIni;
+  document.getElementById('cfg-hf-manha-fim').value = hf.manhaFim;
+  document.getElementById('cfg-hf-tarde-ini').value = hf.tardeIni;
+  document.getElementById('cfg-hf-tarde-fim').value = hf.tardeFim;
+  _hfRenderDias();
+  _hfAtualizarResumo();
+}
+
+function _hfRenderDias(){
+  const el = document.getElementById('cfg-hf-dias');
+  if(!el) return;
+  el.innerHTML = HF_DIAS.map(d=>{
+    const on = _hfDiasSel.includes(d.v);
+    return `<button type="button" onclick="_hfToggleDia(${d.v})" style="padding:7px 13px;border-radius:20px;border:1.5px solid ${on?'var(--pri)':'var(--bdr)'};background:${on?'var(--pri)':'#fff'};color:${on?'#fff':'var(--t2)'};font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s">${d.l}</button>`;
+  }).join('');
+}
+function _hfToggleDia(v){
+  if(_hfDiasSel.includes(v)) _hfDiasSel=_hfDiasSel.filter(x=>x!==v);
+  else _hfDiasSel.push(v);
+  _hfRenderDias();
+  _hfAtualizarResumo();
+}
+function _hfAtualizarResumo(){
+  const mi=document.getElementById('cfg-hf-manha-ini').value, mf=document.getElementById('cfg-hf-manha-fim').value;
+  const ti=document.getElementById('cfg-hf-tarde-ini').value, tf=document.getElementById('cfg-hf-tarde-fim').value;
+  const horasDia = Math.max(0,(_hfMin(mf)-_hfMin(mi)))/60 + Math.max(0,(_hfMin(tf)-_hfMin(ti)))/60;
+  const horasSemana = horasDia * _hfDiasSel.length;
+  const resEl = document.getElementById('cfg-hf-resumo');
+  if(resEl) resEl.textContent = `≈ ${horasDia.toFixed(1)}h/dia útil · ${horasSemana.toFixed(1)}h/semana de capacidade`;
+}
+['cfg-hf-manha-ini','cfg-hf-manha-fim','cfg-hf-tarde-ini','cfg-hf-tarde-fim'].forEach(id=>{
+  document.addEventListener('input', e=>{ if(e.target && e.target.id===id) _hfAtualizarResumo(); });
+});
+
+async function salvarHorarioFuncionamento(){
+  if(!CURRENT_TENANT || !CURRENT_TENANT.id){ alert('Escritório não identificado. Recarregue a página.'); return; }
+  const novo = {
+    dias: [..._hfDiasSel].sort(),
+    manhaIni: document.getElementById('cfg-hf-manha-ini').value || HF_PADRAO.manhaIni,
+    manhaFim: document.getElementById('cfg-hf-manha-fim').value || HF_PADRAO.manhaFim,
+    tardeIni: document.getElementById('cfg-hf-tarde-ini').value || HF_PADRAO.tardeIni,
+    tardeFim: document.getElementById('cfg-hf-tarde-fim').value || HF_PADRAO.tardeFim,
+  };
+  const btn = document.getElementById('cfg-hf-save-btn');
+  btn.disabled = true; btn.textContent = 'Salvando...';
+  const modulos = {...(CURRENT_TENANT.modulos||{}), _horarioFuncionamento: novo};
+  const {error} = await sb.from('tenants').update({modulos}).eq('id', CURRENT_TENANT.id);
+  btn.disabled = false; btn.textContent = 'Salvar Horário';
+  if(error){ console.error('salvarHorarioFuncionamento', error); alert('Não foi possível salvar. Tente novamente.'); return; }
+  CURRENT_TENANT.modulos = modulos;
+  const okEl = document.getElementById('cfg-hf-ok');
+  okEl.style.display='block';
+  setTimeout(()=>{ okEl.style.display='none'; }, 2500);
+}
+
+/* ── Integração com Google Agenda (por escritório) ──────────────────────
+   Cada tenant guarda seu PRÓPRIO Client ID OAuth do Google Cloud, em
+   tenants.modulos._googleCalendar (mesmo padrão do Horário de
+   Funcionamento). Não existe backend próprio neste sistema, então a
+   conexão usa o fluxo "Google Identity Services" 100% no navegador:
+   o usuário clica em "Conectar", autoriza no popup do Google, e recebe
+   um token de acesso válido só para aquela sessão (não fica salvo em
+   lugar nenhum, nem enviado para o Supabase) — por isso não há
+   sincronização automática em segundo plano, só quando alguém está
+   com o sistema aberto e clica em sincronizar. */
+const GCAL_BYDAY = {0:'SU',1:'MO',2:'TU',3:'WE',4:'TH',5:'FR',6:'SA'};
+let _gcalAccessToken = null;
+let _gcalTokenClient = null;
+
+function getGoogleCalendarConfig(){
+  return (CURRENT_TENANT && CURRENT_TENANT.modulos && CURRENT_TENANT.modulos._googleCalendar) || {clientId:'', calendarId:'primary'};
+}
+
+function renderGoogleCalendarConfig(){
+  const cfg = getGoogleCalendarConfig();
+  const idEl = document.getElementById('cfg-gcal-clientid'); if(idEl) idEl.value = cfg.clientId||'';
+  const calEl = document.getElementById('cfg-gcal-calendarid'); if(calEl) calEl.value = cfg.calendarId||'primary';
+  _gcalAtualizarStatus();
+}
+
+async function salvarGoogleCalendarConfig(){
+  if(!CURRENT_TENANT || !CURRENT_TENANT.id){ alert('Escritório não identificado. Recarregue a página.'); return; }
+  const clientId = (document.getElementById('cfg-gcal-clientid').value||'').trim();
+  const calendarId = (document.getElementById('cfg-gcal-calendarid').value||'').trim() || 'primary';
+  const btn = document.getElementById('cfg-gcal-save-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Salvando...'; }
+  const modulos = {...(CURRENT_TENANT.modulos||{}), _googleCalendar:{clientId, calendarId}};
+  const {error} = await sb.from('tenants').update({modulos}).eq('id', CURRENT_TENANT.id);
+  if(btn){ btn.disabled=false; btn.textContent='Salvar Integração'; }
+  if(error){ console.error('salvarGoogleCalendarConfig', error); alert('Não foi possível salvar. Tente novamente.'); return; }
+  CURRENT_TENANT.modulos = modulos;
+  // Client ID pode ter mudado — descarta conexão antiga da sessão.
+  _gcalAccessToken = null; _gcalTokenClient = null;
+  _gcalAtualizarStatus();
+  const okEl = document.getElementById('cfg-gcal-ok');
+  if(okEl){ okEl.style.display='block'; setTimeout(()=>{ okEl.style.display='none'; }, 2500); }
+}
+
+function _gcalAtualizarStatus(){
+  const el = document.getElementById('cfg-gcal-status');
+  if(!el) return;
+  el.innerHTML = _gcalAccessToken
+    ? '<span style="color:#2E7D32;font-weight:700">🟢 Conectado nesta sessão</span>'
+    : '<span style="color:var(--t3)">⚪ Não conectado</span>';
+}
+
+/* Abre o popup de login do Google e pede permissão para criar/editar
+   eventos na agenda configurada. Chama onSuccess() quando o token chega. */
+function gcalConectar(onSuccess){
+  const cfg = getGoogleCalendarConfig();
+  if(!cfg.clientId){ alert('Cole o Client ID do Google Cloud do seu escritório em Admin → Configurações → Google Agenda e salve antes de conectar.'); return; }
+  if(typeof google==='undefined' || !google.accounts || !google.accounts.oauth2){
+    alert('Não foi possível carregar o login do Google agora. Verifique sua conexão com a internet e tente novamente em alguns segundos.');
+    return;
+  }
+  if(!_gcalTokenClient || _gcalTokenClient._ocClientId!==cfg.clientId){
+    _gcalTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: cfg.clientId,
+      scope: 'https://www.googleapis.com/auth/calendar.events',
+      callback: (resp)=>{
+        if(resp.error){ alert('Não foi possível conectar ao Google: '+resp.error); return; }
+        _gcalAccessToken = resp.access_token;
+        _gcalAtualizarStatus();
+        if(onSuccess) onSuccess();
+      },
+    });
+    _gcalTokenClient._ocClientId = cfg.clientId;
+  }
+  _gcalTokenClient.requestAccessToken({prompt: _gcalAccessToken ? '' : 'consent'});
+}
+
+async function gcalFetch(path, options){
+  const cfg = getGoogleCalendarConfig();
+  const url = 'https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(cfg.calendarId||'primary')+path;
+  const resp = await fetch(url, {
+    ...(options||{}),
+    headers: { 'Authorization':'Bearer '+_gcalAccessToken, 'Content-Type':'application/json', ...((options&&options.headers)||{}) },
+  });
+  if(resp.status===401){ _gcalAccessToken=null; _gcalAtualizarStatus(); throw new Error('Sessão do Google expirou — clique em "Conectar" de novo.'); }
+  if(!resp.ok){ const t=await resp.text().catch(()=>''); throw new Error('Erro do Google Calendar ('+resp.status+'): '+t); }
+  return resp.status===204 ? null : await resp.json();
+}
+
+/* Próxima ocorrência (data real) de um dia da semana + horário fixado,
+   usada como início do evento recorrente semanal. */
+function _gcalProximaData(execDia, execHora){
+  const hoje=new Date();
+  const alvo=new Date(hoje);
+  const diff=(execDia - hoje.getDay() + 7) % 7;
+  alvo.setDate(hoje.getDate()+diff);
+  const [h,m]=(execHora||'09:00').split(':').map(n=>parseInt(n,10));
+  alvo.setHours(isNaN(h)?9:h, isNaN(m)?0:m, 0, 0);
+  return alvo;
+}
+
+async function _rotinaSalvarGcalEventId(item, eventId){
+  if(item.tipo==='obg'){
+    const d=await getOblig(item.coId,CY,CM);
+    const lista=d[item.obgSec]||[];
+    const o=lista.find(x=>x.id===item.obgId);
+    if(o){ o.gcalEventId=eventId; await saveOblig(item.coId,CY,CM,d); }
+  } else if(item.tipo==='tarefa'){
+    const ts=await getTasks();
+    const t=ts.find(x=>x.id===item.taskId);
+    if(t){ t.gcalEventId=eventId; await sbUpdateTaskRow(t._rowId,t); }
+  }
+}
+
+/* Sincroniza só os itens com dia/horário FIXADO (📌) da Rotina — são os
+   únicos com um horário real definido — como eventos semanais
+   recorrentes (RRULE) no Google Agenda. Cria na primeira vez e depois
+   só atualiza (guarda o id do evento no próprio item). */
+async function rotinaSincronizarGoogleAgenda(){
+  const cfg=getGoogleCalendarConfig();
+  if(!cfg.clientId){ alert('Configure a integração em Admin → Configurações → Google Agenda antes de sincronizar.'); return; }
+  if(!_gcalAccessToken){ gcalConectar(rotinaSincronizarGoogleAgenda); return; }
+  if(!_rotinaCache){ alert('Aguarde a Rotina de Trabalho carregar antes de sincronizar.'); return; }
+  const pinned=_rotinaCache.pinned||[];
+  if(!pinned.length){ alert('Nenhum item com dia/horário fixado (📌) para sincronizar. Clique no ícone 🗓️ de uma obrigação ou tarefa e defina o dia/horário primeiro.'); return; }
+  const btn=document.getElementById('rot-gcal-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Sincronizando...'; }
+  let ok=0, falha=0;
+  for(const item of pinned){
+    try{
+      const inicio=_gcalProximaData(item.execDia, item.execHora);
+      const fim=new Date(inicio.getTime() + (item.duracao||30)*60000);
+      const evento={
+        summary: `${item.empresa||''} — ${item.titulo}`,
+        description: 'Sincronizado automaticamente pela Rotina de Trabalho (Ornellas Gestor). Alterações feitas aqui na agenda não voltam para o sistema.',
+        start:{ dateTime: inicio.toISOString() },
+        end:{ dateTime: fim.toISOString() },
+        recurrence:[ 'RRULE:FREQ=WEEKLY;BYDAY='+GCAL_BYDAY[item.execDia] ],
+      };
+      if(item.gcalEventId){
+        await gcalFetch('/events/'+encodeURIComponent(item.gcalEventId), {method:'PATCH', body:JSON.stringify(evento)});
+      } else {
+        const criado=await gcalFetch('/events', {method:'POST', body:JSON.stringify(evento)});
+        await _rotinaSalvarGcalEventId(item, criado.id);
+      }
+      ok++;
+    }catch(e){ console.error('rotinaSincronizarGoogleAgenda', item, e); falha++; }
+  }
+  if(btn){ btn.disabled=false; btn.textContent='📅 Google Agenda'; }
+  alert(`Sincronização concluída: ${ok} evento(s) enviado(s) para o Google Agenda${falha?`, ${falha} falharam (veja o console para detalhes)`:''}.`);
 }
 
 function _cfgLogoSelected(inp){
@@ -7919,19 +8278,46 @@ async function checkCertAlerts(){
   _renderNotifBadge(alerts);
   const notifPanel=document.getElementById('notif-panel');
   if(notifPanel && notifPanel.classList.contains('open')) _renderNotifPanel(alerts);
+  _renderGlobalAlerts();
+}
 
+/* ── Faixa de alertas no topo (Dashboard/Admin) — pode ser minimizada.
+   O estado (minimizado ou não) fica salvo no navegador (localStorage),
+   então cada pessoa que usa o sistema mantém sua própria preferência. ── */
+function _renderGlobalAlerts(){
   const alertEl=document.getElementById('global-alerts');
   if(!alertEl) return;
-  if(alerts.length){
-    alertEl.innerHTML=alerts.slice(0,3).map(a=>`
+  const alerts=_lastAlerts||[];
+  if(!alerts.length){ alertEl.innerHTML=''; return; }
+  const nDanger=alerts.filter(a=>a.type==='danger').length;
+  const nAtencao=alerts.length-nDanger;
+  const resumoPartes=[`${alerts.length} alerta${alerts.length>1?'s':''}`];
+  if(nDanger) resumoPartes.push(`${nDanger} atrasado${nDanger>1?'s':''}`);
+  if(nAtencao) resumoPartes.push(`${nAtencao} de atenção`);
+  const resumo=resumoPartes.join(' · ');
+  if(LS.g('alertsCollapsed', false)){
+    alertEl.innerHTML=`
+      <div class="galerts-bar" onclick="_toggleGlobalAlerts()" title="Clique para expandir">
+        <span><i class="ti ti-alert-triangle" style="color:#C62828;margin-right:7px"></i>${resumo}</span>
+        <span class="galerts-toggle">Mostrar <i class="ti ti-chevron-down"></i></span>
+      </div>`;
+    return;
+  }
+  alertEl.innerHTML=`
+    <div class="galerts-hdr">
+      <span>${resumo}</span>
+      <span class="galerts-toggle" onclick="_toggleGlobalAlerts()">Minimizar <i class="ti ti-chevron-up"></i></span>
+    </div>
+    ` + alerts.slice(0,3).map(a=>`
       <div style="background:${a.type==='danger'?'#FFEBEE':'#FFF3E0'};color:${a.type==='danger'?'#C62828':'#E65100'};padding:10px 15px;border-radius:10px;margin-bottom:8px;font-size:12px;display:flex;align-items:center;gap:10px;border:1px solid ${a.type==='danger'?'#FFCDD2':'#FFE0B2'}">
         <span><i class="ti ${a.type==='danger'?'ti-alert-triangle':'ti-alert-circle'}"></i></span>
         <div style="flex:1"><strong>${a.co}</strong>: ${a.cert} — ${a.msg}</div>
       </div>
-    `).join('') + (alerts.length>3?`<div style="font-size:11px;color:var(--t2);text-align:right;padding-right:10px">+ ${alerts.length-3} outros alertas</div>`:'');
-  } else {
-    alertEl.innerHTML='';
-  }
+    `).join('') + (alerts.length>3?`<div style="font-size:11px;color:var(--t2);text-align:right;padding-right:10px;cursor:pointer" onclick="toggleNotifPanel()">+ ${alerts.length-3} outros alertas</div>`:'');
+}
+function _toggleGlobalAlerts(){
+  LS.s('alertsCollapsed', !LS.g('alertsCollapsed', false));
+  _renderGlobalAlerts();
 }
 
 /* ── Sino de notificações (cabeçalho) ── */
@@ -8392,6 +8778,7 @@ async function addHistory(coId, msg){
 async function initAppContador(){
   await refreshTeamNames();
   await checkCertAlerts();
+  tcIniciarBadgeGlobal();
   const avEl=document.getElementById('upill-av');
   if(CU.username==='matheus'||CU.username==='admin'){
     avEl.innerHTML='<img src="'+MATHEUS_FOTO+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;margin:-4px -2px;vertical-align:middle">';
@@ -11363,7 +11750,7 @@ async function _confirmBulkRmObg(cascade){
 function _eobSecChanged(){const mw=document.getElementById('eob-month-wrap');mw.style.display=(document.getElementById('eob-sec').value==='anual')?'':'none';}
 function _nobSecChanged(){const mw=document.getElementById('nob-month-wrap');mw.style.display=(document.getElementById('nob-sec').value==='anual')?'':'none';}
 
-async function openEditObg(sec,id){const d=await getOblig(CC,CY,CM);const item=(d[sec]||[]).find(x=>x.id===id);if(!item)return;document.getElementById('eob-sec').value=sec;document.getElementById('eob-orig-sec').value=sec;document.getElementById('eob-id').value=id;document.getElementById('eob-name').value=item.name||'';document.getElementById('eob-due').value=item.due||'';document.getElementById('eob-dueday').value=item.dueDay||'';_populateTeamSelect('eob-resp','— Sem responsável —');document.getElementById('eob-resp').value=item.resp||'—';_eobSecChanged();document.getElementById('eob-month').value=(item.dueMonth===undefined||item.dueMonth===null)?'':String(item.dueMonth);document.getElementById('eob-type').value=item.type||'value';document.getElementById('eob-imposto').checked=!!item.isImposto;document.getElementById('eob-enviar-cliente').checked=!!item.enviarCliente;document.getElementById('eob-obs').value=item.obs||'';_populateObgCatalog();openM('mod-edobg');}
+async function openEditObg(sec,id){const d=await getOblig(CC,CY,CM);const item=(d[sec]||[]).find(x=>x.id===id);if(!item)return;document.getElementById('eob-sec').value=sec;document.getElementById('eob-orig-sec').value=sec;document.getElementById('eob-id').value=id;document.getElementById('eob-name').value=item.name||'';document.getElementById('eob-due').value=item.due||'';document.getElementById('eob-dueday').value=item.dueDay||'';_populateTeamSelect('eob-resp','— Sem responsável —');document.getElementById('eob-resp').value=item.resp||'—';_eobSecChanged();document.getElementById('eob-month').value=(item.dueMonth===undefined||item.dueMonth===null)?'':String(item.dueMonth);document.getElementById('eob-type').value=item.type||'value';document.getElementById('eob-imposto').checked=!!item.isImposto;document.getElementById('eob-enviar-cliente').checked=!!item.enviarCliente;document.getElementById('eob-obs').value=item.obs||'';document.getElementById('eob-exec-dia').value=(item.execDia===undefined||item.execDia===null)?'':String(item.execDia);document.getElementById('eob-exec-hora').value=item.execHora||'';const eobSug=document.getElementById('eob-sugestoes');if(eobSug)eobSug.innerHTML='';_populateObgCatalog();openM('mod-edobg');}
 async function saveEditObg(){
   const origSec=document.getElementById('eob-orig-sec').value,novaSec=document.getElementById('eob-sec').value,id=document.getElementById('eob-id').value,name=document.getElementById('eob-name').value.trim();
   if(!name){alert('Informe o nome.');return;}
@@ -11381,6 +11768,9 @@ async function saveEditObg(){
   item.isImposto=document.getElementById('eob-imposto').checked;
   item.enviarCliente=document.getElementById('eob-enviar-cliente').checked;
   item.obs=document.getElementById('eob-obs').value.trim();
+  const eobExecDiaV=document.getElementById('eob-exec-dia').value;
+  item.execDia=eobExecDiaV===''?null:parseInt(eobExecDiaV);
+  item.execHora=document.getElementById('eob-exec-hora').value||'';
   // Troca de Tipo em cima da obrigação já existente — ex: de "Status" pra
   // "Status + Anexo" — SEM excluir/recriar o item. Só inicializa os campos
   // que o novo tipo precisa e que ainda não existem; nunca apaga dado já
@@ -11404,8 +11794,8 @@ async function saveEditObg(){
   closeM('mod-edobg');
   await renderObrig();
 }
-function openNewObg(sec){document.getElementById('nob-sec').value=sec;['nob-name','nob-due','nob-dueday'].forEach(i=>document.getElementById(i).value='');document.getElementById('nob-type').value='value';document.getElementById('nob-imposto').checked=false;document.getElementById('nob-enviar-cliente').checked=false;_populateTeamSelect('nob-resp','— Sem responsável —');document.getElementById('nob-resp').value='—';document.getElementById('nob-month').value='';_nobSecChanged();_populateNobNameSelect('');openM('mod-newobg');}
-async function saveNewObg(){const sec=document.getElementById('nob-sec').value,name=document.getElementById('nob-name').value.trim();if(!name){alert('Informe o nome.');return;}const d=await getOblig(CC,CY,CM);if(!d[sec])d[sec]=[];const mv=document.getElementById('nob-month').value;const dueMonth=(sec==='anual'&&mv!=='')?parseInt(mv):null;const ddv=document.getElementById('nob-dueday').value;const dueDay=ddv?Math.min(31,Math.max(1,parseInt(ddv))):null;d[sec].push({id:'ob'+Date.now(),name,due:document.getElementById('nob-due').value.trim(),dueDay,dueMonth,type:document.getElementById('nob-type').value,isImposto:document.getElementById('nob-imposto').checked,enviarCliente:document.getElementById('nob-enviar-cliente').checked,resp:document.getElementById('nob-resp').value||'—',done:false,value:'',file:null,entries:[],status:'pending'});await saveOblig(CC,CY,CM,d);await sbAddObligCatalogName(name);closeM('mod-newobg');await renderObrig();}
+function openNewObg(sec){document.getElementById('nob-sec').value=sec;['nob-name','nob-due','nob-dueday'].forEach(i=>document.getElementById(i).value='');document.getElementById('nob-type').value='value';document.getElementById('nob-imposto').checked=false;document.getElementById('nob-enviar-cliente').checked=false;_populateTeamSelect('nob-resp','— Sem responsável —');document.getElementById('nob-resp').value='—';document.getElementById('nob-month').value='';document.getElementById('nob-exec-dia').value='';document.getElementById('nob-exec-hora').value='';const nobSug=document.getElementById('nob-sugestoes');if(nobSug)nobSug.innerHTML='';_nobSecChanged();_populateNobNameSelect('');openM('mod-newobg');}
+async function saveNewObg(){const sec=document.getElementById('nob-sec').value,name=document.getElementById('nob-name').value.trim();if(!name){alert('Informe o nome.');return;}const d=await getOblig(CC,CY,CM);if(!d[sec])d[sec]=[];const mv=document.getElementById('nob-month').value;const dueMonth=(sec==='anual'&&mv!=='')?parseInt(mv):null;const ddv=document.getElementById('nob-dueday').value;const dueDay=ddv?Math.min(31,Math.max(1,parseInt(ddv))):null;const nobExecDiaV=document.getElementById('nob-exec-dia').value;const execDia=nobExecDiaV===''?null:parseInt(nobExecDiaV);const execHora=document.getElementById('nob-exec-hora').value||'';d[sec].push({id:'ob'+Date.now(),name,due:document.getElementById('nob-due').value.trim(),dueDay,dueMonth,type:document.getElementById('nob-type').value,isImposto:document.getElementById('nob-imposto').checked,enviarCliente:document.getElementById('nob-enviar-cliente').checked,resp:document.getElementById('nob-resp').value||'—',execDia,execHora,done:false,value:'',file:null,entries:[],status:'pending'});await saveOblig(CC,CY,CM,d);await sbAddObligCatalogName(name);closeM('mod-newobg');await renderObrig();}
 
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -13885,6 +14275,640 @@ async function exportarRelatorioConsolidadoObrigacoes(){
   w.document.write(html);
   w.print();
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ROTINA DE TRABALHO — organizador automático de pendências
+   Visível apenas para o Gestor Master (Admin → Rotina de Trabalho).
+   Junta Obrigações (todas empresas ativas, mês/ano selecionado),
+   Tarefas (Gestão Geral) e Legalizações (etapa atual de cada processo
+   em aberto), prioriza e distribui nos blocos de horário definidos em
+   Admin → Configurações → Horário de Funcionamento.
+
+   Cada Obrigação/Tarefa pode opcionalmente ter um dia da semana +
+   horário FIXADO (campos execDia/execHora) — nesse caso ela é
+   "encaixada" (📌) sempre naquele dia/bloco, toda semana, e some da
+   fila automática. Itens sem dia/horário fixado continuam entrando na
+   fila automática (ordenada por prioridade), que preenche o que sobra
+   de capacidade depois dos itens fixados.
+   ═══════════════════════════════════════════════════════════════════ */
+function _rotinaEstimarDuracaoObg(nome){
+  const n=(nome||'').toLowerCase();
+  if(n.includes('ecd')||n.includes('escrituração contábil')||n.includes('escrituracao contabil')) return 180;
+  if(n.includes('balanço')||n.includes('balanco')||n.includes('dre')) return 150;
+  if(n.includes('escritura')) return 90;
+  if(n.includes('folha')) return 60;
+  if(n.includes('esocial')) return 30;
+  if(n.includes('dctf')||n.includes('reinf')||n.includes('sped')) return 25;
+  if(n.includes('pgdas')||n.includes('das')) return 15;
+  return 15;
+}
+function _rotinaDiaDoPrazo(due){
+  if(!due) return null;
+  const m=String(due).match(/(\d{1,2})/);
+  return m ? parseInt(m[1],10) : null;
+}
+function _rotinaExecDiaValido(v){ return v!==null && v!==undefined && v!==''; }
+
+async function rotinaColetarItens(){
+  const itens=[];
+  const hoje=new Date();
+  const diaHoje=hoje.getDate();
+
+  /* Obrigações — todas empresas ativas, mês/ano selecionados no sistema */
+  const cos=(await getCompanies()).filter(c=>!c.inactive);
+  const secs=[{k:'fiscal',l:'Fiscal'},{k:'dp',l:'DP'},{k:'contabil',l:'Contábil'},{k:'anual',l:'Anual'}];
+  for(const co of cos){
+    const data=await getOblig(co.id,CY,CM);
+    secs.forEach(s=>{
+      (data[s.k]||[]).forEach(o=>{
+        if(o.done) return;
+        let prioridade;
+        if(s.k==='anual'){
+          /* Anual pendente nesta altura do período é, na prática, atrasado —
+             mesma leitura usada na rotina original que o Matheus montou. */
+          prioridade=1;
+        } else {
+          const diaPrazo=_rotinaDiaDoPrazo(o.due);
+          prioridade=(diaPrazo!==null && diaPrazo<diaHoje) ? 1 : 2;
+        }
+        itens.push({
+          tipo:'obg', coId:co.id, empresa:co.name, dept:s.l,
+          titulo:o.name, prazo:o.due||'—', duracao:o.execDuracao||_rotinaEstimarDuracaoObg(o.name),
+          prioridade, obgSec:s.k, obgId:o.id,
+          execDia:(o.execDia===undefined?null:o.execDia), execHora:o.execHora||'',
+          gcalEventId:o.gcalEventId||null,
+          _uid:'obg:'+co.id+':'+s.k+':'+o.id,
+        });
+      });
+    });
+  }
+
+  /* Tarefas (Gestão Geral) — pendentes ou em andamento */
+  const coNomeById={}; cos.forEach(c=>{coNomeById[c.id]=c.name;});
+  const tarefas=await getTasks();
+  tarefas.forEach(t=>{
+    if(t.done) return;
+    let prioridade=2;
+    if(t.due){
+      const d=new Date(t.due+'T00:00:00');
+      if(!isNaN(d)){
+        const diffDias=Math.floor((d-new Date(hoje.toDateString()))/86400000);
+        prioridade = diffDias<0 ? 1 : (diffDias<=7 ? 2 : 3);
+      }
+    }
+    const deptLbl={fiscal:'Fiscal',contabil:'Contábil',dp:'DP',leg:'Legalizações',financeiro:'Financeiro',geral:'Geral'}[t.dept]||t.dept;
+    itens.push({
+      tipo:'tarefa', coId:t.company||null, empresa:t.company?(coNomeById[t.company]||'Empresa'):'Tarefa Geral',
+      dept:deptLbl, titulo:t.title, prazo:t.due||'—', duracao:t.execDuracao||30, prioridade, taskId:t.id,
+      execDia:(t.execDia===undefined?null:t.execDia), execHora:t.execHora||'',
+      gcalEventId:t.gcalEventId||null,
+      _uid:'tarefa:'+t.id,
+    });
+  });
+
+  /* Legalizações — etapa atual de cada processo ainda não concluído.
+     Não têm campo de dia/horário fixo (seguem a etapa do processo). */
+  const procs=await getLegList();
+  for(const proc of procs){
+    const tipo=proc.tipoProcesso||'abertura';
+    const legData=(await getLeg(proc.id))||{};
+    const etapasSalvas=legData.etapas||{};
+    const etapasCfg=legGetEtapas(tipo).concat(legData.etapasExtras||[]);
+    const atual=etapasCfg.find(e=>!_legEtapaConcluida(etapasSalvas[e.id]));
+    if(!atual) continue;
+    itens.push({
+      tipo:'leg', legId:proc.id, empresa:proc.nome||'(sem nome)',
+      dept:'Legalizações', titulo:`${(LEG_TIPO_CONFIG[tipo]||{}).label||tipo} — ${atual.label}`,
+      prazo:'—', duracao:30, prioridade:2,
+      execDia:null, execHora:'', _uid:'leg:'+proc.id,
+    });
+  }
+
+  return itens;
+}
+
+/* Preenche a fila automática (itens sem dia/horário fixado) respeitando,
+   em cada dia da semana, a capacidade que já sobrou depois de descontar
+   os itens fixados daquele dia (capsPorDia). */
+function rotinaMontarSemanas(itensLivres, hf, capsPorDia){
+  const diasSemana=[
+    {v:1,l:'Segunda'},{v:2,l:'Terça'},{v:3,l:'Quarta'},{v:4,l:'Quinta'},{v:5,l:'Sexta'},{v:6,l:'Sábado'},{v:0,l:'Domingo'}
+  ].filter(d=>hf.dias.includes(d.v));
+  if(!diasSemana.length) return [];
+  const temCapacidade=diasSemana.some(d=>{const c=capsPorDia[d.v]||{manha:0,tarde:0}; return (c.manha+c.tarde)>0;});
+  if(!temCapacidade) return [];
+
+  /* Ordena por prioridade e agrupa por empresa — reduz troca de contexto,
+     igual à lógica documentada na rotina original em planilha. */
+  const ordenado=[...itensLivres].sort((a,b)=>{
+    if(a.prioridade!==b.prioridade) return a.prioridade-b.prioridade;
+    return (a.empresa||'').localeCompare(b.empresa||'','pt-BR');
+  });
+
+  const semanas=[];
+  function novaSemana(){ const s={dias:diasSemana.map(d=>({v:d.v,label:d.l,manha:[],tarde:[]}))}; semanas.push(s); return s; }
+  let semanaAtual=novaSemana();
+  let diaIdx=0, blocoIdx=0;
+  function capAtual(){ const dv=diasSemana[diaIdx].v; const c=capsPorDia[dv]||{manha:0,tarde:0}; return blocoIdx===0?c.manha:c.tarde; }
+  let cap=capAtual(), usado=0;
+
+  function proximoBloco(){
+    if(blocoIdx===0){ blocoIdx=1; }
+    else{
+      blocoIdx=0; diaIdx++;
+      if(diaIdx>=diasSemana.length){ diaIdx=0; semanaAtual=novaSemana(); }
+    }
+    cap=capAtual(); usado=0;
+  }
+  let guarda=0;
+  for(const item of ordenado){
+    while(cap<=0 && guarda<4000){ proximoBloco(); guarda++; }
+    if(usado>0 && usado+item.duracao>cap) proximoBloco();
+    const alvo=blocoIdx===0?semanaAtual.dias[diaIdx].manha:semanaAtual.dias[diaIdx].tarde;
+    alvo.push(item);
+    usado+=item.duracao;
+  }
+  return semanas;
+}
+
+/* ── Ocupação e sugestão de horários livres ──
+   Usado tanto pela tela da Rotina quanto pelos modais de Obrigação e
+   Tarefa (botão "💡 Sugerir horários livres"). */
+const ROT_WEEKDAY_LABELS=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+function _rotinaBlocoDaHora(hora,hf){
+  if(!hora) return 'manha'; // sem horário definido, assume o início do bloco da manhã
+  const min=_hfMin(hora);
+  if(min>=_hfMin(hf.manhaIni) && min<_hfMin(hf.manhaFim)) return 'manha';
+  if(min>=_hfMin(hf.tardeIni) && min<_hfMin(hf.tardeFim)) return 'tarde';
+  return null;
+}
+function _hfHHMM(min){ min=Math.max(0,Math.round(min)); const h=Math.floor(min/60), m=min%60; return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'); }
+function _rotinaCapacidadesPorDia(hf, ocupacaoPinned){
+  const capManhaBase=Math.max(0,_hfMin(hf.manhaFim)-_hfMin(hf.manhaIni));
+  const capTardeBase=Math.max(0,_hfMin(hf.tardeFim)-_hfMin(hf.tardeIni));
+  const porDia={};
+  hf.dias.forEach(d=>{
+    const usoP=ocupacaoPinned[d]||{manha:0,tarde:0};
+    porDia[d]={manha:Math.max(0,capManhaBase-usoP.manha),tarde:Math.max(0,capTardeBase-usoP.tarde)};
+  });
+  return porDia;
+}
+async function rotinaCalcularOcupacaoFixada(){
+  const hf=getHorarioFuncionamento();
+  const ocup={}; hf.dias.forEach(d=>{ocup[d]={manha:0,tarde:0};});
+  function addOcup(dia,hora,duracao){
+    if(!_rotinaExecDiaValido(dia) || !ocup[dia]) return;
+    const bloco=_rotinaBlocoDaHora(hora,hf);
+    if(!bloco) return;
+    ocup[dia][bloco]+=duracao;
+  }
+  const cos=(await getCompanies()).filter(c=>!c.inactive);
+  const secs=['fiscal','dp','contabil','anual'];
+  for(const co of cos){
+    const data=await getOblig(co.id,CY,CM);
+    secs.forEach(s=>(data[s]||[]).forEach(o=>{
+      if(o.done || !_rotinaExecDiaValido(o.execDia)) return;
+      addOcup(parseInt(o.execDia),o.execHora,o.execDuracao||_rotinaEstimarDuracaoObg(o.name));
+    }));
+  }
+  const tarefas=await getTasks();
+  tarefas.forEach(t=>{
+    if(t.done || !_rotinaExecDiaValido(t.execDia)) return;
+    addOcup(parseInt(t.execDia),t.execHora,t.execDuracao||30);
+  });
+  return {hf,ocup};
+}
+/* Retorna as melhores sugestões de dia/horário livre (lacunas) para
+   encaixar um item de "duracaoMin" minutos, considerando o horário de
+   funcionamento e o que já está fixado (📌) na semana. */
+async function rotinaSugerirSlots(duracaoMin,limite){
+  duracaoMin=duracaoMin||15; limite=limite||4;
+  const {hf,ocup}=await rotinaCalcularOcupacaoFixada();
+  if(!hf.dias.length) return [];
+  const capManha=Math.max(0,_hfMin(hf.manhaFim)-_hfMin(hf.manhaIni));
+  const capTarde=Math.max(0,_hfMin(hf.tardeFim)-_hfMin(hf.tardeIni));
+  const candidatos=[];
+  [...hf.dias].sort((a,b)=>a-b).forEach(dia=>{
+    const usoManha=(ocup[dia]&&ocup[dia].manha)||0, usoTarde=(ocup[dia]&&ocup[dia].tarde)||0;
+    const livreManha=capManha-usoManha, livreTarde=capTarde-usoTarde;
+    if(livreManha>=duracaoMin) candidatos.push({dia,bloco:'manha',inicioMin:_hfMin(hf.manhaIni)+usoManha,livre:livreManha});
+    if(livreTarde>=duracaoMin) candidatos.push({dia,bloco:'tarde',inicioMin:_hfMin(hf.tardeIni)+usoTarde,livre:livreTarde});
+  });
+  const hojeDia=new Date().getDay();
+  candidatos.sort((a,b)=>{
+    const da=(a.dia-hojeDia+7)%7, db=(b.dia-hojeDia+7)%7;
+    if(da!==db) return da-db;
+    return b.livre-a.livre;
+  });
+  return candidatos.slice(0,limite).map(c=>({ dia:c.dia, diaLabel:ROT_WEEKDAY_LABELS[c.dia], hora:_hfHHMM(c.inicioMin), livre:c.livre }));
+}
+/* Preenche a caixinha de sugestões dentro de um modal (Obrigação ou
+   Tarefa). "prefixo" é o prefixo dos ids do formulário (ex: 'nob','eob',
+   'mt','et'); "duracaoPadrao" é opcional (senão estima pelo nome). */
+async function obgSugerirHorarios(prefixo,duracaoPadrao){
+  const box=document.getElementById(prefixo+'-sugestoes');
+  if(box) box.innerHTML='<div style="font-size:11px;color:var(--t3)">Calculando horários livres...</div>';
+  let dur=duracaoPadrao;
+  if(!dur){
+    const nomeInput=document.getElementById(prefixo+'-name')||document.getElementById(prefixo+'-title');
+    dur = nomeInput ? _rotinaEstimarDuracaoObg(nomeInput.value||'') : 30;
+  }
+  const sugs=await rotinaSugerirSlots(dur,4);
+  if(!box) return;
+  if(!sugs.length){ box.innerHTML='<div style="font-size:11px;color:var(--t3)">Sem horários livres — configure o Horário de Funcionamento em Admin → Configurações, ou a semana já está cheia.</div>'; return; }
+  box.innerHTML=sugs.map(s=>`<button type="button" onclick="_obgAplicarSugestao('${prefixo}',${s.dia},'${s.hora}')" style="background:var(--dep-fiscal-soft);color:var(--dep-fiscal-tx);border:1px solid var(--pri);border-radius:14px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">${s.diaLabel} ${s.hora} <span style="opacity:.7">(${s.livre}min livres)</span></button>`).join('');
+}
+function _obgAplicarSugestao(prefixo,dia,hora){
+  const dSel=document.getElementById(prefixo+'-exec-dia'); if(dSel) dSel.value=String(dia);
+  const hInp=document.getElementById(prefixo+'-exec-hora'); if(hInp) hInp.value=hora;
+}
+
+/* ── Estado e navegação da tela (Dia / Semana / Mês) ── */
+let _rotinaCache=null;
+let rotinaViewMode='semana'; // 'dia' | 'semana' | 'mes'
+let rotinaRefDate=new Date();
+const _ROT_OFFSET_FROM_MONDAY={1:0,2:1,3:2,4:3,5:4,6:5,0:6};
+function _rotinaStartOfWeek(d){
+  const dt=new Date(d); const day=dt.getDay();
+  const diff = day===0? -6 : (1-day);
+  dt.setDate(dt.getDate()+diff); dt.setHours(0,0,0,0); return dt;
+}
+function _rotinaFmtDate(d){ return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}); }
+function _rotinaSemanaIdxParaData(dataInicioSemana){
+  const hojeInicio=_rotinaStartOfWeek(new Date());
+  return Math.round((dataInicioSemana-hojeInicio)/(7*86400000));
+}
+function _rotinaDataDoDia(inicioSemana,weekdayVal){
+  const d=new Date(inicioSemana); d.setDate(d.getDate()+_ROT_OFFSET_FROM_MONDAY[weekdayVal]); return d;
+}
+function _rotinaItensBloco(weekdayVal, blocoKey, semanaIdx){
+  const {pinned,semanas,hf}=_rotinaCache;
+  const pin=pinned.filter(i=>i.execDia===weekdayVal && _rotinaBlocoDaHora(i.execHora,hf)===blocoKey)
+                  .sort((a,b)=>(a.execHora||'').localeCompare(b.execHora||''));
+  let livre=[];
+  if(semanaIdx>=0 && semanas[semanaIdx]){
+    const diaObj=semanas[semanaIdx].dias.find(d=>d.v===weekdayVal);
+    if(diaObj) livre=diaObj[blocoKey]||[];
+  }
+  return [...pin,...livre];
+}
+async function renderRotina(){
+  const el=document.getElementById('rotina-content');
+  if(!el) return;
+  if(!isGestorMaster()){
+    el.innerHTML=`<div class="empty"><div class="empty-ico">🔒</div><div class="empty-t">Acesso restrito</div><div class="empty-s">A Rotina de Trabalho mostra a carga de todo o escritório e por isso é visível apenas para o Gestor Master.</div></div>`;
+    return;
+  }
+  el.innerHTML='<div style="text-align:center;padding:60px;color:var(--t3);font-size:13px">Calculando rotina...</div>';
+  const hf=getHorarioFuncionamento();
+  const itensAll=await rotinaColetarItens();
+  const pinned=itensAll.filter(i=>_rotinaExecDiaValido(i.execDia));
+  const livres=itensAll.filter(i=>!_rotinaExecDiaValido(i.execDia));
+  const ocupPinned={}; hf.dias.forEach(d=>{ocupPinned[d]={manha:0,tarde:0};});
+  pinned.forEach(i=>{ const bloco=_rotinaBlocoDaHora(i.execHora,hf); if(bloco && ocupPinned[i.execDia]) ocupPinned[i.execDia][bloco]+=i.duracao; });
+  const capsPorDia=_rotinaCapacidadesPorDia(hf,ocupPinned);
+  const semanas=rotinaMontarSemanas(livres,hf,capsPorDia);
+  _rotinaCache={itensAll,pinned,livres,semanas,hf,capsPorDia};
+
+  if(!hf.dias.length || (_hfMin(hf.manhaFim)-_hfMin(hf.manhaIni))+(_hfMin(hf.tardeFim)-_hfMin(hf.tardeIni))<=0){
+    el.innerHTML=`<div class="card" style="text-align:center;padding:48px 24px">
+      <div style="font-size:36px;margin-bottom:10px">🕐</div>
+      <div style="font-size:14px;font-weight:700;color:var(--dark)">Horário de funcionamento não configurado</div>
+      <div style="font-size:12px;color:var(--t3);margin-top:6px;max-width:380px;margin-left:auto;margin-right:auto">Defina os dias e blocos de horário em Admin → Configurações → Horário de Funcionamento para a rotina calcular sua capacidade semanal.</div>
+      <button class="btn-msave" style="margin-top:16px" onclick="sTab('cfg')">Ir para Configurações</button>
+    </div>`;
+    return;
+  }
+  if(!itensAll.length){
+    el.innerHTML=`<div class="card" style="text-align:center;padding:48px 24px">
+      <div style="font-size:36px;margin-bottom:10px">🎉</div>
+      <div style="font-size:14px;font-weight:700;color:var(--dark)">Nenhuma pendência no momento</div>
+      <div style="font-size:12px;color:var(--t3);margin-top:6px">Obrigações, tarefas e legalizações estão em dia.</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = rotinaHeaderHTML(itensAll,hf) + rotinaFiltroHTML() + '<div id="rotina-view"></div>' + rotinaMetodologiaHTML();
+  rotinaRenderView();
+}
+
+function rotinaHeaderHTML(itensAll,hf){
+  const porPrioridade=[1,2,3].map(p=>({p,
+    n:itensAll.filter(i=>i.prioridade===p).length,
+    h:itensAll.filter(i=>i.prioridade===p).reduce((s,i)=>s+i.duracao,0)/60}));
+  const prioCfg={
+    1:{lbl:'Urgente / atrasado', dot:'#C62828'},
+    2:{lbl:'Ciclo corrente',     dot:'#C9A96E'},
+    3:{lbl:'Próximo / futuro',   dot:'#4A7FA5'},
+  };
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <div>
+        <h2 style="font-size:15px;font-weight:700;color:var(--dark);margin-bottom:2px;font-family:'Inter',sans-serif">Rotina de Trabalho</h2>
+        <p style="font-size:11.5px;color:var(--t3)">Visível apenas para o Gestor Master · Obrigações, Tarefas e Legalizações organizadas pelo seu horário de funcionamento</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="openNTaskModal()" class="rot-viewbtn on">＋ Tarefa</button>
+        <button onclick="closeAptabFlyouts();sTab('obr')" class="rot-viewbtn">＋ Obrigação</button>
+        <button onclick="renderRotina()" class="rot-viewbtn" title="Recalcular">↻</button>
+        <button onclick="rotinaExportarCompleto()" class="rot-viewbtn" title="Exportar plano completo">⭳ Exportar</button>
+        <button id="rot-gcal-btn" onclick="rotinaSincronizarGoogleAgenda()" class="rot-viewbtn" title="Sincronizar itens fixados (📌) com o Google Agenda do escritório">📅 Google Agenda</button>
+      </div>
+    </div>
+
+    <div class="rot-block" style="margin-bottom:12px">
+      <div class="rot-block-hdr"><div class="rot-block-title">Distribuição por prioridade</div></div>
+      <div style="padding:12px 16px;display:flex;flex-direction:column;gap:9px">
+        ${porPrioridade.map(p=>`<div style="display:flex;align-items:center;gap:9px;font-size:12px;font-family:'Inter',sans-serif">
+          <span class="rot-dot" style="background:${prioCfg[p.p].dot}"></span>
+          <span style="width:150px;flex-shrink:0;font-weight:600;color:var(--t1)">${prioCfg[p.p].lbl}</span>
+          <span style="color:var(--t3)">${p.n} item(ns) · ${p.h.toFixed(1)}h</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function rotinaFiltroHTML(){
+  return `
+    <div class="rot-toolbar">
+      <div class="rot-segmented">
+        <button id="rot-vbtn-dia" onclick="rotinaSetView('dia')" class="rot-seg-btn ${rotinaViewMode==='dia'?'on':''}">Dia</button>
+        <button id="rot-vbtn-semana" onclick="rotinaSetView('semana')" class="rot-seg-btn ${rotinaViewMode==='semana'?'on':''}">Semana</button>
+        <button id="rot-vbtn-mes" onclick="rotinaSetView('mes')" class="rot-seg-btn ${rotinaViewMode==='mes'?'on':''}">Mês</button>
+      </div>
+      <div class="rot-nav">
+        <button onclick="rotinaNav(-1)" title="Anterior" class="rot-navbtn">‹</button>
+        <span id="rot-periodo-label" class="rot-periodo"></span>
+        <button onclick="rotinaNav(1)" title="Próximo" class="rot-navbtn">›</button>
+        <button onclick="rotinaHoje()" class="rot-hoje-btn">Hoje</button>
+      </div>
+    </div>
+  `;
+}
+
+function rotinaMetodologiaHTML(){
+  return `<div style="font-size:10.5px;color:var(--t3);margin-top:14px;line-height:1.7;font-family:'Inter',sans-serif">
+      <strong style="color:var(--t2)">Metodologia:</strong> duração estimada por tipo (ECD 180min · Balanço/DRE 150min · Escrituração 90min · Folha 60min · DCTF/Reinf/SPED 25min · PGDAS/DAS 15min · demais obrigações 15min · tarefas 30min · etapa de legalização 30min — editável por item). 
+      Prioridade 1 = atrasado. Prioridade 2 = dentro do prazo do mês, ou tarefa em até 7 dias. Prioridade 3 = tarefa além de 7 dias.
+      Itens sem dia/horário fixado entram na fila automática por prioridade. Clique num item para abrir o registro original, ou no ícone 🗓️ para definir seu dia e horário.
+    </div>`;
+}
+
+function rotinaSetView(mode){ rotinaViewMode=mode; rotinaRenderView(); }
+function rotinaNav(delta){
+  const d=new Date(rotinaRefDate);
+  if(rotinaViewMode==='dia') d.setDate(d.getDate()+delta);
+  else if(rotinaViewMode==='semana') d.setDate(d.getDate()+delta*7);
+  else d.setMonth(d.getMonth()+delta);
+  rotinaRefDate=d; rotinaRenderView();
+}
+function rotinaHoje(){ rotinaRefDate=new Date(); rotinaRenderView(); }
+
+function rotinaRenderView(){
+  const view=document.getElementById('rotina-view');
+  if(!view || !_rotinaCache) return;
+  ['dia','semana','mes'].forEach(m=>{
+    const b=document.getElementById('rot-vbtn-'+m);
+    if(b) b.classList.toggle('on', m===rotinaViewMode);
+  });
+  const lbl=document.getElementById('rot-periodo-label');
+  if(rotinaViewMode==='dia'){
+    if(lbl) lbl.textContent=rotinaRefDate.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+    view.innerHTML=rotinaRenderDia(rotinaRefDate);
+  } else if(rotinaViewMode==='mes'){
+    if(lbl) lbl.textContent=rotinaRefDate.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+    view.innerHTML=rotinaRenderMes(rotinaRefDate);
+  } else {
+    const inicio=_rotinaStartOfWeek(rotinaRefDate);
+    const fim=new Date(inicio); fim.setDate(fim.getDate()+6);
+    if(lbl) lbl.textContent=`${_rotinaFmtDate(inicio)} – ${_rotinaFmtDate(fim)}`;
+    view.innerHTML=rotinaRenderSemana(inicio);
+  }
+}
+
+function rotinaRenderSemana(inicioSemana){
+  const {hf,semanas}=_rotinaCache;
+  const semanaIdx=Math.max(0,Math.min(Math.max(semanas.length-1,0),_rotinaSemanaIdxParaData(inicioSemana)));
+  const diasCfg=[{v:1,l:'Seg'},{v:2,l:'Ter'},{v:3,l:'Qua'},{v:4,l:'Qui'},{v:5,l:'Sex'},{v:6,l:'Sáb'},{v:0,l:'Dom'}].filter(d=>hf.dias.includes(d.v));
+  const cols=diasCfg.map(d=>{
+    const data=_rotinaDataDoDia(inicioSemana,d.v);
+    return {v:d.v,label:d.l,data,manha:_rotinaItensBloco(d.v,'manha',semanaIdx),tarde:_rotinaItensBloco(d.v,'tarde',semanaIdx)};
+  });
+  const linha=(key)=>cols.map(c=>{
+    const lista=c[key];
+    return !lista.length
+      ? `<td style="vertical-align:top;padding:10px 12px;font-size:11px;color:var(--t3);border-bottom:1px solid #F1F4F7">—</td>`
+      : `<td style="vertical-align:top;padding:8px 12px;min-width:170px;border-bottom:1px solid #F1F4F7">${lista.map(i=>rotinaItemChip(i,true)).join('')}</td>`;
+  }).join('');
+  return `<div class="rot-block">
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>${cols.map(c=>`<th class="rot-week-th" onclick="rotinaRefDate=new Date(${c.data.getTime()});rotinaSetView('dia')" title="Ver este dia">${c.label}<span class="d">${_rotinaFmtDate(c.data)}</span></th>`).join('')}</tr></thead>
+        <tbody>
+          <tr>${linha('manha')}</tr>
+          <tr>${linha('tarde')}</tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:10.5px;color:var(--t3);padding:10px 16px;border-top:1px solid var(--bdr);font-family:'Inter',sans-serif">Manhã (${hf.manhaIni}–${hf.manhaFim}) na linha de cima · Tarde (${hf.tardeIni}–${hf.tardeFim}) na linha de baixo · 📌 horário fixado. Clique no dia para abrir a visão "Dia".</div>
+  </div>`;
+}
+
+function rotinaRenderDia(data){
+  const {hf}=_rotinaCache;
+  const weekday=data.getDay();
+  if(!hf.dias.includes(weekday)){
+    return `<div class="rot-block"><div style="text-align:center;padding:40px 20px">
+      <div style="font-size:26px;margin-bottom:8px">💤</div>
+      <div style="font-size:13px;font-weight:700;color:var(--dark);font-family:'Inter',sans-serif">Sem expediente neste dia</div>
+      <div style="font-size:11.5px;color:var(--t3);margin-top:4px">${data.toLocaleDateString('pt-BR',{weekday:'long'})} não está marcado no Horário de Funcionamento.</div>
+    </div></div>`;
+  }
+  const inicioSemana=_rotinaStartOfWeek(data);
+  const semanaIdx=Math.max(0,Math.min(Math.max(_rotinaCache.semanas.length-1,0),_rotinaSemanaIdxParaData(inicioSemana)));
+  const manha=_rotinaItensBloco(weekday,'manha',semanaIdx);
+  const tarde=_rotinaItensBloco(weekday,'tarde',semanaIdx);
+  const bloco=(icoClass,iconeTi,titulo,horaRange,lista,blocoKey)=>`<div class="rot-block">
+    <div class="rot-block-hdr">
+      <div class="rot-block-title"><span class="rot-block-ico ${icoClass}"><i class="ti ${iconeTi}"></i></span>${titulo}<span class="rot-block-range">${horaRange}</span></div>
+      <button class="rot-block-add" onclick="rotinaIncluirNoBloco(${weekday},'${blocoKey}')">＋ Incluir aqui</button>
+    </div>
+    ${!lista.length?`<div class="rot-empty">Nenhum item alocado.</div>`:`<div class="rot-list">${lista.map(i=>rotinaItemChip(i,false)).join('')}</div>`}
+  </div>`;
+  return bloco('manha','ti-sun','Manhã',`${hf.manhaIni}–${hf.manhaFim}`,manha,'manha') + bloco('tarde','ti-sunset-2','Tarde',`${hf.tardeIni}–${hf.tardeFim}`,tarde,'tarde');
+}
+
+function rotinaRenderMes(dataRef){
+  const {hf,pinned}=_rotinaCache;
+  const ano=dataRef.getFullYear(), mes=dataRef.getMonth();
+  const primeiroDia=new Date(ano,mes,1);
+  const ultimoDia=new Date(ano,mes+1,0);
+  const inicioGrade=_rotinaStartOfWeek(primeiroDia);
+  const dias=[];
+  let cursor=new Date(inicioGrade);
+  while(dias.length<42 && (dias.length<7 || cursor<=ultimoDia)){
+    dias.push(new Date(cursor));
+    cursor.setDate(cursor.getDate()+1);
+  }
+  while(dias.length>7 && dias.length%7===0){
+    const ultimaLinha=dias.slice(-7);
+    if(ultimaLinha.every(d=>d.getMonth()!==mes)) dias.splice(-7,7); else break;
+  }
+  const hoje=new Date(); hoje.setHours(0,0,0,0);
+  const pinnedPorDia={};
+  pinned.forEach(i=>{ (pinnedPorDia[i.execDia]=pinnedPorDia[i.execDia]||[]).push(i); });
+  const tds=dias.map(d=>{
+    const inMes=d.getMonth()===mes;
+    const weekday=d.getDay();
+    const util=hf.dias.includes(weekday);
+    const isHoje=d.getTime()===hoje.getTime();
+    const itensDia=util?(pinnedPorDia[weekday]||[]):[];
+    const min=itensDia.reduce((s,i)=>s+i.duracao,0);
+    return `<td onclick="rotinaRefDate=new Date(${d.getTime()});rotinaSetView('dia')" class="rot-mes-td" style="background:${isHoje?'var(--dep-fiscal-soft)':'#fff'};opacity:${inMes?1:.4}">
+      <div style="font-size:11px;font-weight:700;color:${util?'var(--dark)':'var(--t3)'};font-family:'Inter',sans-serif">${d.getDate()}</div>
+      ${util?(itensDia.length?`<div style="font-size:10px;color:var(--pri);margin-top:4px;font-weight:600">📌 ${itensDia.length} · ${min}min</div>`:'<div style="font-size:9.5px;color:var(--t3);margin-top:4px">livre</div>'):`<div style="font-size:9.5px;color:var(--t3);margin-top:4px">—</div>`}
+    </td>`;
+  });
+  const linhas=[]; for(let i=0;i<tds.length;i+=7) linhas.push(`<tr>${tds.slice(i,i+7).join('')}</tr>`);
+  const diasLbl=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  return `<div class="rot-block">
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>${diasLbl.map(l=>`<th style="text-align:left;padding:7px 8px;background:var(--bg);border:1px solid var(--bdr);font-size:10.5px;font-weight:700;color:var(--t2);font-family:'Inter',sans-serif">${l}</th>`).join('')}</tr></thead>
+        <tbody>${linhas.join('')}</tbody>
+      </table>
+    </div>
+    <div style="font-size:10.5px;color:var(--t3);padding:10px 16px;border-top:1px solid var(--bdr);font-family:'Inter',sans-serif">📌 = itens com dia/horário fixado que recaem naquele dia da semana (repete todo mês). Clique num dia para ver a agenda detalhada.</div>
+  </div>`;
+}
+
+function rotinaIncluirNoBloco(weekday,blocoKey){
+  const {hf}=_rotinaCache;
+  const hora = blocoKey==='manha' ? hf.manhaIni : hf.tardeIni;
+  openNTaskModal({execDia:weekday,execHora:hora});
+}
+
+function _rotinaDeptColor(dept){
+  const d=(dept||'').toLowerCase();
+  if(d.includes('fiscal')) return {c:'var(--dep-fiscal)'};
+  if(d.includes('contáb')||d.includes('contab')||d.includes('anual')) return {c:'var(--dep-contabil)'};
+  if(d.includes('pessoal')) return {c:'var(--dep-dp)'};
+  if(d.includes('legaliza')) return {c:'#3D8073'};
+  if(d.includes('financeiro')) return {c:'#C9A96E'};
+  return {c:'var(--acc)'};
+}
+function rotinaItemChip(item,compact){
+  const acao=rotinaLinkAcao(item);
+  const fixado=_rotinaExecDiaValido(item.execDia);
+  const cor=_rotinaDeptColor(item.dept);
+  const pinTag = fixado ? `<span class="rot-item-pin">📌 ${item.execHora||'—'}</span>` : '';
+  const alocBtn = item.tipo!=='leg' ? `<span class="rot-item-aloc" onclick="event.stopPropagation();rotinaEditarAlocacao('${item._uid}')" title="Definir/mudar dia e horário">🗓️</span>` : '';
+  return `<div class="rot-item ${compact?'compact':''} ${acao?'clickable':''}" ${acao?`onclick="${acao}"`:''} title="${acao?'Clique para abrir o registro original':''}">
+    <span class="rot-dot" style="background:${cor.c}"></span>
+    <span class="rot-item-main"><span class="rot-item-empresa">${_crmEsc(item.empresa||'')}</span><span class="rot-item-sep">—</span><span class="rot-item-titulo">${_crmEsc(item.titulo)}</span></span>
+    ${pinTag}
+    <span class="rot-item-dur">${item.duracao}min</span>
+    ${alocBtn}
+  </div>`;
+}
+function rotinaLinkAcao(item){
+  if(item.tipo==='obg' && item.coId) return `rotinaIrParaObg('${item.coId}')`;
+  if(item.tipo==='tarefa') return `sTab('gg')`;
+  if(item.tipo==='leg' && item.legId) return `rotinaIrParaLeg('${item.legId}')`;
+  return '';
+}
+async function rotinaIrParaObg(coId){
+  CC=coId;
+  const sel=document.getElementById('cosel'); if(sel) sel.value=coId;
+  await sTab('obr');
+}
+async function rotinaIrParaLeg(legId){
+  legEditId=legId; legView='detail';
+  await sTab('leg');
+}
+
+/* ── Alocação manual (definir/mudar dia + horário de um item) ── */
+function rotinaEditarAlocacao(uid){
+  if(!_rotinaCache) return;
+  const item=_rotinaCache.itensAll.find(i=>i._uid===uid);
+  if(!item) return;
+  if(item.tipo==='leg'){ alert('Legalizações seguem a etapa atual do processo e não têm dia/horário fixo — abra o processo em Legalizações para ver os detalhes.'); return; }
+  document.getElementById('rot-aloc-uid').value=uid;
+  document.getElementById('rot-aloc-info').innerHTML=`<strong>${_crmEsc(item.empresa||'')}</strong> — ${_crmEsc(item.titulo)}<br>Duração estimada: ${item.duracao} min`;
+  document.getElementById('rot-aloc-dia').value=_rotinaExecDiaValido(item.execDia)?String(item.execDia):'';
+  document.getElementById('rot-aloc-hora').value=item.execHora||'';
+  const box=document.getElementById('rot-aloc-sugestoes'); if(box) box.innerHTML='';
+  openM('mod-rotina-aloc');
+}
+async function _rotAlocSugerir(){
+  const uid=document.getElementById('rot-aloc-uid').value;
+  const item=_rotinaCache && _rotinaCache.itensAll.find(i=>i._uid===uid);
+  await obgSugerirHorarios('rot-aloc', item?item.duracao:30);
+}
+async function rotinaSalvarAlocacao(){
+  const uid=document.getElementById('rot-aloc-uid').value;
+  const item=_rotinaCache && _rotinaCache.itensAll.find(i=>i._uid===uid);
+  if(!item){ closeM('mod-rotina-aloc'); return; }
+  const diaV=document.getElementById('rot-aloc-dia').value;
+  const execDia=diaV===''?null:parseInt(diaV);
+  const execHora=document.getElementById('rot-aloc-hora').value||'';
+  if(item.tipo==='obg'){
+    const d=await getOblig(item.coId,CY,CM);
+    const lista=d[item.obgSec]||[];
+    const o=lista.find(x=>x.id===item.obgId);
+    if(o){ o.execDia=execDia; o.execHora=execHora; await saveOblig(item.coId,CY,CM,d); }
+  } else if(item.tipo==='tarefa'){
+    const ts=await getTasks();
+    const t=ts.find(x=>x.id===item.taskId);
+    if(t){ t.execDia=execDia; t.execHora=execHora; await sbUpdateTaskRow(t._rowId,t); }
+  }
+  closeM('mod-rotina-aloc');
+  await renderRotina();
+}
+
+async function rotinaExportarCompleto(){
+  if(!_rotinaCache) await renderRotina();
+  if(!_rotinaCache) return;
+  const {semanas,hf,pinned}=_rotinaCache;
+  if((!semanas || !semanas.length) && (!pinned || !pinned.length)){ alert('Nada para exportar.'); return; }
+  const title='Rotina de Trabalho — Plano Completo';
+  const diasLbl={0:'Domingo',1:'Segunda',2:'Terça',3:'Quarta',4:'Quinta',5:'Sexta',6:'Sábado'};
+  let csv=`${title}\nGerado em;${new Date().toLocaleString('pt-BR')}\nJanela;Manhã ${hf.manhaIni}-${hf.manhaFim} / Tarde ${hf.tardeIni}-${hf.tardeFim}\n\n`;
+  csv+=`Itens com dia/horário fixado (recorrentes toda semana)\nDia da semana;Horário;Empresa;Departamento;Item;Prazo;Duracao (min)\n`;
+  let rowsPin='';
+  (pinned||[]).forEach(it=>{
+    csv+=`${diasLbl[it.execDia]||it.execDia};${it.execHora||'—'};${it.empresa||'—'};${it.dept||'—'};${it.titulo};${it.prazo||'—'};${it.duracao}\n`;
+    rowsPin+=`<tr><td>${diasLbl[it.execDia]||it.execDia}</td><td>${it.execHora||'—'}</td><td>${it.empresa||'—'}</td><td>${it.dept||'—'}</td><td>${_crmEsc(it.titulo)}</td><td>${it.prazo||'—'}</td><td>${it.duracao}</td></tr>`;
+  });
+  csv+=`\nFila automática (sem dia/horário fixo)\nSemana;Dia;Bloco;Empresa;Departamento;Item;Prazo;Duracao (min);Prioridade\n`;
+  let rows='';
+  (semanas||[]).forEach((s,si)=>{
+    s.dias.forEach(d=>{
+      [['Manhã',d.manha],['Tarde',d.tarde]].forEach(([blocoLabel,lista])=>{
+        lista.forEach(it=>{
+          csv+=`${si+1};${d.label};${blocoLabel};${it.empresa||'—'};${it.dept||'—'};${it.titulo};${it.prazo||'—'};${it.duracao};${it.prioridade}\n`;
+          rows+=`<tr><td>${si+1}</td><td>${d.label}</td><td>${blocoLabel}</td><td>${it.empresa||'—'}</td><td>${it.dept||'—'}</td><td>${_crmEsc(it.titulo)}</td><td>${it.prazo||'—'}</td><td>${it.duracao}</td><td>${it.prioridade}</td></tr>`;
+        });
+      });
+    });
+  });
+  const html=`<html><head><meta charset="UTF-8"><title>${title}</title><style>body{font-family:sans-serif;padding:40px;color:#333}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:11px}th,td{border:1px solid #ddd;padding:6px 8px;text-align:left}th{background:#1565C0;color:#fff}h1{font-size:22px;color:#1565C0}h2{font-size:16px;color:#666;margin-top:20px}</style></head><body>`+
+    `<h1>Ornellas Soluções Contábeis</h1><h2>${title}</h2>`+
+    `<h2 style="font-size:14px">Itens com dia/horário fixado</h2><table><thead><tr><th>Dia</th><th>Horário</th><th>Empresa</th><th>Depto</th><th>Item</th><th>Prazo</th><th>Min</th></tr></thead><tbody>${rowsPin||'<tr><td colspan="7">Nenhum</td></tr>'}</tbody></table>`+
+    `<h2 style="font-size:14px">Fila automática — ${(semanas||[]).length} semana(s)</h2><table><thead><tr><th>Semana</th><th>Dia</th><th>Bloco</th><th>Empresa</th><th>Depto</th><th>Item</th><th>Prazo</th><th>Min</th><th>Prio</th></tr></thead><tbody>${rows||'<tr><td colspan="9">Nenhum</td></tr>'}</tbody></table>`+
+    `<p style="margin-top:30px;font-size:12px;color:#999">Gerado em ${new Date().toLocaleString('pt-BR')}</p></body></html>`;
+  const blob=new Blob(["\ufeff"+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`Rotina_Trabalho_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  const w=window.open();
+  w.document.write(html);
+  w.print();
+}
+
 
 async function exportarDados(tipo){
   if(tipo==='obrigacoes' && OBR_OBLIG){
@@ -19061,6 +20085,9 @@ async function openNTaskModal(prefill){
   document.getElementById('mt-due').value='';
   document.getElementById('mt-note').value=prefill.note||'';
   document.getElementById('mt-status').value=prefill.status||'pending';
+  document.getElementById('mt-exec-dia').value=(prefill.execDia===undefined||prefill.execDia===null)?'':String(prefill.execDia);
+  document.getElementById('mt-exec-hora').value=prefill.execHora||'';
+  const mtSug=document.getElementById('mt-sugestoes'); if(mtSug) mtSug.innerHTML='';
   const deptMap={dp:'dp',fiscal:'fiscal',contabil:'contabil',leg:'leg'};
   document.getElementById('mt-dept').value=prefill.dept||(CU&&CU.dept&&deptMap[CU.dept])||'fiscal';
   mtToggleLegWrap();
@@ -19083,6 +20110,7 @@ async function saveTask(){
     const status=document.getElementById('mt-status').value||'pending';
     const _newTaskId='t'+Date.now();
     const _committedFiles=await _commitTaskFiles(window._mtPDFFiles, _newTaskId);
+    const mtExecDiaV=document.getElementById('mt-exec-dia').value;
     const t={
       id:_newTaskId,
       title,
@@ -19097,6 +20125,8 @@ async function saveTask(){
       legProcessoId:(legSel&&legSel.value)||null,
       status,
       done:status==='done',
+      execDia:mtExecDiaV===''?null:parseInt(mtExecDiaV),
+      execHora:document.getElementById('mt-exec-hora').value||'',
       createdAt:new Date().toISOString()
     };
     await sbAddTask(t);
@@ -19120,6 +20150,9 @@ async function openEditTask(id){
   document.getElementById('et-status').value=tStatus(t);
   document.getElementById('et-due').value=t.due||'';
   document.getElementById('et-note').value=t.note||'';
+  document.getElementById('et-exec-dia').value=(t.execDia===undefined||t.execDia===null)?'':String(t.execDia);
+  document.getElementById('et-exec-hora').value=t.execHora||'';
+  const etSug=document.getElementById('et-sugestoes'); if(etSug) etSug.innerHTML='';
   _renderAssigneeBox('et-assigned-box', tAssignees(t));
   const sel=document.getElementById('et-company');
   sel.innerHTML='<option value="">— Tarefa Geral —</option>';
@@ -19165,6 +20198,9 @@ async function updateTask(){
   t.note=document.getElementById('et-note').value.trim();
   t.status=status;
   t.done=(status==='done');
+  const etExecDiaV=document.getElementById('et-exec-dia').value;
+  t.execDia=etExecDiaV===''?null:parseInt(etExecDiaV);
+  t.execHora=document.getElementById('et-exec-hora').value||'';
   const legSel=document.getElementById('et-leg-processo');
   t.legProcessoId=(legSel&&legSel.value)||null;
   t.files=await _commitTaskFiles(window._etPDFFiles, t.id);
@@ -28911,6 +29947,7 @@ async function tcCarregarMensagens(canal){
 async function tcMarcarLido(canal){
   if(!CU || !CURRENT_TENANT) return;
   TC_ST.unread[canal] = 0;
+  tcAtualizarBadgesNav();
   await sb.from('team_chat_reads').upsert({
     tenant_id: CURRENT_TENANT.id,
     username: CU.username,
@@ -28930,7 +29967,7 @@ async function tcCarregarNaoLidas(){
   const readMap = {};
   (reads||[]).forEach(r=>{ readMap[r.channel]=r.last_read_at; });
   await Promise.all(TC_CHANNELS.map(async c=>{
-    if(c.key===TC_ST.channel){ TC_ST.unread[c.key]=0; return; }
+    if(curTab==='teamchat' && c.key===TC_ST.channel){ TC_ST.unread[c.key]=0; return; }
     const desde = readMap[c.key] || '1970-01-01T00:00:00Z';
     const {count} = await sb.from('team_chat_messages').select('id',{count:'exact', head:true})
       .eq('channel', c.key).gt('created_at', desde).neq('sender_username', CU.username);
@@ -28939,12 +29976,36 @@ async function tcCarregarNaoLidas(){
   /* Diretas (1 a 1) — mesma tabela, canal sintético "dm__usuarioA__usuarioB" */
   await Promise.all(TC_ST.members.map(async m=>{
     const dmKey = tcDmKey(CU.username, m.login);
-    if(dmKey===TC_ST.channel){ TC_ST.unread[dmKey]=0; return; }
+    if(curTab==='teamchat' && dmKey===TC_ST.channel){ TC_ST.unread[dmKey]=0; return; }
     const desde = readMap[dmKey] || '1970-01-01T00:00:00Z';
     const {count} = await sb.from('team_chat_messages').select('id',{count:'exact', head:true})
       .eq('channel', dmKey).gt('created_at', desde).neq('sender_username', CU.username);
     TC_ST.unread[dmKey] = count || 0;
   }));
+  tcAtualizarBadgesNav();
+}
+
+/* ── Badge de "mensagem nova" na navegação (grupo Chat / Chat da Equipe) ──
+   Funciona mesmo com o usuário em qualquer outra tela do sistema: a
+   contagem de não lidas é recalculada via Realtime + polling de 20s
+   (ver tcSubscribe), então o badge aparece assim que chega mensagem nova,
+   sem precisar abrir o Chat da Equipe. */
+function _tcTotalNaoLidas(){
+  return Object.values(TC_ST.unread||{}).reduce((s,n)=>s+(n||0),0);
+}
+function tcAtualizarBadgesNav(){
+  const total=_tcTotalNaoLidas();
+  ['tc-badge-group','tc-badge-teamchat'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    if(total>0){ el.style.display='inline-block'; el.textContent = total>99?'99+':String(total); }
+    else{ el.style.display='none'; }
+  });
+}
+function tcIniciarBadgeGlobal(){
+  if(lmode!=='contador' || !CU) return;
+  tcSubscribe();
+  tcCarregarNaoLidas().catch(e=>console.error('tcIniciarBadgeGlobal', e));
 }
 
 /* ── Envio ──────────────────────────────────────────────────────────── */
@@ -29051,10 +30112,13 @@ function tcSubscribe(){
   if(TC_ST.sub) return;
   TC_ST.sub = sb.channel('team-chat-msgs')
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'team_chat_messages'}, async (p)=>{
-      if(curTab!=='teamchat') return;
-      if(p.new.channel===TC_ST.channel){
+      if(curTab==='teamchat' && p.new.channel===TC_ST.channel){
         await tcAbrirCanal(TC_ST.channel);
       } else {
+        // Mensagem chegou em outro canal, ou o usuário nem está no Chat
+        // da Equipe agora — só recalcula não lidas e atualiza os badges
+        // (grupo "Chat" + item "Chat da Equipe" na navegação) e, se a
+        // lista lateral do chat estiver visível, ela também é atualizada.
         await tcCarregarNaoLidas();
         const listaEl=document.getElementById('tc-lista');
         if(listaEl) listaEl.innerHTML = tcSidebarHTML();
@@ -29062,13 +30126,17 @@ function tcSubscribe(){
     })
     .subscribe();
   if(!TC_ST.poll){
-    TC_ST.poll = setInterval(()=>{ if(curTab==='teamchat') tcAbrirCanal(TC_ST.channel); }, 20000);
+    TC_ST.poll = setInterval(()=>{
+      if(curTab==='teamchat') tcAbrirCanal(TC_ST.channel);
+      else tcCarregarNaoLidas();
+    }, 20000);
   }
 }
 
 async function renderCurTab() {
   if (curTab==='dash') await renderDash();
   else if (curTab==='obr') await renderObrig();
+  else if (curTab==='rotina') await renderRotina();
   else if (curTab==='gg') await renderGG();
   else if (curTab==='const') await renderDC();
   else if (curTab==='cont') await renderDCont();

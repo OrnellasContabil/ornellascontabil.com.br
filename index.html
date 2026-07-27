@@ -195,29 +195,36 @@ button,a,.aptab,.aptab-flyout-item,.card,input,select,textarea{-webkit-tap-highl
 .wa-float:hover .wa-tip{opacity:1}
 @keyframes wapulse{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.45)}50%{box-shadow:0 4px 30px rgba(37,211,102,.7),0 0 0 8px rgba(37,211,102,.10)}}
 /* LOGIN */
-.lcard{background:#fff;border-radius:20px;width:100%;max-width:400px;padding:38px 32px;box-shadow:0 32px 80px rgba(0,0,0,.4)}
-.llogo{text-align:center;margin-bottom:6px}
+#screen-login.active{position:relative;overflow:hidden}
+#screen-login.active::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(180deg,rgba(255,255,255,.035) 0px,rgba(255,255,255,.035) 1px,transparent 1px,transparent 34px);pointer-events:none}
+#screen-login.active::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 72% 28%,rgba(201,169,110,.12) 0%,transparent 60%);pointer-events:none}
+.lcard{background:#fff;border-radius:20px;width:100%;max-width:400px;padding:36px 32px 34px;box-shadow:0 32px 80px rgba(0,0,0,.4);position:relative;z-index:1;overflow:hidden}
+.lcard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold) 0%,#e8caa0 50%,var(--gold) 100%)}
+.llogo{text-align:center;margin-bottom:6px;margin-top:6px}
 .llogo img{height:50px}
-.ltit{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--dark);text-align:center;margin-top:14px}
-.lsub{font-size:11px;color:var(--t3);text-align:center;margin-top:4px;margin-bottom:22px;letter-spacing:.3px}
-.ltabs{display:flex;background:var(--bg);border-radius:10px;padding:3px;margin-bottom:22px}
-.ltab{flex:1;padding:8px;border:none;background:none;border-radius:8px;font-size:13px;cursor:pointer;color:var(--t2);transition:all .2s;font-family:'Inter',sans-serif}
-.ltab.active{background:#fff;color:var(--pri);font-weight:700;box-shadow:var(--sh)}
+.leyebrow{display:flex;align-items:center;justify-content:center;gap:8px;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-top:16px}
+.leyebrow::before,.leyebrow::after{content:'';display:block;width:20px;height:1px;background:var(--gold);opacity:.6}
+.ltit{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--dark);text-align:center;margin-top:10px}
+.lsub{font-size:11px;color:var(--t3);text-align:center;margin-top:4px;margin-bottom:24px;letter-spacing:.3px}
+.ltabs{display:flex;background:var(--bg);border-radius:10px;padding:3px;margin-bottom:22px;gap:2px}
+.ltab{flex:1;padding:9px 8px;border:none;background:none;border-radius:8px;font-size:12.5px;cursor:pointer;color:var(--t2);transition:all .2s;font-family:'Inter',sans-serif;font-weight:600}
+.ltab.active{background:var(--dark);color:var(--gold);font-weight:700;box-shadow:0 2px 10px rgba(13,30,44,.25)}
 .lfg{margin-bottom:14px}
 .lfg label{display:block;font-size:11px;font-weight:700;color:var(--t2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
 .lfg input{width:100%;padding:10px 13px;border:1.5px solid var(--bdr);border-radius:10px;font-size:13px;color:var(--t1);outline:none;transition:border .2s;font-family:'Inter',sans-serif}
-.lfg input:focus{border-color:var(--pri)}
-.btn-login{width:100%;padding:12px;background:var(--pri);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background .2s}
-.btn-login:hover{background:var(--prid)}
+.lfg input:focus{border-color:var(--gold)}
+.btn-login{width:100%;padding:13px;background:var(--gold);color:var(--dark);border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .22s;letter-spacing:.2px}
+.btn-login:hover{background:#e0bc82;transform:translateY(-1px)}
 .lerr{color:#C62828;font-size:12px;text-align:center;margin-top:8px;display:none}
 .lback{display:block;text-align:center;margin-top:16px;font-size:12px;color:var(--t2);cursor:pointer;text-decoration:underline}
 /* APP */
 #screen-app{min-height:100vh;background:var(--bg)}
 .aph{background:var(--dark);color:#fff;padding:0 18px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;border-bottom:1px solid rgba(255,255,255,.07)}
+.aph::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--gold) 50%,transparent);opacity:.65;pointer-events:none}
 .aplogo{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .aplogob{width:44px;height:44px;background:rgba(255,255,255,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .aplogob img{height:38px;object-fit:contain;padding:2px}
-.aplogon{font-size:13px;font-weight:700;line-height:1.2}
+.aplogon{font-size:13px;font-weight:700;line-height:1.2;color:var(--gold)}
 .aplogos{font-size:10px;opacity:.55}
 .cosel-wrap{display:flex;align-items:center;gap:7px;flex:1;justify-content:center;min-width:0;padding:0 12px}
 .cosel{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:6px 28px 6px 10px;font-size:12px;font-weight:600;cursor:pointer;appearance:none;max-width:260px;min-width:120px;text-overflow:ellipsis;font-family:'Inter',sans-serif}
@@ -238,8 +245,8 @@ button,a,.aptab,.aptab-flyout-item,.card,input,select,textarea{-webkit-tap-highl
 .notif-item:hover{background:#f7f9fc}
 /* ── Barra lateral de navegação (ícones + texto no desktop) ── */
 .aptabs{position:fixed;top:0;left:0;bottom:0;width:220px;background:#fff;border-right:1px solid var(--bdr);border-bottom:none;display:flex;flex-direction:column;align-items:stretch;padding:74px 12px 16px;gap:2px;overflow-y:auto;overflow-x:hidden;z-index:140}
-.aptab{width:100%;height:auto;padding:10px 12px;font-size:13px;line-height:1.2;font-weight:600;color:var(--t2);border:none;background:none;cursor:pointer;border-radius:10px;border-bottom:none;white-space:nowrap;transition:all .15s;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:flex-start;gap:12px;flex-shrink:0;text-align:left}
-.aptab.active{color:#fff;background:var(--pri);border-bottom-color:transparent}
+.aptab{width:100%;height:auto;padding:10px 12px 10px 14px;font-size:13px;line-height:1.2;font-weight:600;color:var(--t2);border:none;border-left:3px solid transparent;background:none;cursor:pointer;border-radius:0 10px 10px 0;white-space:nowrap;transition:all .15s;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:flex-start;gap:12px;flex-shrink:0;text-align:left}
+.aptab.active{color:#fff;background:var(--pri);border-left-color:var(--gold);font-weight:700}
 .aptab:hover:not(.active){color:var(--pri);background:#eef3f8}
 .aptab-ico{width:19px;text-align:center;font-size:16px;flex-shrink:0}
 .aptab-lbl{display:inline-block;overflow:hidden;text-overflow:ellipsis}
@@ -252,11 +259,11 @@ button,a,.aptab,.aptab-flyout-item,.card,input,select,textarea{-webkit-tap-highl
 .aptab-flyout.open{display:flex}
 .aptab-flyout.inline-desktop{position:static;display:none;box-shadow:none;border:none;padding:2px 0 4px 14px;margin:0;min-width:0;background:transparent;border-left:2px solid var(--bdr);margin-left:9px}
 .aptab-flyout.inline-desktop.open{display:flex}
-.aptab-flyout-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--dark);text-align:left;width:100%;font-family:'Inter',sans-serif}
-.aptab-flyout.inline-desktop .aptab-flyout-item{font-size:12.5px;padding:8px 10px;color:var(--t2)}
+.aptab-flyout-item{display:flex;align-items:center;gap:10px;padding:9px 10px 9px 12px;border-radius:0 8px 8px 0;border:none;border-left:3px solid transparent;background:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--dark);text-align:left;width:100%;font-family:'Inter',sans-serif}
+.aptab-flyout.inline-desktop .aptab-flyout-item{font-size:12.5px;padding:8px 10px 8px 12px;color:var(--t2)}
 .aptab-flyout-item .aptab-flyout-ico{font-size:16px;width:20px;text-align:center;flex-shrink:0}
 .aptab-flyout-item:hover{background:#eef3f8}
-.aptab-flyout-item.active{background:var(--pri);color:#fff}
+.aptab-flyout-item.active{background:var(--pri);color:#fff;border-left-color:var(--gold);font-weight:700}
 .aptab-sheet-backdrop{display:none;position:fixed;inset:0;background:rgba(13,30,44,.4);z-index:145;opacity:0;transition:opacity .2s ease}
 .aptab-sheet-backdrop.open{display:block;opacity:1}
 .apc{max-width:1100px;margin:22px auto;padding:0 18px 0 240px;position:relative}
@@ -281,8 +288,9 @@ button,a,.aptab,.aptab-flyout-item,.card,input,select,textarea{-webkit-tap-highl
 .obg-item{background:#fff;border:1px solid #EDF1F6;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px}
 .obg-item.multi{flex-direction:column;align-items:flex-start}
 .obg-row{display:flex;align-items:center;gap:10px;width:100%}
-.ochk{width:20px;height:20px;border:2px solid var(--bdr);border-radius:6px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s}
-.ochk.ok{background:#2E7D32;border-color:#2E7D32;color:#fff}
+.ochk{width:22px;height:22px;border:2px solid var(--bdr);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .18s cubic-bezier(.4,0,.2,1)}
+.ochk:hover{border-color:var(--pri);transform:scale(1.1)}
+.ochk.ok{background:linear-gradient(135deg,#4CAF50,#2E7D32);border-color:#2E7D32;color:#fff;box-shadow:0 2px 8px rgba(46,125,50,.38),inset 0 1px 1px rgba(255,255,255,.3)}
 .onm{font-size:13px;font-weight:700;color:var(--t1);flex:1}
 .onm.done{text-decoration:line-through;color:var(--t3)}
 .odue{font-size:11px;color:var(--t3)}
@@ -375,10 +383,12 @@ button,a,.aptab,.aptab-flyout-item,.card,input,select,textarea{-webkit-tap-highl
 .titem.done{opacity:.5}
 .titem.done:hover{opacity:.85}
 
-.tchk{width:20px;height:20px;border-radius:50%;transition:all .18s cubic-bezier(.4,0,.2,1)}
+.tchk{width:22px;height:22px;border-radius:50%;transition:all .18s cubic-bezier(.4,0,.2,1);font-size:11px}
 .tchk:hover{border-color:var(--pri);transform:scale(1.1)}
-.tchk.ok{box-shadow:0 2px 6px rgba(46,125,50,.35)}
-.tchk.progress{box-shadow:0 2px 6px rgba(230,81,0,.35)}
+.tchk.ok{background:linear-gradient(135deg,#4CAF50,#2E7D32);border-color:#2E7D32;box-shadow:0 2px 8px rgba(46,125,50,.38),inset 0 1px 1px rgba(255,255,255,.3)}
+.tchk.progress{background:linear-gradient(135deg,#FF9D4D,#E65100);border-color:#E65100;box-shadow:0 2px 8px rgba(230,81,0,.38),inset 0 1px 1px rgba(255,255,255,.3);animation:tchkPulse 2.4s ease-in-out infinite}
+@keyframes tchkPulse{0%,100%{box-shadow:0 2px 8px rgba(230,81,0,.38),0 0 0 0 rgba(230,81,0,.35)}50%{box-shadow:0 2px 8px rgba(230,81,0,.38),0 0 0 5px rgba(230,81,0,0)}}
+@media(prefers-reduced-motion:reduce){.tchk.progress{animation:none}}
 
 .ttit{font-size:13.5px;font-weight:700;letter-spacing:-.1px;line-height:1.35}
 
@@ -837,8 +847,8 @@ button,a,.aptab,.aptab-flyout-item,.card,input,select,textarea{-webkit-tap-highl
 .leg-step{display:flex;align-items:stretch;gap:0;position:relative}
 .leg-step-line{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:40px}
 .leg-step-dot{width:32px;height:32px;border-radius:50%;background:#fff;border:2.5px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--t3);z-index:1;flex-shrink:0;transition:all .3s}
-.leg-step.done .leg-step-dot{background:#2E7D32;border-color:#2E7D32;color:#fff}
-.leg-step.active .leg-step-dot{background:var(--pri);border-color:var(--pri);color:#fff}
+.leg-step.done .leg-step-dot{background:linear-gradient(135deg,#4CAF50,#2E7D32);border-color:#2E7D32;color:#fff;box-shadow:0 2px 8px rgba(46,125,50,.38),inset 0 1px 1px rgba(255,255,255,.3)}
+.leg-step.active .leg-step-dot{background:linear-gradient(135deg,var(--pri),var(--prid));border-color:var(--prid);color:#fff;box-shadow:0 2px 8px rgba(47,95,128,.38),inset 0 1px 1px rgba(255,255,255,.3)}
 .leg-step-connector{flex:1;width:2px;background:var(--bdr);margin:0 auto}
 .leg-step:last-child .leg-step-connector{display:none}
 .leg-step.done .leg-step-connector{background:#2E7D32}
@@ -997,6 +1007,9 @@ table.difal-table tfoot td{font-weight:800;color:var(--dark);background:var(--bg
   .aptab-flyout-item.active{background:linear-gradient(120deg,var(--pri),var(--prid))}
   .aptab-flyout-item.active::before{content:'';position:absolute;left:-14px;top:20%;bottom:20%;width:3px;border-radius:2px;background:var(--gold)}
   .aptab-flyout.inline-desktop .aptab-flyout-item.active::before{left:-16px}
+  /* Corrige contraste: a regra de cor cinza do menu embutido (inline-desktop)
+     tinha mais especificidade que .active e apagava o texto sobre a pílula azul */
+  .aptab-flyout.inline-desktop .aptab-flyout-item.active{color:#fff!important;font-weight:700}
 }
 /* Cards e KPIs: profundidade em camadas + chips de ícone coloridos */
 .card{box-shadow:var(--sh-sm);transition:box-shadow .2s}
@@ -1510,6 +1523,8 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
 .tc-canal-lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tc-unread{background:#E53935;color:#fff;font-size:9.5px;font-weight:800;border-radius:10px;padding:1px 6px}
 .tc-canal.on .tc-unread{background:rgba(255,255,255,.3)}
+.tc-side-sub{padding:12px 14px 6px;font-size:10.5px;font-weight:800;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;border-top:1px solid var(--bdr);margin-top:4px}
+.tc-dm-av{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--pri),var(--prid));color:#fff;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;flex-shrink:0}
 .tc-chat{flex:1;background:#fff;border:1px solid var(--bdr);border-radius:12px;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .tc-chat-hdr{display:flex;gap:9px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--bdr);background:#F8FAFC}
 .tc-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;background:#F7F9FA}
@@ -1855,7 +1870,8 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
 <div id="screen-login" class="screen">
   <div class="lcard">
     <div class="llogo" id="llogo-wrap"><img data-logo="1" src="" alt="Ornellas"></div>
-    <div class="ltit" id="ltit">Ornellas Soluções Contábeis</div>
+    <div class="leyebrow">Acesso ao Sistema</div>
+    <div class="ltit" id="ltit">Ornellas Gestor</div>
     <div class="lsub">Sistema de Gestão Interna</div>
     <div class="ltabs">
       <button class="ltab active" id="ltab-cont" onclick="setLTab('contador')">🧑‍💼 Contador</button>
@@ -2039,6 +2055,8 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
           <button onclick="sTab('protocolo')" style="background:#0D5C46;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">🤖 Robô de Comprovantes</button>
           <button onclick="corrigirMarcacaoImpostos()" title="Corrige obrigações fiscais antigas: marca como imposto quem deveria estar marcado, e completa o dia de vencimento quando só existe o texto (ex: 'Dia 20')" style="background:#7B4B94;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">🔧 Corrigir Impostos</button>
           <button id="obr-export-btn" onclick="exportarDados('obrigacoes')" style="background:#1565C0;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">📥 Exportar</button>
+          <button onclick="exportarRelatorioConsolidadoObrigacoes()" title="Gera um único relatório com as obrigações de todas as empresas ativas no período selecionado" style="background:var(--gold);color:var(--dark);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">📊 Relatório Geral (todas empresas)</button>
+          <button onclick="exportarRelatorioEmpresasCompleto()" title="Gera um relatório com o cadastro completo de todas as empresas do escritório" style="background:#fff;color:var(--dark);border:1.5px solid var(--gold);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">🏢 Relatório de Empresas</button>
         </div>
         <!-- Linha 2: filtros rápidos -->
         <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center">
@@ -5901,6 +5919,7 @@ async function renderEquipeList(){
       <span style="background:${roleBg[u.role]||'#f0f4f8'};color:${roleColor[u.role]||'#666'};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;flex-shrink:0">${roleMap[u.role]||u.role}</span>
       ${permsHtml}
       <div style="display:flex;gap:5px;flex-shrink:0">
+        ${!isMe?`<button onclick="abrirDmComUsuario('${login}')" title="Enviar mensagem direta" style="background:none;border:1px solid var(--bdr);border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;color:var(--pri)">💬</button>`:''}
         ${canEdit&&!isBase?`<button onclick="editUsuario('${login}')" title="Editar" style="background:none;border:1px solid var(--bdr);border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;color:var(--t2)">✏️</button>`:''}
         <button onclick="openChangePass('${login}')" title="Alterar senha" style="background:none;border:1px solid var(--bdr);border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;color:#1565c0">🔑</button>
         ${canDelete?`<button onclick="deleteUsuario('${login}')" title="Excluir" style="background:none;border:1px solid #ffcdd2;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;color:#c62828">🗑</button>`:''}
@@ -8634,7 +8653,19 @@ function toggleAptabGroup(name){
   fly.classList.add('open');
 }
 async function sTabFromGroup(tab,group){
-  closeAptabFlyouts();
+  const isDesktopInline=window.innerWidth>860;
+  if(isDesktopInline){
+    // Mantém o grupo atual aberto (accordion) — fecha só os outros —
+    // para o usuário nunca perder a referência de em qual módulo está.
+    const flyId='aptab-flyout-'+group;
+    document.querySelectorAll('.aptab-flyout.open').forEach(f=>{if(f.id!==flyId)f.classList.remove('open')});
+    document.querySelectorAll('.aptab-group>.aptab.flyout-open').forEach(b=>{
+      const fly=b.nextElementSibling;
+      if(!fly||fly.id!==flyId)b.classList.remove('flyout-open');
+    });
+  } else {
+    closeAptabFlyouts();
+  }
   await sTab(tab);
 }
 document.addEventListener('click',(e)=>{
@@ -10676,7 +10707,7 @@ function renderObgItem(item,sec,year,month){
   const isSoon=alertInfo.state==='soon';
   const rowStyle=isLate?'background:#FFEBEE;border-left:3px solid #C62828;border-radius:8px;padding-left:7px'
     :isSoon?'background:#FFF8E1;border-left:3px solid #E65100;border-radius:8px;padding-left:7px':'';
-  const chk=`<div class="ochk ${item.done?'ok':''}" onclick="togObg('${sec}','${item.id}')">${item.done?'✓':''}</div>`;
+  const chk=`<div class="ochk ${item.done?'ok':''}" onclick="togObg('${sec}','${item.id}')">${item.done?'<i class="ti ti-check"></i>':''}</div>`;
   const taxIcon=item.isImposto?`<span title="Imposto" style="margin-right:4px">🧾</span>`:'';
   const sendIcon=item.enviarCliente?`<span title="Enviado à Área do Cliente" style="margin-right:4px">📤</span>`:'';
   const nm=`<div class="onm ${item.done?'done':''}">${taxIcon}${sendIcon}${item.name}</div>`;
@@ -13307,7 +13338,7 @@ async function renderTItem(t,isAdmin){
   const today=new Date();today.setHours(0,0,0,0);
   const st=t.done?'done':(t.status||'pending');
   const chkClass=st==='done'?'ok':st==='progress'?'progress':'';
-  const chkIcon=st==='done'?'✓':st==='progress'?'▶':'';
+  const chkIcon=st==='done'?'<i class="ti ti-check"></i>':st==='progress'?'<i class="ti ti-player-play-filled"></i>':'';
   let dueH='';
   if(t.due){const d=new Date(t.due+'T00:00:00');dueH=`<span class="tbadge ${st!=='done'&&d<today?'overdue':'due'}">📅 ${d.toLocaleDateString('pt-BR')}</span>`;}
   const co=t.company?(await getCompanies()).find(c=>c.id===t.company):null;
@@ -13785,6 +13816,70 @@ async function _exportarRelatorioObrigacao(){
   const a=document.createElement('a');
   a.href=url;
   a.download=`Relatorio_${OBR_OBLIG.replace(/[^a-zA-Z0-9]+/g,'_')}_${CY}${String(CM+1).padStart(2,'0')}.csv`;
+  a.click();
+  const w=window.open();
+  w.document.write(html);
+  w.print();
+}
+
+async function exportarRelatorioEmpresasCompleto(){
+  const cos=await getCompanies();
+  if(!cos.length){alert('Nenhuma empresa cadastrada.');return;}
+  const title='Relatório Completo de Empresas';
+  const head=['Nome','Código','CNPJ','Regime','Tipo Jurídico','Inscrição Municipal','UF','Cidade','Grupo','WhatsApp','E-mail','Login do Cliente','Fator R','Status'];
+  let csv=head.join(';')+'\n';
+  let rows='';
+  cos.forEach(co=>{
+    const vals=[co.name||'—',co.codigo||'—',co.cnpj||'—',co.regime||'—',co.tipoJuridico||'—',co.im||'—',co.uf||'—',co.cidade||'—',co.group||'—',co.whatsapp||'—',co.email||'—',co.clientLogin||'—',co.fatorR?'Sim':'Não',co.inactive?'Inativa':'Ativa'];
+    csv+=vals.join(';')+'\n';
+    rows+=`<tr>${vals.map(v=>`<td>${v}</td>`).join('')}</tr>`;
+  });
+  const html=`<html><head><meta charset="UTF-8"><title>${title}</title><style>body{font-family:sans-serif;padding:40px;color:#333}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px}th,td{border:1px solid #ddd;padding:8px;text-align:left;white-space:nowrap}th{background:#1565C0;color:#fff}h1{font-size:22px;color:#1565C0}h2{font-size:16px;color:#666;margin-top:20px}</style></head><body>`+
+    `<h1>Ornellas Soluções Contábeis</h1><h2>${title} — ${cos.length} empresa(s) — ${new Date().toLocaleDateString('pt-BR')}</h2>`+
+    `<table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`+
+    `<p style="margin-top:30px;font-size:12px;color:#999">Gerado em ${new Date().toLocaleString('pt-BR')}</p></body></html>`;
+  const blob=new Blob(["\ufeff"+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`Relatorio_Empresas_Completo_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  const w=window.open();
+  w.document.write(html);
+  w.print();
+}
+
+async function exportarRelatorioConsolidadoObrigacoes(){
+  const cos=(await getCompanies()).filter(c=>!c.inactive);
+  if(!cos.length){alert('Nenhuma empresa ativa encontrada.');return;}
+  const title='Relatório Consolidado de Obrigações — Todas as Empresas';
+  const periodo=`${MONTHS[CM]}/${CY}`;
+  let csv=`Periodo;${periodo}\nData;${new Date().toLocaleDateString('pt-BR')}\n\nEmpresa;CNPJ;Departamento;Obrigação;Prazo;Status;Valor\n`;
+  let rows='';
+  let totalObg=0, totalPend=0;
+  const secs=[{k:'fiscal',l:'Fiscal'},{k:'dp',l:'DP'},{k:'contabil',l:'Contábil'},{k:'anual',l:'Anual'}];
+  for(const co of cos){
+    const data=await getOblig(co.id,CY,CM);
+    secs.forEach(s=>{
+      (data[s.k]||[]).forEach(o=>{
+        totalObg++;
+        if(!o.done)totalPend++;
+        csv+=`${co.name};${co.cnpj||'—'};${s.l};${o.name};${o.due||'—'};${o.done?'Concluido':'Pendente'};${o.value||'—'}\n`;
+        rows+=`<tr><td>${co.name}</td><td>${co.cnpj||'—'}</td><td>${s.l}</td><td>${o.name}</td><td>${o.due||'—'}</td><td>${o.done?'✅ Concluido':'⏳ Pendente'}</td><td>${o.value||'—'}</td></tr>`;
+      });
+    });
+  }
+  if(!totalObg){alert(`Nenhuma obrigação encontrada para ${periodo}.`);return;}
+  const html=`<html><head><meta charset="UTF-8"><title>${title}</title><style>body{font-family:sans-serif;padding:40px;color:#333}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#1565C0;color:#fff}h1{font-size:22px;color:#1565C0}h2{font-size:16px;color:#666;margin-top:20px}p.tot{font-size:13px;color:#333;margin-top:6px}</style></head><body>`+
+    `<h1>Ornellas Soluções Contábeis</h1><h2>${title} — ${periodo}</h2>`+
+    `<p class="tot">${cos.length} empresa(s) · ${totalObg} obrigação(ões) · ${totalPend} pendente(s)</p>`+
+    `<table><thead><tr><th>Empresa</th><th>CNPJ</th><th>Departamento</th><th>Obrigação</th><th>Prazo</th><th>Status</th><th>Valor</th></tr></thead><tbody>${rows}</tbody></table>`+
+    `<p style="margin-top:30px;font-size:12px;color:#999">Gerado em ${new Date().toLocaleString('pt-BR')}</p></body></html>`;
+  const blob=new Blob(["\ufeff"+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`Relatorio_Obrigacoes_Consolidado_${CY}${String(CM+1).padStart(2,'0')}.csv`;
   a.click();
   const w=window.open();
   w.document.write(html);
@@ -19125,7 +19220,7 @@ async function renderTItem(t, isAdmin) {
   const today = new Date(); today.setHours(0,0,0,0);
   const st = tStatus(t);
   const chkClass = st==='done'?'ok':st==='progress'?'progress':'';
-  const chkIcon  = st==='done'?'✓':st==='progress'?'▶':'';
+  const chkIcon  = st==='done'?'<i class="ti ti-check"></i>':st==='progress'?'<i class="ti ti-player-play-filled"></i>':'';
   let dueH = '';
   if (t.due) {
     const d = new Date(t.due + 'T00:00:00');
@@ -28798,6 +28893,13 @@ function tcHora(iso){
                   : d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 }
 function tcIniciais(nome){ return (nome||'?').trim().charAt(0).toUpperCase(); }
+function tcDmKey(a,b){ return 'dm__'+[a,b].sort().join('__'); }
+async function abrirDmComUsuario(login){
+  if(!CU || login===CU.username) return;
+  TC_ST.channel = tcDmKey(CU.username, login);
+  closeM('mod-equipe');
+  await sTab('teamchat');
+}
 
 /* ── Dados ──────────────────────────────────────────────────────────── */
 async function tcCarregarMensagens(canal){
@@ -28818,6 +28920,12 @@ async function tcMarcarLido(canal){
 }
 async function tcCarregarNaoLidas(){
   if(!CU) return;
+  if(!TC_ST.members){
+    const allU = await getAllUsers();
+    TC_ST.members = Object.entries(allU)
+      .filter(([login])=>login!==CU.username)
+      .map(([login,u])=>({login, name:u.name||login}));
+  }
   const {data: reads} = await sb.from('team_chat_reads').select('channel,last_read_at').eq('username', CU.username);
   const readMap = {};
   (reads||[]).forEach(r=>{ readMap[r.channel]=r.last_read_at; });
@@ -28827,6 +28935,15 @@ async function tcCarregarNaoLidas(){
     const {count} = await sb.from('team_chat_messages').select('id',{count:'exact', head:true})
       .eq('channel', c.key).gt('created_at', desde).neq('sender_username', CU.username);
     TC_ST.unread[c.key] = count || 0;
+  }));
+  /* Diretas (1 a 1) — mesma tabela, canal sintético "dm__usuarioA__usuarioB" */
+  await Promise.all(TC_ST.members.map(async m=>{
+    const dmKey = tcDmKey(CU.username, m.login);
+    if(dmKey===TC_ST.channel){ TC_ST.unread[dmKey]=0; return; }
+    const desde = readMap[dmKey] || '1970-01-01T00:00:00Z';
+    const {count} = await sb.from('team_chat_messages').select('id',{count:'exact', head:true})
+      .eq('channel', dmKey).gt('created_at', desde).neq('sender_username', CU.username);
+    TC_ST.unread[dmKey] = count || 0;
   }));
 }
 
@@ -28851,7 +28968,7 @@ async function tcEnviar(){
 
 /* ── Render ─────────────────────────────────────────────────────────── */
 function tcSidebarHTML(){
-  return TC_CHANNELS.map(c=>{
+  const canais = TC_CHANNELS.map(c=>{
     const unread = TC_ST.unread[c.key]||0;
     return `<div class="tc-canal ${TC_ST.channel===c.key?'on':''}" onclick="tcAbrirCanal('${c.key}')">
       <span class="tc-canal-ico">${c.icon}</span>
@@ -28859,6 +28976,16 @@ function tcSidebarHTML(){
       ${unread>0?`<span class="tc-unread">${unread}</span>`:''}
     </div>`;
   }).join('');
+  const membros = (TC_ST.members||[]).map(m=>{
+    const dmKey = tcDmKey(CU.username, m.login);
+    const unread = TC_ST.unread[dmKey]||0;
+    return `<div class="tc-canal ${TC_ST.channel===dmKey?'on':''}" onclick="tcAbrirCanal('${dmKey}')">
+      <span class="tc-dm-av">${tcIniciais(m.name)}</span>
+      <span class="tc-canal-lbl">${_crmEsc(m.name)}</span>
+      ${unread>0?`<span class="tc-unread">${unread}</span>`:''}
+    </div>`;
+  }).join('');
+  return canais+`<div class="tc-side-sub">Direto</div>`+(membros||`<div style="font-size:11px;color:var(--t3);padding:6px 10px">Nenhum outro colaborador cadastrado.</div>`);
 }
 
 async function renderTeamChat(){
@@ -28886,6 +29013,10 @@ async function tcAbrirCanal(canal){
   if(listaEl) listaEl.innerHTML = tcSidebarHTML();
 
   const info = TC_CHANNELS.find(c=>c.key===canal);
+  const isDm = canal.startsWith('dm__');
+  const dmPeer = isDm ? (TC_ST.members||[]).find(m=>tcDmKey(CU.username,m.login)===canal) : null;
+  const hdrIcon = isDm ? `<span class="tc-dm-av" style="width:22px;height:22px;font-size:10px">${tcIniciais(dmPeer?dmPeer.name:'?')}</span>` : `<span style="font-size:16px">${info?info.icon:''}</span>`;
+  const hdrLabel = isDm ? _crmEsc(dmPeer?dmPeer.name:'Conversa direta') : (info?info.label:'');
   const bolhas = TC_ST.msgs.length ? TC_ST.msgs.map(m=>{
     const mine = CU && m.sender_username===CU.username;
     return `<div class="tc-msg ${mine?'out':'in'}">
@@ -28902,12 +29033,12 @@ async function tcAbrirCanal(canal){
   if(!chatEl) return;
   chatEl.innerHTML = `
     <div class="tc-chat-hdr">
-      <span style="font-size:16px">${info?info.icon:''}</span>
-      <div style="font-weight:800;font-size:13px;color:var(--dark)">${info?info.label:''}</div>
+      ${hdrIcon}
+      <div style="font-weight:800;font-size:13px;color:var(--dark)">${hdrLabel}</div>
     </div>
     <div class="tc-msgs" id="tc-msgs">${bolhas}</div>
     <div class="tc-composer">
-      <textarea id="tc-txt" rows="1" placeholder="Escreva para a equipe..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();tcEnviar()}"></textarea>
+      <textarea id="tc-txt" rows="1" placeholder="${isDm?'Escreva para '+hdrLabel+'...':'Escreva para a equipe...'}" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();tcEnviar()}"></textarea>
       <button class="tc-send" onclick="tcEnviar()">➤</button>
     </div>`;
   const box=document.getElementById('tc-msgs'); if(box) box.scrollTop = box.scrollHeight;

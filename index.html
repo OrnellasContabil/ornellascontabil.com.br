@@ -5679,6 +5679,88 @@ async function nfseTestarCertificado(companyId, btnEl){
   }
 }
 
+/* Remove acentos e normaliza pra comparação de nomes de cidade
+   (a grafia cadastrada pode não bater 100% com a oficial do IBGE,
+   ex: "Sao Goncalo" vs "São Gonçalo"). */
+function _nfseNormalizaNome(s){
+  return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();
+}
+
+/* Resolve o código IBGE (7 dígitos) de um município a partir de UF+Cidade,
+   usando a API pública do IBGE (sem chave, CORS liberado). Guarda o
+   resultado em companies.codigo_ibge pra não precisar consultar de novo. */
+async function nfseResolverCodigoIBGE(companyId, uf, cidade){
+  if(!uf || !cidade) return null;
+  const r = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${encodeURIComponent(uf.trim().toUpperCase())}/municipios`);
+  if(!r.ok) throw new Error('API do IBGE retornou ' + r.status);
+  const lista = await r.json();
+  const alvo = _nfseNormalizaNome(cidade);
+  const achou = lista.find(m => _nfseNormalizaNome(m.nome) === alvo);
+  if(!achou) return null;
+  const codigo = String(achou.id);
+  // Cacheia pra não precisar bater na API do IBGE de novo pra essa empresa.
+  await sb.from('companies').update({ codigo_ibge: codigo }).eq('id', companyId);
+  return codigo;
+}
+
+/* Testa a chamada REAL (com mTLS) à Sefin Nacional NFS-e, pedindo os
+   parâmetros de tributação (alíquota, regime especial etc.) de um
+   município + código de serviço. O código IBGE do município é resolvido
+   automaticamente a partir de UF+Cidade já cadastrados na empresa — só
+   pede manualmente se não conseguir resolver sozinho. O código de serviço
+   ainda é manual (não temos como derivar isso do cadastro da empresa). */
+async function nfseTestarParametrosMunicipio(companyId, btnEl){
+  const original = btnEl.textContent;
+  btnEl.disabled = true; btnEl.textContent = '🔄 Resolvendo município...';
+
+  let codigoMunicipio = null;
+  try{
+    const { data: co, error: coErr } = await sb.from('companies').select('uf,cidade,codigo_ibge').eq('id', companyId).maybeSingle();
+    if(coErr) throw coErr;
+    if(co?.codigo_ibge){
+      codigoMunicipio = co.codigo_ibge;
+    } else if(co?.uf && co?.cidade){
+      codigoMunicipio = await nfseResolverCodigoIBGE(companyId, co.uf, co.cidade);
+      if(!codigoMunicipio){
+        alert(`Não consegui identificar "${co.cidade}/${co.uf}" na lista oficial do IBGE. Confira a grafia da cidade no cadastro da empresa, ou informe o código manualmente a seguir.`);
+      }
+    }
+  }catch(e){
+    console.error('nfseResolverCodigoIBGE', e);
+    alert('Não consegui consultar a API do IBGE automaticamente: ' + e.message + '\nInforme o código manualmente a seguir.');
+  }
+
+  if(!codigoMunicipio){
+    codigoMunicipio = prompt('Código IBGE do município (7 dígitos, ex: 3304557 = Rio de Janeiro):');
+    if(!codigoMunicipio){ btnEl.disabled = false; btnEl.textContent = original; return; }
+  }
+
+  const codigoServico = prompt('Código de serviço (Anexo B / lista LC116 nacional):');
+  if(!codigoServico){ btnEl.disabled = false; btnEl.textContent = original; return; }
+
+  btnEl.textContent = '🔄 Consultando Sefin...';
+  try{
+    const { data, error } = await sb.functions.invoke('emitir-nfse', {
+      body: { action:'parametros_municipio', companyId, codigoMunicipio, codigoServico },
+    });
+    if(error || !data || data.erro){
+      const msg = (data && data.erro) || (error && error.message) || 'Erro desconhecido';
+      alert('🏛️ Teste Sefin Nacional — não foi possível concluir:\n\n' + msg);
+      console.error('nfseTestarParametrosMunicipio', error || data);
+      return;
+    }
+    alert(`✅ A Sefin Nacional respondeu! (município ${codigoMunicipio})\n\n` + JSON.stringify(data, null, 2).slice(0, 1200));
+    console.log('nfseTestarParametrosMunicipio resposta completa:', data);
+  }catch(e){
+    console.error('nfseTestarParametrosMunicipio', e);
+    alert('Erro inesperado ao consultar a Sefin Nacional: ' + e.message);
+  }finally{
+    if(document.getElementById('nfse-param-'+companyId)){
+      btnEl.disabled = false; btnEl.textContent = original;
+    }
+  }
+}
+
 /* =====================================================================
    8.0.2) CONTRATOS E TERMOS — client_contracts (jsonb por empresa)
    data = [{id, tipo, titulo, inicio, validade, indeterminado, situacao,
@@ -17888,7 +17970,7 @@ async function renderCertDig(){
     const c=r.c;
     const senhaCell=c.senha?`<span id="cdg-pw-${c.id}" data-pw="${_crmEsc(c.senha)}">••••••</span> <button class="difal-btn ghost sm" onclick="certdigTogglePw('${c.id}')" title="Mostrar/ocultar senha">👁</button>`:'—';
     const fileBtn=c.file?`<button class="difal-btn ghost sm" onclick="certdigVerArquivo('${r.cid}','${c.id}')" title="${_crmEsc(c.file.name)}">📎 Baixar</button>`:'<span style="color:var(--t3);font-size:11px">—</span>';
-    const nfseBtn=(c.tipo||'').toUpperCase().includes('E-CNPJ')?`<button class="difal-btn ghost sm" id="nfse-test-${r.cid}" onclick="nfseTestarCertificado('${r.cid}',this)" title="Confere se este certificado consegue ser lido e usado pra emitir NFS-e">🧾 Testar NFS-e</button>`:'';
+    const nfseBtn=(c.tipo||'').toUpperCase().includes('E-CNPJ')?`<button class="difal-btn ghost sm" id="nfse-test-${r.cid}" onclick="nfseTestarCertificado('${r.cid}',this)" title="Confere se este certificado consegue ser lido e usado pra emitir NFS-e">🧾 Testar NFS-e</button> <button class="difal-btn ghost sm" id="nfse-param-${r.cid}" onclick="nfseTestarParametrosMunicipio('${r.cid}',this)" title="Testa a chamada REAL (com mTLS) à Sefin Nacional, pedindo os parâmetros de um município/serviço">🏛️ Testar Sefin Nacional</button>`:'';
     const acts=(isAdmin?`<button class="difal-btn ghost sm" onclick="certdigOpen('${r.cid}','${c.id}')">✏️</button> <button class="difal-btn ghost sm" style="color:#C62828" onclick="certdigExcluir('${r.cid}','${c.id}')">🗑</button>`:'')+' '+nfseBtn;
     return `<tr>
       <td style="white-space:normal;min-width:150px"><b>${_crmEsc(r.coName)}</b>${c.titular?`<br><span style="font-size:11px;color:var(--t2)">${_crmEsc(c.titular)}</span>`:''}</td>

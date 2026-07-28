@@ -1990,6 +1990,7 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
         <button class="aptab-flyout-item" data-tab="leg" onclick="sTabFromGroup('leg','trabalho')"><span class="aptab-flyout-ico"><i class="ti ti-scale"></i></span><span>Legalizações</span></button>
         <button class="aptab-flyout-item" data-tab="crm" data-modulo="crm" id="aptab-crm" onclick="sTabFromGroup('crm','trabalho')"><span class="aptab-flyout-ico"><i class="ti ti-users"></i></span><span>CRM Contábil</span></button>
         <button class="aptab-flyout-item" data-tab="fluxo" data-modulo="fluxocaixa" id="aptab-fluxo" onclick="sTabFromGroup('fluxo','trabalho')"><span class="aptab-flyout-ico"><i class="ti ti-cash"></i></span><span>Fluxo de Caixa</span></button>
+        <button class="aptab-flyout-item" data-tab="nfsenac" id="aptab-nfsenac" onclick="sTabFromGroup('nfsenac','trabalho')" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-file-invoice"></i></span><span>NFS-e Nacional <span style="font-size:9px;background:#FFF3CD;color:#856404;padding:1px 5px;border-radius:6px;margin-left:2px">TESTE</span></span></button>
       </div>
     </div>
 
@@ -2491,6 +2492,15 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
         <button class="btn-ntask" onclick="openNovoEscritorio()" style="font-size:12px;padding:7px 13px">＋ Novo Escritório</button>
       </div>
       <div class="card"><div id="esc-content"></div></div>
+    </div>
+
+    <!-- ══════════════════════ NFS-e NACIONAL (visível apenas para o Matheus — em teste) ══════════════════════ -->
+    <div class="tpanel" id="panel-nfsenac">
+      <div style="margin-bottom:14px">
+        <h2 style="font-size:16px;font-weight:800;color:var(--dark);margin-bottom:0">🧾 NFS-e Nacional <span style="font-size:11px;background:#FFF3CD;color:#856404;padding:2px 8px;border-radius:8px;margin-left:4px;font-weight:700">EM TESTE</span></h2>
+        <p style="font-size:12px;color:var(--t2);margin-top:3px">Integração com o Emissor Público Nacional NFS-e (Sefin Nacional) — ainda em homologação. Visível só pra você enquanto validamos.</p>
+      </div>
+      <div class="card"><div id="nfsenac-content"></div></div>
     </div>
 
     <div class="tpanel" id="panel-hon">
@@ -3227,6 +3237,21 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
     <select id="obg-cat-empresa" style="flex:1;min-width:180px;padding:6px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;outline:none;font-family:'Inter',sans-serif;background:#fff"><option value="">— Selecione a empresa —</option></select>
     <select id="obg-cat-mes" style="padding:6px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;outline:none;font-family:'Inter',sans-serif;background:#fff"></select>
     <select id="obg-cat-ano" style="padding:6px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;outline:none;font-family:'Inter',sans-serif;background:#fff"></select>
+    <select id="obg-cat-resp" title="Responsável a usar ao vincular" style="padding:6px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;outline:none;font-family:'Inter',sans-serif;background:#fff"><option value="—">— Sem responsável —</option></select>
+    <select id="obg-cat-tipo" title="Tipo a usar ao vincular" style="padding:6px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;outline:none;font-family:'Inter',sans-serif;background:#fff">
+      <option value="value">Valor (R$)</option>
+      <option value="pdf">Anexar PDF</option>
+      <option value="status">Status</option>
+      <option value="status_pdf">Status + Anexo</option>
+      <option value="multi">Multi-entrada</option>
+    </select>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
+    <span style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;flex-shrink:0">Filtrar:</span>
+    <select id="obg-cat-dep-filter" onchange="renderObgCatalogList()" style="padding:6px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;outline:none;font-family:'Inter',sans-serif;background:#fff">
+      <option value="">Todos os departamentos</option>
+    </select>
   </div>
 
   <div style="position:relative;margin-bottom:10px">
@@ -4616,6 +4641,19 @@ async function openObgCatalogModal(){
   const anoAtual=CY||new Date().getFullYear();
   anoSel.innerHTML=[anoAtual-1,anoAtual,anoAtual+1].map(y=>`<option value="${y}"${y===anoAtual?' selected':''}>${y}</option>`).join('');
 
+  // Responsável e Tipo a usar ao vincular — mesma lista de nomes da equipe
+  // usada em "+ Nova Obrigação", pra já sair certo sem precisar editar depois.
+  _populateTeamSelect('obg-cat-resp','— Sem responsável —');
+  document.getElementById('obg-cat-resp').value='—';
+  document.getElementById('obg-cat-tipo').value='value';
+
+  // Filtro de departamento — mesma lista usada no seletor de departamento
+  // padrão de cada obrigação (OBG_CAT_DEP_META).
+  const depFiltroSel=document.getElementById('obg-cat-dep-filter');
+  depFiltroSel.innerHTML='<option value="">Todos os departamentos</option>'
+    +Object.entries(OBG_CAT_DEP_META).map(([k,m])=>`<option value="${k}">${m.emoji} ${m.label}</option>`).join('')
+    +'<option value="__sem__">— Sem departamento —</option>';
+
   _obgCatalogCache = await sbGetObligCatalog();
   renderObgCatalogList();
   openM('mod-obg-catalog');
@@ -4623,7 +4661,10 @@ async function openObgCatalogModal(){
 function renderObgCatalogList(){
   const el = document.getElementById('obg-cat-list');
   const q = (document.getElementById('obg-cat-search').value||'').trim().toLowerCase();
-  const itens = q ? _obgCatalogCache.filter(o=>(o.name||'').toLowerCase().includes(q)) : _obgCatalogCache;
+  const depFiltro = document.getElementById('obg-cat-dep-filter').value;
+  let itens = q ? _obgCatalogCache.filter(o=>(o.name||'').toLowerCase().includes(q)) : _obgCatalogCache;
+  if(depFiltro==='__sem__') itens = itens.filter(o=>!o.department);
+  else if(depFiltro) itens = itens.filter(o=>o.department===depFiltro);
   if(!_obgCatalogCache.length){
     el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--t2);font-size:12.5px">Nenhuma obrigação cadastrada ainda.<br>Adicione acima ou os nomes vão se cadastrando sozinhos conforme você usa o "+ Nova Obrigação".</div>';
     return;
@@ -4695,7 +4736,9 @@ async function obgCatalogDelete(id){
 }
 /* Cria, de fato, uma obrigação na empresa/mês/ano escolhidos no topo do
    modal, usando o nome e o departamento já cadastrados neste item do
-   catálogo — sem precisar abrir "+ Nova Obrigação" e redigitar tudo. */
+   catálogo — sem precisar abrir "+ Nova Obrigação" e redigitar tudo.
+   Responsável e Tipo também vêm do que foi escolhido em "Vincular em:",
+   sem precisar editar a obrigação depois de criada. */
 async function obgCatalogVincular(id, btnEl){
   const item = _obgCatalogCache.find(o=>o.id===id);
   if(!item) return;
@@ -4707,6 +4750,8 @@ async function obgCatalogVincular(id, btnEl){
   const sec = item.department || 'fiscal';
   const mes = parseInt(document.getElementById('obg-cat-mes').value);
   const ano = parseInt(document.getElementById('obg-cat-ano').value);
+  const resp = document.getElementById('obg-cat-resp').value || '—';
+  const type = document.getElementById('obg-cat-tipo').value || 'value';
 
   const d = await getOblig(coId, ano, mes);
   if(!d[sec]) d[sec]=[];
@@ -4714,12 +4759,18 @@ async function obgCatalogVincular(id, btnEl){
     alert(`Essa empresa já tem "${item.name}" cadastrada em ${MONTH_NAMES_SHORT[mes]}/${ano}.`);
     return;
   }
-  d[sec].push({
+  const novaObg = {
     id:'ob'+Date.now()+'_'+Math.random().toString(36).slice(2),
     name:item.name, due:'', dueDay:null, dueMonth:null,
-    type:'value', isImposto:false, resp:'—', done:false,
-    value:'', file:null, entries:[], status:'pending'
-  });
+    type, isImposto:false, resp, done:false
+  };
+  // Mesma inicialização de campos por tipo usada em "+ Nova Obrigação",
+  // pra cada tipo já nascer pronto pra uso (sem precisar editar depois).
+  if(type==='value') novaObg.value='';
+  if(type==='pdf'||type==='status_pdf') novaObg.file=null;
+  if(type==='status'||type==='status_pdf') novaObg.status='pending';
+  if(type==='multi') novaObg.entries=[];
+  d[sec].push(novaObg);
   await saveOblig(coId, ano, mes, d);
 
   const coNome=(document.getElementById('obg-cat-empresa').selectedOptions[0]||{}).text||'';
@@ -5751,13 +5802,13 @@ async function nfseTestarParametrosMunicipio(companyId, btnEl){
     if(!codigoMunicipio){ btnEl.disabled = false; btnEl.textContent = original; return; }
   }
 
-  const codigoServico = prompt('Código de serviço (Anexo B / lista LC116 nacional):');
-  if(!codigoServico){ btnEl.disabled = false; btnEl.textContent = original; return; }
-
+  // Por enquanto testa só /convenio (dados gerais do convênio do
+  // município) — o teste por código de serviço específico (alíquota)
+  // volta assim que confirmarmos esse formato básico funcionando certo.
   btnEl.textContent = '🔄 Consultando Sefin...';
   try{
     const { data, error } = await sb.functions.invoke('emitir-nfse', {
-      body: { action:'parametros_municipio', companyId, codigoMunicipio, codigoServico },
+      body: { action:'parametros_municipio', companyId, codigoMunicipio },
     });
     if(error || !data || data.erro){
       const msg = await _nfseExtrairErro(error, data);
@@ -5772,6 +5823,44 @@ async function nfseTestarParametrosMunicipio(companyId, btnEl){
     alert('Erro inesperado ao consultar a Sefin Nacional: ' + e.message);
   }finally{
     if(document.getElementById('nfse-param-'+companyId)){
+      btnEl.disabled = false; btnEl.textContent = original;
+    }
+  }
+}
+
+/* Cria uma nota de teste (dados fictícios, só pra homologação) e tenta
+   emitir de verdade contra a Sefin Nacional: monta o XML da DPS, assina
+   digitalmente com o certificado da empresa e envia. Mostra o resultado
+   real (autorizada, com chave de acesso, ou rejeitada com o motivo). */
+async function nfseTestarEmissao(companyId, btnEl){
+  if(!confirm('Isso vai criar uma nota de TESTE (tomador e serviço fictícios) e tentar emitir de verdade contra o ambiente de homologação da Sefin Nacional. Continuar?')) return;
+
+  const original = btnEl.textContent;
+  btnEl.disabled = true; btnEl.textContent = '🔄 Criando nota de teste...';
+  try{
+    const cria = await sb.functions.invoke('emitir-nfse', { body:{ action:'criar_nota_teste', companyId } });
+    if(cria.error || !cria.data || cria.data.erro){
+      const msg = await _nfseExtrairErro(cria.error, cria.data);
+      alert('📤 Teste de emissão — não consegui criar a nota de teste:\n\n' + msg);
+      return;
+    }
+    const notaId = cria.data.id;
+
+    btnEl.textContent = '🔄 Emitindo (assinando + enviando)...';
+    const emissao = await sb.functions.invoke('emitir-nfse', { body:{ action:'emitir', notaId } });
+    if(emissao.error || !emissao.data || emissao.data.erro){
+      const msg = await _nfseExtrairErro(emissao.error, emissao.data);
+      alert('📤 Teste de emissão — a Sefin Nacional não aceitou:\n\n' + msg);
+      console.error('nfseTestarEmissao', emissao.error || emissao.data);
+      return;
+    }
+    alert(`✅ NFS-e de teste emitida com sucesso!\n\nChave de acesso: ${emissao.data.chaveAcesso}\n\n${(emissao.data.alertas||[]).length ? 'Alertas: '+JSON.stringify(emissao.data.alertas) : 'Sem alertas.'}`);
+    console.log('nfseTestarEmissao resposta completa:', emissao.data);
+  }catch(e){
+    console.error('nfseTestarEmissao', e);
+    alert('Erro inesperado no teste de emissão: ' + e.message);
+  }finally{
+    if(document.getElementById('nfse-emit-'+companyId)){
       btnEl.disabled = false; btnEl.textContent = original;
     }
   }
@@ -6661,6 +6750,10 @@ function moduleBlockedHTML(nome){
 function atualizarVisibilidadeAbaEscritorios(){
   const tab = document.getElementById('aptab-escritorios');
   if(tab) tab.style.display = isMasterAdmin() ? '' : 'none';
+  // NFS-e Nacional ainda está em fase de teste — só o Matheus enxerga
+  // enquanto validamos a integração com a Sefin Nacional.
+  const nfseTab = document.getElementById('aptab-nfsenac');
+  if(nfseTab) nfseTab.style.display = isMasterAdmin() ? '' : 'none';
   // A aba "Configurações" é o self-service de CADA escritório (inclusive
   // o próprio Ornellas) para editar seus dados/marca — diferente da aba
   // "Escritórios", que é só do admin master para gerenciar todos.
@@ -8308,6 +8401,7 @@ async function doLogin(){
       err.textContent=result.error;err.style.display='block';return;
     }
     CU = result.user;
+    salvarSessao(u, lmode);
     if(lmode==='cliente'){
       CC = CU.company;
       await initAppCliente();
@@ -8957,7 +9051,69 @@ async function initAppCliente(){
     document.getElementById('lp').value='';
   }catch(e){console.error('Erro initAppCliente:',e);}
 }
-function doLogout(){CU=null;CC=null;_limparCachesTenant();loadCurrentTenant().catch(e=>console.error(e));irTelaInicial();}
+/* ── SESSÃO PERSISTENTE (localStorage) ──────────────────────────────
+   Sem isso, F5 (recarregar) ou abrir uma nova aba sempre caía na tela
+   de login de novo, porque CU só existia em memória. Guarda-se só
+   usuário + modo (contador/cliente) — NUNCA a senha — e ao carregar a
+   página confere de novo contra o banco se ainda é válido antes de
+   entrar direto, sem pedir login/senha de novo. ── */
+const _SESSAO_LS_KEY='sessao';
+function salvarSessao(username,mode){
+  LS.s(_SESSAO_LS_KEY,{username,mode});
+}
+function limparSessaoSalva(){
+  try{ localStorage.removeItem('oc_'+_SESSAO_LS_KEY); }catch(e){}
+}
+async function tentarRestaurarSessao(){
+  const sess=LS.g(_SESSAO_LS_KEY);
+  if(!sess||!sess.username||!sess.mode) return false;
+  try{
+    const achou=await buscarTenantPorLogin(sess.username,sess.mode);
+    if(!achou){ limparSessaoSalva(); return false; }
+
+    if(sess.mode==='cliente'){
+      const companies=await sbGetCompanies();
+      const co=companies.find(c=>c.clientLogin&&c.clientLogin.trim().toLowerCase()===sess.username);
+      if(co){
+        if(co.inactive){ limparSessaoSalva(); return false; }
+        CU={username:sess.username,role:'client',name:co.name.substring(0,22),cargo:'Área do Cliente',company:co.id};
+        CC=CU.company;
+        await initAppCliente();
+        return true;
+      }
+      const allU=await sbGetTeamUsers();
+      const u=allU[sess.username];
+      if(u&&u.role==='client'){
+        const cuTmp={username:sess.username,...u};
+        delete cuTmp.pass_hash;
+        if(!cuTmp.company){
+          const coByLogin=companies.find(c=>c.clientLogin&&c.clientLogin.trim().toLowerCase()===sess.username);
+          if(coByLogin) cuTmp.company=coByLogin.id;
+        }
+        CU=cuTmp; CC=CU.company;
+        await initAppCliente();
+        return true;
+      }
+      limparSessaoSalva();
+      return false;
+    }
+
+    // Aba CONTADOR
+    const allU=await sbGetTeamUsers();
+    const u=allU[sess.username];
+    if(!u||u.role==='client'){ limparSessaoSalva(); return false; }
+    const cuTmp={username:sess.username,...u};
+    delete cuTmp.pass_hash;
+    CU=cuTmp;
+    await initAppContador();
+    return true;
+  }catch(e){
+    console.error('Erro ao restaurar sessão:',e);
+    return false;
+  }
+}
+
+function doLogout(){CU=null;CC=null;limparSessaoSalva();_limparCachesTenant();loadCurrentTenant().catch(e=>console.error(e));irTelaInicial();}
 
 /* ── Tela inicial conforme o domínio ──────────────────────────────────
    ornellascontabil.com.br (site institucional Ornellas) continua
@@ -9069,7 +9225,12 @@ async function renderAcompanhamentoPublico(token){
     </div>
   </div>`;
 }
-irTelaInicial();
+(async()=>{
+  const tokenAcompanhar = new URLSearchParams(location.search).get('acompanhar');
+  if(tokenAcompanhar){ irTelaInicial(); return; } // link público não depende de sessão
+  const restaurou = await tentarRestaurarSessao();
+  if(!restaurou) irTelaInicial();
+})();
 
 /* ── Personalização exclusiva do domínio ornellasgestor.com.br ───────
    Aplicada uma única vez ao carregar a página. NUNCA roda em
@@ -17986,8 +18147,7 @@ async function renderCertDig(){
     const c=r.c;
     const senhaCell=c.senha?`<span id="cdg-pw-${c.id}" data-pw="${_crmEsc(c.senha)}">••••••</span> <button class="difal-btn ghost sm" onclick="certdigTogglePw('${c.id}')" title="Mostrar/ocultar senha">👁</button>`:'—';
     const fileBtn=c.file?`<button class="difal-btn ghost sm" onclick="certdigVerArquivo('${r.cid}','${c.id}')" title="${_crmEsc(c.file.name)}">📎 Baixar</button>`:'<span style="color:var(--t3);font-size:11px">—</span>';
-    const nfseBtn=(c.tipo||'').toUpperCase().includes('E-CNPJ')?`<button class="difal-btn ghost sm" id="nfse-test-${r.cid}" onclick="nfseTestarCertificado('${r.cid}',this)" title="Confere se este certificado consegue ser lido e usado pra emitir NFS-e">🧾 Testar NFS-e</button> <button class="difal-btn ghost sm" id="nfse-param-${r.cid}" onclick="nfseTestarParametrosMunicipio('${r.cid}',this)" title="Testa a chamada REAL (com mTLS) à Sefin Nacional, pedindo os parâmetros de um município/serviço">🏛️ Testar Sefin Nacional</button>`:'';
-    const acts=(isAdmin?`<button class="difal-btn ghost sm" onclick="certdigOpen('${r.cid}','${c.id}')">✏️</button> <button class="difal-btn ghost sm" style="color:#C62828" onclick="certdigExcluir('${r.cid}','${c.id}')">🗑</button>`:'')+' '+nfseBtn;
+    const acts=isAdmin?`<button class="difal-btn ghost sm" onclick="certdigOpen('${r.cid}','${c.id}')">✏️</button> <button class="difal-btn ghost sm" style="color:#C62828" onclick="certdigExcluir('${r.cid}','${c.id}')">🗑</button>`:'';
     return `<tr>
       <td style="white-space:normal;min-width:150px"><b>${_crmEsc(r.coName)}</b>${c.titular?`<br><span style="font-size:11px;color:var(--t2)">${_crmEsc(c.titular)}</span>`:''}</td>
       <td>${_crmEsc(c.tipo)||'—'}</td>
@@ -18475,6 +18635,41 @@ async function certdigLoteImportar(){
     + (erros?`\n❌ ${erros} não puderam ser lidos (senha incorreta ou arquivo inválido).`:'')
     + (falhas?`\n⚠️ ${falhas} tiveram erro no envio do arquivo — os dados foram salvos, mas o .pfx não subiu.`:''));
 }
+/* ── PAINEL "NFS-e Nacional" (Trabalho, visível só pro Matheus enquanto
+   em teste) — lista as empresas com certificado e-CNPJ cadastrado e
+   oferece os 3 testes da integração (certificado / Sefin Nacional /
+   emissão de homologação). Reaproveita os mesmos handlers que já
+   existiam na tela de Certificados Digitais. ── */
+async function renderNFSeNacional(){
+  const el=document.getElementById('nfsenac-content'); if(!el)return;
+  el.innerHTML='<div style="text-align:center;padding:30px;color:var(--t3)">Carregando…</div>';
+  const [cos,map]=await Promise.all([getCompanies(),sbGetCertDigsBatch()]);
+  const rows=[];
+  map.forEach((arr,cid)=>{
+    const cert=(arr||[]).find(c=>(c.tipo||'').toUpperCase().includes('E-CNPJ'));
+    if(!cert) return;
+    const co=cos.find(c=>c.id===cid);
+    rows.push({cid, coName:co?co.name:'(empresa removida)', cert});
+  });
+  if(!rows.length){
+    el.innerHTML='<div class="empty"><div class="empty-ico">🧾</div><div class="empty-t">Nenhuma empresa com e-CNPJ cadastrado</div><div class="empty-s">Cadastre um certificado do tipo "e-CNPJ A1" em Certificados Digitais pra poder testar aqui.</div></div>';
+    return;
+  }
+  rows.sort((a,b)=>a.coName.localeCompare(b.coName));
+  el.innerHTML=`<table class="difal-table"><thead><tr><th>Empresa</th><th>Certificado</th><th style="min-width:340px">Testes</th></tr></thead><tbody>${
+    rows.map(r=>`<tr>
+      <td style="white-space:normal;min-width:150px"><b>${_crmEsc(r.coName)}</b></td>
+      <td style="font-size:12px;color:var(--t2)">${_crmEsc(r.cert.titular||r.cert.tipo)}</td>
+      <td style="white-space:normal">
+        <button class="difal-btn ghost sm" id="nfse-test-${r.cid}" onclick="nfseTestarCertificado('${r.cid}',this)" title="Confere se este certificado consegue ser lido e usado pra emitir NFS-e">🧾 Testar NFS-e</button>
+        <button class="difal-btn ghost sm" id="nfse-param-${r.cid}" onclick="nfseTestarParametrosMunicipio('${r.cid}',this)" title="Testa a chamada REAL (com mTLS) à Sefin Nacional, pedindo os parâmetros de um município/serviço">🏛️ Testar Sefin Nacional</button>
+        <button class="difal-btn ghost sm" id="nfse-emit-${r.cid}" onclick="nfseTestarEmissao('${r.cid}',this)" title="Cria uma nota de teste (dados fictícios de homologação) e tenta emitir de verdade contra a Sefin Nacional">📤 Testar Emissão (homolog.)</button>
+      </td>
+    </tr>`).join('')
+  }</tbody></table>`;
+}
+
+
 async function certdigOpen(cid,id){
   const cos=(await getCompanies()).filter(c=>!c.inactive).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'));
   document.getElementById('cdg-cid').innerHTML='<option value="">— Selecione a empresa —</option>'+cos.map(c=>`<option value="${c.id}">${_crmEsc(c.name)}</option>`).join('');
@@ -19868,22 +20063,61 @@ async function _parseXlsx(arrayBuffer){
     const rows=XLSX.utils.sheet_to_json(ws,{header:1,range:7,defval:''});
     const empresas=[];
     const REGIMES_OK=['Simples Nacional','Lucro Presumido','Lucro Real','MEI','Imune/Isenta','Produtor Rural'];
+    const TIPOS_JUR_OK=(typeof LEG_TIPOS_JUR!=='undefined'&&LEG_TIPOS_JUR.length)?LEG_TIPOS_JUR:['LTDA','SLU','SA','EIRELI','MEI','Associação','Fundação','Cooperativa','Empresário Individual'];
+    const UFS_OK=['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
     const RESPS_OK=TEAM_NAMES.length?TEAM_NAMES:(CU&&CU.name?[CU.name]:['—']);
     const respPadrao=RESPS_OK[0];
+    /* "Sim/Não" tolerante a variações (sim, s, verdadeiro, true, 1...) */
+    const _simNao=(v,padrao)=>{
+      const s=(v===undefined||v===null||v==='')?null:v.toString().trim().toLowerCase();
+      if(s===null)return padrao;
+      return ['sim','s','verdadeiro','true','1','x'].includes(s);
+    };
     const erros=[];
     rows.forEach((r,i)=>{
       const nome=(r[0]||'').toString().trim();
       if(!nome)return; /* linha vazia, ignorar */
-      const cnpj=(r[1]||'').toString().trim();
-      const regime=(r[2]||'Simples Nacional').toString().trim();
-      const resp=(r[3]||respPadrao).toString().trim();
-      const group=(r[4]||'').toString().trim();
-      const login=(r[5]||'').toString().trim().toLowerCase();
-      const senha=(r[6]||'').toString().trim();
-      /* Validações */
+      const codigo=(r[1]||'').toString().trim();
+      const cnpj=(r[2]||'').toString().trim();
+      const tipoJuridico=(r[3]||'LTDA').toString().trim();
+      const regime=(r[4]||'Simples Nacional').toString().trim();
+      const resp=(r[5]||respPadrao).toString().trim();
+      const group=(r[6]||'').toString().trim();
+      const uf=(r[7]||'').toString().trim().toUpperCase();
+      const cidade=(r[8]||'').toString().trim();
+      const whatsapp=(r[9]||'').toString().trim();
+      const email=(r[10]||'').toString().trim();
+      const im=(r[11]||'').toString().trim();
+      const fatorR=_simNao(r[12],false);
+      const usaBancoHoras=_simNao(r[13],true);
+      const armazenaXml=_simNao(r[14],false);
+      const login=(r[15]||'').toString().trim().toLowerCase();
+      const senha=(r[16]||'').toString().trim();
+      /* Validações — só travam o que já era obrigatório antes; o resto,
+         se vier inválido, cai num padrão razoável e segue a importação. */
       if(!REGIMES_OK.includes(regime))erros.push(`Linha ${i+8}: regime inválido "${regime}"`);
       if(resp&&!RESPS_OK.includes(resp))erros.push(`Linha ${i+8}: responsável inválido "${resp}"`);
-      empresas.push({id:'co'+Date.now()+i,name:nome,cnpj,regime:REGIMES_OK.includes(regime)?regime:'Simples Nacional',resp:RESPS_OK.includes(resp)?resp:respPadrao,group,clientLogin:login,clientSenha:senha});
+      if(tipoJuridico&&!TIPOS_JUR_OK.includes(tipoJuridico))erros.push(`Linha ${i+8}: tipo jurídico "${tipoJuridico}" não reconhecido, será gravado como LTDA`);
+      if(uf&&!UFS_OK.includes(uf))erros.push(`Linha ${i+8}: UF "${uf}" não reconhecida, será deixada em branco`);
+      empresas.push({
+        id:'co'+Date.now()+i,name:nome,
+        codigo,
+        cnpj,
+        tipoJuridico:TIPOS_JUR_OK.includes(tipoJuridico)?tipoJuridico:'LTDA',
+        regime:REGIMES_OK.includes(regime)?regime:'Simples Nacional',
+        resp:RESPS_OK.includes(resp)?resp:respPadrao,
+        group,
+        uf:UFS_OK.includes(uf)?uf:'',
+        cidade,
+        whatsapp,
+        email,
+        im,
+        fatorR,
+        usaBancoHoras,
+        armazenaXml,
+        clientLogin:login,
+        clientSenha:senha
+      });
     });
     if(erros.length){
       if(!confirm('Atenção, foram encontrados avisos:\n\n'+erros.slice(0,5).join('\n')+'\n\nDeseja continuar assim mesmo?'))return;
@@ -19896,7 +20130,7 @@ async function _parseXlsx(arrayBuffer){
     const duplicadas=empresas.length-novas.length;
     _importBuffer=novas;
     /* Mostrar pré-visualização */
-    const lista=novas.slice(0,20).map(e=>`<div style="padding:6px 10px;border-bottom:1px solid #EEF2F7;display:flex;gap:8px;align-items:center"><span style="font-size:16px">🏢</span><div><div style="font-size:11px;font-weight:600;color:#1A1D2E">${e.name}</div><div style="font-size:10px;color:#5A6171">${e.cnpj||'Sem CNPJ'} &nbsp;·&nbsp; ${e.regime} &nbsp;·&nbsp; ${e.resp}</div></div></div>`).join('');
+    const lista=novas.slice(0,20).map(e=>`<div style="padding:6px 10px;border-bottom:1px solid #EEF2F7;display:flex;gap:8px;align-items:center"><span style="font-size:16px">🏢</span><div><div style="font-size:11px;font-weight:600;color:#1A1D2E">${e.name}</div><div style="font-size:10px;color:#5A6171">${e.cnpj||'Sem CNPJ'} &nbsp;·&nbsp; ${e.regime} &nbsp;·&nbsp; ${e.resp}${e.cidade?` &nbsp;·&nbsp; ${e.cidade}${e.uf?'/'+e.uf:''}`:''}</div></div></div>`).join('');
     document.getElementById('import-preview-list').innerHTML=lista+(novas.length>20?`<div style="padding:6px 10px;font-size:10px;color:#9AA0B8">...e mais ${novas.length-20} empresa(s)</div>`:'');
     let statsHtml=`<strong>${novas.length}</strong> empresa(s) prontas para importar.`;
     if(duplicadas)statsHtml+=` <span style="color:#C0392B">${duplicadas} ignorada(s) por CNPJ duplicado.</span>`;
@@ -19931,29 +20165,34 @@ function downloadLayoutExcel(){
 
 function _gerarLayoutExcel(){
   const wb=XLSX.utils.book_new();
-  /* Aba Importação */
+  /* Aba Importação — cobre TODOS os campos que o cadastro de empresa
+     realmente suporta (o mesmo conjunto do formulário "Editar Empresa"),
+     mantendo obrigatórios só os 3 que já eram: Razão Social, Regime e
+     Responsável. Todo o resto é opcional — pode deixar em branco. */
   const cabec=[['ORNELLAS SOLUÇÕES CONTÁBEIS — Layout de Importação de Empresas'],
     ['Preencha a partir da linha 8. Não altere os cabeçalhos nem a ordem das colunas.'],
-    [''],['🔴 Obrigatório: Razão Social, Regime, Responsável   |   🔵 Opcional: demais campos'],[''],
-    ['RAZÃO SOCIAL *','CNPJ','REGIME TRIBUTÁRIO *','RESPONSÁVEL *','GRUPO / CLIENTE','LOGIN DO CLIENTE','SENHA DO CLIENTE','OBS / NOTAS'],
-    ['Nome da empresa','00.000.000/0001-00','Simples Nacional / Lucro Presumido / Lucro Real / MEI / Imune/Isenta / Produtor Rural','Matheus / Ernesto / Thierry / Evelyn','Ex: Thierry Martins','minúsculas, sem espaços','senha inicial','Não importado'],
-    ['Parnasse Clínica Odontológica Ltda','33.001.494/0001-88','Simples Nacional','Matheus','','parnasse','parnasse2024','EXEMPLO — apague esta linha'],
-    ['UNISERVICE Comércio e Empreendimentos Ltda','03.555.382/0001-08','Lucro Presumido','Ernesto','','uniservice','uniservice2024','EXEMPLO — apague esta linha']
+    [''],['🔴 Obrigatório: Razão Social, Regime, Responsável   |   🔵 Opcional: todos os demais — pode deixar em branco'],[''],
+    ['RAZÃO SOCIAL *','CÓDIGO','CNPJ','TIPO JURÍDICO','REGIME TRIBUTÁRIO *','RESPONSÁVEL *','GRUPO / CLIENTE','UF','CIDADE','WHATSAPP','E-MAIL','INSCR. MUNICIPAL','FATOR R (Sim/Não)','USA BANCO DE HORAS (Sim/Não)','ARMAZENA XML DIFAL (Sim/Não)','LOGIN DO CLIENTE','SENHA DO CLIENTE','OBS / NOTAS'],
+    ['Nome da empresa','Código interno, ex: EMPRESA1','00.000.000/0001-00','LTDA / SLU / SA / EIRELI / MEI / Associação / Fundação / Cooperativa / Empresário Individual','Simples Nacional / Lucro Presumido / Lucro Real / MEI / Imune/Isenta / Produtor Rural','Matheus / Ernesto / Thierry / Evelyn','Ex: Thierry Martins','UF (ex: RJ)','Ex: Niterói','(21) 90000-0000','nome@exemplo.com','Número da inscrição municipal','Sim / Não','Sim / Não (padrão: Sim)','Sim / Não (padrão: Não)','minúsculas, sem espaços','senha inicial','Não importado'],
+    ['Parnasse Clínica Odontológica Ltda','','33.001.494/0001-88','LTDA','Simples Nacional','Matheus','','RJ','Itaguaí','(21) 90000-0000','contato@parnasse.com','','Não','Sim','Não','parnasse','parnasse2024','EXEMPLO — apague esta linha'],
+    ['UNISERVICE Comércio e Empreendimentos Ltda','','03.555.382/0001-08','LTDA','Lucro Presumido','Ernesto','','RJ','Rio de Janeiro','','','','Não','Sim','Não','uniservice','uniservice2024','EXEMPLO — apague esta linha']
   ];
   const ws=XLSX.utils.aoa_to_sheet(cabec);
-  ws['!cols']=[{wch:45},{wch:22},{wch:24},{wch:18},{wch:28},{wch:22},{wch:22},{wch:32}];
+  ws['!cols']=[{wch:40},{wch:18},{wch:20},{wch:20},{wch:24},{wch:16},{wch:22},{wch:8},{wch:18},{wch:18},{wch:24},{wch:18},{wch:16},{wch:22},{wch:22},{wch:20},{wch:18},{wch:28}];
   XLSX.utils.book_append_sheet(wb,ws,'Importação');
   /* Aba Instruções */
   const inst=[
     ['INSTRUÇÕES DE USO — Layout Ornellas'],[''],
     ['1. Preencha a partir da linha 8 da aba Importação.'],
     ['2. Apague as linhas de exemplo (8 e 9) antes de importar.'],
-    ['3. Use a lista correta nos campos Regime e Responsável.'],
-    ['4. Login do cliente: somente minúsculas, sem espaços.'],
-    ['5. Salve o arquivo como .xlsx.'],
-    ['6. No sistema: Empresas → botão 📥 Importar Excel → selecione o arquivo.'],
-    ['7. Empresas com CNPJ já cadastrado serão ignoradas automaticamente.'],
-    ['8. Máximo recomendado: 50 empresas por arquivo.']
+    ['3. Só Razão Social, Regime e Responsável são obrigatórios — o resto pode ficar em branco.'],
+    ['4. Use a lista correta nos campos Regime, Tipo Jurídico e Responsável.'],
+    ['5. Campos "Sim/Não": aceita sim, não, s, n, verdadeiro, falso (maiúsculo/minúsculo tanto faz).'],
+    ['6. Login do cliente: somente minúsculas, sem espaços.'],
+    ['7. Salve o arquivo como .xlsx.'],
+    ['8. No sistema: Empresas → botão 📥 Importar Excel → selecione o arquivo.'],
+    ['9. Empresas com CNPJ já cadastrado serão ignoradas automaticamente.'],
+    ['10. Máximo recomendado: 50 empresas por arquivo.']
   ];
   const wsi=XLSX.utils.aoa_to_sheet(inst);
   wsi['!cols']=[{wch:70}];
@@ -30509,6 +30748,7 @@ async function renderCurTab() {
   else if (curTab==='cl-ajuda') await renderClienteAjuda();
   else if (curTab==='blog') await renderBlogList();
   else if (curTab==='esc') await renderEscritorios();
+  else if (curTab==='nfsenac') await renderNFSeNacional();
   else if (curTab==='hon') await renderHonorarios();
   else if (curTab==='cfg') { cfgSubTab('escritorio'); renderConfigEscritorio(); renderSerproConfig(); renderAsaasConfig(); renderInterConfig(); renderBoletoProvider(); renderInfosimplesConfig(); renderRoboConfig(); }
   else if (curTab==='tut') await renderTut();
@@ -30773,10 +31013,12 @@ function _qsNavTabs() {
     { tab: 'chat', label: 'Chat', icon: '💬' },
     { tab: 'blog', label: 'Blog', icon: '✍️' },
     { tab: 'esc', label: 'Escritórios', icon: '🏢' },
+    { tab: 'nfsenac', label: 'NFS-e Nacional', icon: '🧾' },
     { tab: 'cfg', label: 'Configurações', icon: '⚙️' }
   ];
   return all.filter(t => {
     if (t.tab === 'esc') { const e = document.getElementById('aptab-escritorios'); return e && e.style.display !== 'none'; }
+    if (t.tab === 'nfsenac') { const e = document.getElementById('aptab-nfsenac'); return e && e.style.display !== 'none'; }
     if (t.tab === 'cfg') { const e = document.getElementById('aptab-config'); return e && e.style.display !== 'none'; }
     return true;
   });

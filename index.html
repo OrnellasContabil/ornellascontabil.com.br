@@ -1033,6 +1033,27 @@ table.difal-table tfoot td{font-weight:800;color:var(--dark);background:var(--bg
 .difal-table tbody tr{transition:background .12s}
 .difal-table tbody tr:hover{background:#EEF4F9}
 .difal-table thead th{background:linear-gradient(180deg,#F4F7FA,#EDF1F6)}
+/* Painel "NFS-e Nacional" — lista de empresas em card, no lugar de tabela
+   (evita colunas apertadas e botões quebrando linha de forma feia) */
+.nfsenac-list{display:flex;flex-direction:column;gap:10px}
+.nfsenac-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 16px;background:var(--card);border:1px solid var(--bdr);border-radius:12px;flex-wrap:wrap;transition:box-shadow .15s,border-color .15s}
+.nfsenac-row:hover{border-color:#C9DCE9;box-shadow:0 2px 10px rgba(13,30,44,.06)}
+.nfsenac-info{display:flex;align-items:center;gap:12px;flex:1 1 240px;min-width:200px}
+.nfsenac-avatar{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--pri),var(--prid));color:#fff;font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:.2px}
+.nfsenac-name{font-weight:700;font-size:13px;color:var(--dark);line-height:1.35}
+.nfsenac-cert{font-size:11.5px;color:var(--t3);margin-top:2px;display:flex;align-items:center;gap:4px}
+.nfsenac-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:0 0 auto;margin-left:auto}
+.nfsenac-btn-notas{background:var(--pri);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:background .2s}
+.nfsenac-btn-notas:hover{background:var(--prid)}
+.nfsenac-tests{display:flex;background:var(--bg);border:1px solid var(--bdr);border-radius:9px;padding:3px;gap:2px}
+.nfsenac-test{background:none;border:none;padding:6.5px 11px;font-size:11.5px;font-weight:600;color:var(--t2);border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:background .15s,color .15s,box-shadow .15s}
+.nfsenac-test:hover{background:#fff;color:var(--pri);box-shadow:0 1px 4px rgba(13,30,44,.1)}
+.nfsenac-test:disabled{opacity:.65;cursor:default}
+@media (max-width:760px){
+  .nfsenac-row{flex-direction:column;align-items:stretch}
+  .nfsenac-actions{margin-left:0;justify-content:flex-start}
+  .nfsenac-tests{flex-wrap:wrap}
+}
 /* Listas de itens (obrigações, certidões) */
 .obg-item{transition:box-shadow .16s,border-color .16s,transform .16s;border-radius:12px}
 .obg-item:hover{box-shadow:0 2px 10px rgba(13,30,44,.07);border-color:#DDE6EF;transform:translateY(-1px)}
@@ -2497,11 +2518,181 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
     <!-- ══════════════════════ NFS-e NACIONAL (visível apenas para o Matheus — em teste) ══════════════════════ -->
     <div class="tpanel" id="panel-nfsenac">
       <div style="margin-bottom:14px">
-        <h2 style="font-size:16px;font-weight:800;color:var(--dark);margin-bottom:0">🧾 NFS-e Nacional <span style="font-size:11px;background:#FFF3CD;color:#856404;padding:2px 8px;border-radius:8px;margin-left:4px;font-weight:700">EM TESTE</span></h2>
-        <p style="font-size:12px;color:var(--t2);margin-top:3px">Integração com o Emissor Público Nacional NFS-e (Sefin Nacional) — ainda em homologação. Visível só pra você enquanto validamos.</p>
+        <h2 style="font-size:16px;font-weight:800;color:var(--dark);margin-bottom:0">🧾 NFS-e Nacional <span id="nfsenac-badge-ambiente" style="font-size:11px;background:#FFF3CD;color:#856404;padding:2px 8px;border-radius:8px;margin-left:4px;font-weight:700">🔄 Verificando…</span></h2>
+        <p id="nfsenac-desc-ambiente" style="font-size:12px;color:var(--t2);margin-top:3px">Integração com o Emissor Público Nacional NFS-e (Sefin Nacional). Visível só pra você enquanto validamos.</p>
       </div>
       <div class="card"><div id="nfsenac-content"></div></div>
     </div>
+
+<!-- MODAL: Notas de Serviço (NFS-e Nacional) — criar/emitir/duplicar por empresa -->
+<div class="mov" id="mod-nfse-notas"><div class="modal" style="max-width:820px;max-height:88vh;overflow-y:auto">
+  <div class="mtit">📝 Notas de Serviço — <span id="nfse-notas-empresa-nome"></span> <button class="mclose" onclick="closeM('mod-nfse-notas')">✕</button></div>
+  <input type="hidden" id="nfse-notas-company-id">
+  <p id="nfse-modal-aviso-ambiente" style="font-size:11.5px;color:var(--t2);margin:-6px 0 14px">🔄 Verificando ambiente…</p>
+
+  <div style="background:var(--bg);border:1px solid var(--bdr);border-radius:12px;padding:16px;margin-bottom:14px">
+    <div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:12px">➕ Nova nota</div>
+
+    <!-- ── TOMADOR ── -->
+    <div style="font-size:11px;font-weight:800;color:var(--pri);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bdr)">👤 Tomador do Serviço</div>
+    <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-bottom:4px">
+      <div>
+        <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">CNPJ/CPF do Tomador *</label>
+        <input id="nfse-nota-tom-doc" placeholder="Só números ou com pontuação" oninput="nfseAutoBuscarCnpj(this.value)" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+        <div id="nfse-cnpj-status" style="font-size:10.5px;color:var(--t3);margin-top:3px;min-height:14px"></div>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Nome / Razão Social do Tomador *</label>
+        <input id="nfse-nota-tom-nome" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+      </div>
+    </div>
+    <div style="margin-bottom:14px"><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">E-mail do Tomador (opcional)</label><input id="nfse-nota-tom-email" type="email" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+
+    <!-- ── ENDEREÇO DO TOMADOR ── -->
+    <div style="font-size:11px;font-weight:800;color:var(--pri);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bdr)">🏠 Endereço do Tomador <span style="font-weight:600;text-transform:none;color:var(--t3);font-size:10.5px">(opcional — preenchido automático pelo CNPJ, se encontrado)</span></div>
+    <div style="display:grid;grid-template-columns:0.6fr 1.4fr;gap:10px;margin-bottom:10px">
+      <div>
+        <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">CEP</label>
+        <input id="nfse-nota-tom-cep" placeholder="00000-000" maxlength="9" oninput="nfseFormatarCep(this)" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+        <div id="nfse-cep-status" style="font-size:10.5px;color:var(--t3);margin-top:3px;min-height:14px"></div>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Logradouro</label>
+        <input id="nfse-nota-tom-logradouro" placeholder="Rua, avenida, etc." style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:0.5fr 1fr 1fr;gap:10px;margin-bottom:10px">
+      <div>
+        <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Número</label>
+        <input id="nfse-nota-tom-numero" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Complemento</label>
+        <input id="nfse-nota-tom-complemento" placeholder="Sala, bloco, etc. (opcional)" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Bairro</label>
+        <input id="nfse-nota-tom-bairro" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.4fr 0.6fr;gap:10px;margin-bottom:14px">
+      <div>
+        <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Município</label>
+        <input id="nfse-nota-tom-municipio" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">UF</label>
+        <select id="nfse-nota-tom-uf" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box;background:#fff">
+          <option value="">— UF —</option>
+          <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ── LOCAL DA PRESTAÇÃO ── -->
+    <div style="font-size:11px;font-weight:800;color:var(--pri);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bdr)">📍 Local da Prestação do Serviço</div>
+    <div style="display:grid;grid-template-columns:0.55fr 1.45fr;gap:10px;margin-bottom:4px">
+      <div>
+        <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">UF *</label>
+        <select id="nfse-nota-loc-uf" onchange="nfseCarregarMunicipiosPrestacao(this.value)" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box;background:#fff">
+          <option value="">— UF —</option>
+          <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Município *</label>
+        <select id="nfse-nota-loc-municipio" disabled onchange="nfseSelecionarMunicipioPrestacao(this.value)" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box;background:#fff">
+          <option value="">Selecione a UF primeiro</option>
+        </select>
+        <input type="hidden" id="nfse-nota-loc-ibge">
+      </div>
+    </div>
+    <div id="nfse-loc-status" style="font-size:10.5px;color:var(--t3);margin-bottom:14px;min-height:14px"></div>
+
+    <!-- ── SERVIÇO ── -->
+    <div style="font-size:11px;font-weight:800;color:var(--pri);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bdr)">🏷️ Serviço Prestado</div>
+    <div style="position:relative;margin-bottom:4px">
+      <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Código de Serviço (Tributação Nacional) *</label>
+      <input id="nfse-nota-cod-servico-busca" placeholder="Digite pra buscar: código ou palavra-chave (ex: contabilidade)" autocomplete="off"
+        oninput="nfseFiltrarCodigosServico(this.value)" onfocus="nfseFiltrarCodigosServico(this.value)"
+        style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+      <input type="hidden" id="nfse-nota-cod-servico">
+      <div id="nfse-cod-servico-dropdown" style="display:none;position:absolute;z-index:20;left:0;right:0;top:100%;margin-top:2px;background:#fff;border:1.5px solid var(--bdr);border-radius:8px;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)"></div>
+    </div>
+    <div id="nfse-cod-servico-selecionado" style="font-size:11px;color:var(--t3);margin-bottom:10px;min-height:14px"></div>
+    <div style="margin-bottom:10px"><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Descrição do Serviço *</label><textarea id="nfse-nota-descricao" rows="2" placeholder="Descrição específica do serviço prestado (pode detalhar além do código)" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;font-family:inherit;box-sizing:border-box"></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Valor do Serviço (R$) *</label><input id="nfse-nota-valor" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+      <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Alíquota ISS % (opcional — vem do código)</label><input id="nfse-nota-aliquota" type="number" step="0.01" placeholder="Ex: 5.00" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+    </div>
+
+    <!-- ── TRIBUTAÇÃO FEDERAL (opcional/avançado) ── -->
+    <div onclick="nfseToggleTribFederal()" style="cursor:pointer;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--t2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bdr);user-select:none">
+      <span id="nfse-tribfed-seta">▸</span> 🏛️ Tributação Federal <span style="font-weight:600;text-transform:none;color:var(--t3);font-size:10.5px">(opcional — PIS/COFINS/IRRF/CSLL)</span>
+    </div>
+    <div id="nfse-tribfed-campos" style="display:none;margin-bottom:10px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+        <div>
+          <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Situação Tributária PIS/COFINS (CST)</label>
+          <select id="nfse-nota-pis-cst" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box;background:#fff">
+            <option value="">— Não informado —</option>
+            <option value="01">01 - Operação Tributável com Alíquota Básica</option>
+            <option value="04">04 - Operação Tributável monofásica - Revenda a Alíquota Zero</option>
+            <option value="06">06 - Operação Tributável a Alíquota Zero</option>
+            <option value="07">07 - Operação Isenta da Contribuição</option>
+            <option value="08">08 - Operação sem Incidência da Contribuição</option>
+            <option value="09">09 - Operação com Suspensão da Contribuição</option>
+            <option value="49">49 - Outras Operações de Saída</option>
+            <option value="99">99 - Outras Operações</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Base de Cálculo PIS/COFINS (R$)</label>
+          <input id="nfse-nota-pis-vbc" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:8px">
+        <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">PIS Alíquota %</label><input id="nfse-nota-pis-aliq" type="number" step="0.0001" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">PIS Débito (R$)</label><input id="nfse-nota-pis-valor" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">COFINS Alíquota %</label><input id="nfse-nota-cofins-aliq" type="number" step="0.0001" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">COFINS Débito (R$)</label><input id="nfse-nota-cofins-valor" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+      </div>
+      <div style="margin-bottom:8px">
+        <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Tipo de Retenção PIS/COFINS</label>
+        <select id="nfse-nota-pis-tpret" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box;background:#fff">
+          <option value="">— Não informado —</option>
+          <option value="0">0 - PIS/COFINS/CSLL Não Retidos</option>
+          <option value="1">1 - PIS/COFINS Retidos</option>
+          <option value="2">2 - PIS/COFINS Não Retidos</option>
+          <option value="3">3 - PIS/COFINS/CSLL Retidos</option>
+          <option value="4">4 - PIS/COFINS Retidos, CSLL Não Retido</option>
+          <option value="5">5 - PIS Retido, COFINS/CSLL Não Retido</option>
+          <option value="6">6 - COFINS Retido, PIS/CSLL Não Retido</option>
+          <option value="7">7 - PIS Não Retido, COFINS/CSLL Retidos</option>
+          <option value="8">8 - PIS/COFINS Não Retidos, CSLL Retido</option>
+          <option value="9">9 - COFINS Não Retido, PIS/CSLL Retidos</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px">
+        <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">IRRF Retido (R$)</label><input id="nfse-nota-irrf" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Contrib. Social Retida — CSLL (R$)</label><input id="nfse-nota-csll" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Contrib. Previdenciária Retida (R$)</label><input id="nfse-nota-cp" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+      </div>
+      <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">% Aproximado Total de Tributos (alíquota do Simples Nacional)</label><input id="nfse-nota-pct-sn" type="number" step="0.01" placeholder="Ex: 6.00" style="width:220px;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+      <button class="difal-btn ghost sm" id="nfse-nota-btn-rascunho" onclick="nfseSalvarNota(false,this)">💾 Salvar rascunho</button>
+      <button class="difal-btn sm" id="nfse-nota-btn-emitir" style="background:var(--pri);color:#fff" onclick="nfseSalvarNota(true,this)">📤 Salvar e Emitir</button>
+      <button class="difal-btn ghost sm" onclick="nfseLimparFormNota()">🧹 Limpar formulário</button>
+    </div>
+  </div>
+
+  <div style="font-size:12.5px;font-weight:700;color:var(--t2);margin-bottom:8px">📋 Histórico desta empresa</div>
+  <div id="nfse-notas-lista" style="max-height:280px;overflow-y:auto"></div>
+
+  <div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-nfse-notas')">Fechar</button></div>
+</div></div>
 
     <div class="tpanel" id="panel-hon">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
@@ -5802,13 +5993,15 @@ async function nfseTestarParametrosMunicipio(companyId, btnEl){
     if(!codigoMunicipio){ btnEl.disabled = false; btnEl.textContent = original; return; }
   }
 
-  // Por enquanto testa só /convenio (dados gerais do convênio do
-  // município) — o teste por código de serviço específico (alíquota)
-  // volta assim que confirmarmos esse formato básico funcionando certo.
+  // Pergunta o código de serviço (opcional) — se informado, confere se
+  // esse código específico está administrado nesse município, em vez de
+  // só testar o convênio geral.
+  const codigoServico = prompt('Código de serviço (LC116/lista nacional) pra conferir se está liberado nesse município — deixe em branco pra só testar a conexão geral:');
+
   btnEl.textContent = '🔄 Consultando Sefin...';
   try{
     const { data, error } = await sb.functions.invoke('emitir-nfse', {
-      body: { action:'parametros_municipio', companyId, codigoMunicipio },
+      body: { action:'parametros_municipio', companyId, codigoMunicipio, codigoServico: codigoServico||undefined },
     });
     if(error || !data || data.erro){
       const msg = await _nfseExtrairErro(error, data);
@@ -5863,6 +6056,538 @@ async function nfseTestarEmissao(companyId, btnEl){
     if(document.getElementById('nfse-emit-'+companyId)){
       btnEl.disabled = false; btnEl.textContent = original;
     }
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   NOTAS DE SERVIÇO — tela de verdade (criar / emitir / duplicar /
+   excluir), por empresa. Fica dentro do modal "mod-nfse-notas".
+   ═════════════════════════════════════════════════════════════════ */
+/* Tabela oficial completa dos "Códigos de Tributação Nacional" (Lista de
+   Serviços ISS vigente a partir de 24/11/2025) — cada item é
+   [codigo, descricao, aliquotaIssPadrao]. Usada pra busca no formulário
+   de nova nota, em vez do contador ter que decorar/digitar o código. */
+const NFSE_CODIGOS_SERVICO=[["010101","Análise e desenvolvimento de sistemas.",2.0],["010201","Programação.",2.0],["010301","Processamento de dados, textos, imagens, vídeos, páginas eletrônicas, aplicativos e sistemas de informação, entre outros formatos, e congêneres.",2.0],["010302","Armazenamento ou hospedagem de dados, textos, imagens, vídeos, páginas eletrônicas, aplicativos e sistemas de informação, entre outros formatos, e congêneres.",2.0],["010401","Elaboração de programas de computadores, inclusive de jogos eletrônicos, independentemente da arquitetura construtiva da máquina em que o programa será executado, incluindo tablets, smartphones e congêneres.",2.0],["010501","Licenciamento ou cessão de direito de uso de programas de computação.",2.0],["010601","Assessoria e consultoria em informática.",2.0],["010701","Suporte técnico em informática, inclusive instalação, configuração e manutenção de programas de computação e bancos de dados.",2.0],["010801","Planejamento, confecção, manutenção e atualização de páginas eletrônicas.",2.0],["010901","Disponibilização, sem cessão definitiva, de conteúdos de áudio por meio da internet.",2.0],["010902","Disponibilização, sem cessão definitiva, de conteúdos de vídeo, imagem e texto por meio da internet.",2.0],["020101","Serviços de pesquisas e desenvolvimento de qualquer natureza.",3.0],["030201","Cessão de direito de uso de marcas e de sinais de propaganda.",5.0],["030301","Exploração de salões de festas, centro de convenções, stands e congêneres, para realização de eventos ou negócios de qualquer natureza.",5.0],["030302","Exploração de escritórios virtuais e congêneres, para realização de eventos ou negócios de qualquer natureza.",5.0],["030303","Exploração de quadras esportivas, estádios, ginásios, canchas e congêneres, para realização de eventos ou negócios de qualquer natureza.",5.0],["030304","Exploração de auditórios, casas de espetáculos e congêneres, para realização de eventos ou negócios de qualquer natureza.",5.0],["030305","Exploração de parques de diversões e congêneres, para realização de eventos ou negócios de qualquer natureza.",5.0],["030401","Locação, sublocação, arrendamento, direito de passagem ou permissão de uso, compartilhado ou não, de ferrovia.",5.0],["030402","Locação, sublocação, arrendamento, direito de passagem ou permissão de uso, compartilhado ou não, de rodovia.",5.0],["030403","Locação, sublocação, arrendamento, direito de passagem ou permissão de uso, compartilhado ou não, de postes, cabos, dutos e condutos de qualquer natureza.",5.0],["030501","Cessão de andaimes, palcos, coberturas e outras estruturas de uso temporário.",5.0],["040101","Medicina.",2.0],["040102","Biomedicina.",2.0],["040201","Análises clínicas e congêneres.",2.0],["040202","Patologia e congêneres.",2.0],["040203","Eletricidade médica e congêneres.",2.0],["040204","Radioterapia, quimioterapia e congêneres.",2.0],["040205","Ultra-sonografia, ressonância magnética, radiologia, tomografia e congêneres.",2.0],["040301","Hospitais e congêneres.",2.0],["040302","Laboratórios e congêneres.",2.0],["040303","Clínicas, sanatórios, manicômios, casas de saúde, prontos-socorros, ambulatórios e congêneres.",2.0],["040401","Instrumentação cirúrgica.",2.0],["040501","Acupuntura.",2.0],["040601","Enfermagem, inclusive serviços auxiliares.",2.0],["040701","Serviços farmacêuticos.",2.0],["040801","Terapia ocupacional.",2.0],["040802","Fisioterapia.",2.0],["040803","Fonoaudiologia.",2.0],["040901","Terapias de qualquer espécie destinadas ao tratamento físico, orgânico e mental.",2.0],["041001","Nutrição.",2.0],["041101","Obstetrícia.",2.0],["041201","Odontologia.",2.0],["041301","Ortóptica.",2.0],["041401","Próteses sob encomenda.",2.0],["041501","Psicanálise.",2.0],["041601","Psicologia.",2.0],["041701","Casas de repouso e congêneres.",2.0],["041702","Casas de recuperação e congêneres.",2.0],["041703","Creches e congêneres.",2.0],["041704","Asilos e congêneres.",2.0],["041801","Inseminação artificial, fertilização in vitro e congêneres.",2.0],["041901","Bancos de sangue, leite, pele, olhos, óvulos, sêmen e congêneres.",2.0],["042001","Coleta de sangue, leite, tecidos, sêmen, órgãos e materiais biológicos de qualquer espécie.",2.0],["042101","Unidade de atendimento, assistência ou tratamento móvel e congêneres.",2.0],["042201","Planos de medicina de grupo ou individual e convênios para prestação de assistência médica, hospitalar, odontológica e congêneres.",3.0],["042301","Outros planos de saúde através de terceiros contratados.",3.0],["050101","Medicina veterinária.",3.0],["050102","Zootecnia.",3.0],["050201","Hospitais e congêneres, na área veterinária.",3.0],["050202","Clínicas, ambulatórios, prontos-socorros e congêneres, na área veterinária.",3.0],["050301","Laboratórios de análise na área veterinária.",3.0],["050401","Inseminação artificial, fertilização in vitro e congêneres (veterinária).",3.0],["050501","Bancos de sangue e de órgãos e congêneres (veterinária).",3.0],["050601","Coleta de sangue, leite, tecidos, sêmen, órgãos e materiais biológicos (veterinária).",3.0],["050701","Unidade de atendimento, assistência ou tratamento móvel e congêneres (veterinária).",3.0],["050801","Guarda, tratamento, amestramento, embelezamento, alojamento e congêneres.",3.0],["050901","Planos de atendimento e assistência médico-veterinária.",3.0],["060101","Barbearia, cabeleireiros, manicuros, pedicuros e congêneres.",2.0],["060201","Esteticistas, tratamento de pele, depilação e congêneres.",2.0],["060301","Banhos, duchas, sauna, massagens e congêneres.",2.0],["060401","Ginástica, dança, esportes, natação, artes marciais e demais atividades físicas.",2.0],["060501","Centros de emagrecimento, spa e congêneres.",2.0],["060601","Aplicação de tatuagens, piercings e congêneres.",2.0],["070101","Engenharia e congêneres.",2.0],["070102","Agronomia e congêneres.",2.0],["070103","Agrimensura e congêneres.",2.0],["070104","Arquitetura, urbanismo e congêneres.",2.0],["070105","Geologia e congêneres.",2.0],["070106","Paisagismo e congêneres.",2.0],["070201","Execução, por administração, de obras de construção civil, hidráulica ou elétrica e outras semelhantes.",2.0],["070202","Execução, por empreitada ou subempreitada, de obras de construção civil, hidráulica ou elétrica e outras semelhantes.",2.0],["070301","Elaboração de planos diretores, estudos de viabilidade, estudos organizacionais relacionados a obras de engenharia.",2.0],["070302","Elaboração de anteprojetos, projetos básicos e executivos para trabalhos de engenharia.",2.0],["070401","Demolição.",2.0],["070501","Reparação, conservação e reforma de edifícios e congêneres.",2.0],["070502","Reparação, conservação e reforma de estradas, pontes, portos e congêneres.",2.0],["070601","Colocação e instalação de tapetes, carpetes, cortinas e congêneres, com material fornecido pelo tomador.",2.0],["070602","Colocação e instalação de assoalhos, revestimentos de parede, vidros, divisórias, placas de gesso, com material fornecido pelo tomador.",2.0],["070701","Recuperação, raspagem, polimento e lustração de pisos e congêneres.",2.0],["070801","Calafetação.",2.0],["070901","Varrição, coleta e remoção de lixo, rejeitos e outros resíduos quaisquer.",2.0],["070902","Incineração, tratamento, reciclagem, separação e destinação final de lixo, rejeitos e outros resíduos.",2.0],["071001","Limpeza, manutenção e conservação de vias e logradouros públicos, parques, jardins e congêneres.",2.0],["071002","Limpeza, manutenção e conservação de imóveis, chaminés, piscinas e congêneres.",2.0],["071101","Decoração.",2.0],["071102","Jardinagem, inclusive corte e poda de árvores.",2.0],["071201","Controle e tratamento de efluentes de qualquer natureza e de agentes físicos, químicos e biológicos.",2.0],["071301","Dedetização, desinfecção, desinsetização, imunização, higienização, desratização, pulverização e congêneres.",2.0],["071601","Florestamento, reflorestamento, semeadura, adubação, reparação de solo, plantio, silagem, colheita, silvicultura, exploração florestal.",2.0],["071701","Escoramento, contenção de encostas e serviços congêneres.",2.0],["071801","Limpeza e dragagem de rios, portos, canais, baías, lagos, lagoas, represas, açudes e congêneres.",2.0],["071901","Acompanhamento e fiscalização da execução de obras de engenharia, arquitetura e urbanismo.",2.0],["072001","Aerofotogrametria (inclusive interpretação), cartografia, mapeamento e congêneres.",2.0],["072002","Levantamentos batimétricos, geográficos, geodésicos, geológicos, geofísicos e congêneres.",2.0],["072003","Levantamentos topográficos e congêneres.",2.0],["072101","Pesquisa, perfuração, cimentação, mergulho e outros serviços relacionados à exploração de petróleo, gás e recursos minerais.",2.0],["072201","Nucleação e bombardeamento de nuvens e congêneres.",2.0],["080101","Ensino regular pré-escolar, fundamental e médio.",2.0],["080102","Ensino regular superior.",2.0],["080201","Instrução, treinamento, orientação pedagógica e educacional, avaliação de conhecimentos de qualquer natureza.",2.0],["090101","Hospedagem em hotéis, hotelaria marítima e congêneres.",2.0],["090102","Hospedagem em pensões, albergues, pousadas, hospedarias, ocupação por temporada.",2.0],["090103","Hospedagem em motéis e congêneres.",2.0],["090104","Hospedagem em apart-service condominiais, flat, apart-hotéis, hotéis residência e congêneres.",2.0],["090201","Agenciamento e intermediação de programas de turismo, passeios, viagens, excursões, hospedagens e congêneres.",3.0],["090202","Organização, promoção e execução de programas de turismo, passeios, viagens, excursões, hospedagens e congêneres.",3.0],["090301","Guias de turismo.",3.0],["100101","Agenciamento, corretagem ou intermediação de câmbio.",3.0],["100102","Agenciamento, corretagem ou intermediação de seguros.",3.0],["100103","Agenciamento, corretagem ou intermediação de cartões de crédito.",3.0],["100104","Agenciamento, corretagem ou intermediação de planos de saúde.",3.0],["100105","Agenciamento, corretagem ou intermediação de planos de previdência privada.",3.0],["100201","Agenciamento, corretagem ou intermediação de títulos em geral e valores mobiliários.",5.0],["100202","Agenciamento, corretagem ou intermediação de contratos quaisquer.",5.0],["100301","Agenciamento, corretagem ou intermediação de direitos de propriedade industrial, artística ou literária.",5.0],["100401","Agenciamento, corretagem ou intermediação de contratos de arrendamento mercantil (leasing).",5.0],["100402","Agenciamento, corretagem ou intermediação de contratos de franquia (franchising).",5.0],["100403","Agenciamento, corretagem ou intermediação de faturização (factoring).",5.0],["100501","Agenciamento, corretagem ou intermediação de bens móveis ou imóveis, por quaisquer meios.",3.0],["100502","Agenciamento, corretagem ou intermediação de bens móveis ou imóveis no âmbito de Bolsas de Mercadorias e Futuros.",3.0],["100601","Agenciamento marítimo.",3.0],["100701","Agenciamento de notícias.",5.0],["100801","Agenciamento de publicidade e propaganda, inclusive veiculação por quaisquer meios.",5.0],["100901","Representação de qualquer natureza, inclusive comercial.",2.0],["101001","Distribuição de bens de terceiros.",3.0],["110101","Guarda e estacionamento de veículos terrestres automotores.",3.0],["110102","Guarda e estacionamento de aeronaves e de embarcações.",3.0],["110201","Vigilância, segurança ou monitoramento de bens, pessoas e semoventes.",3.0],["110301","Escolta, inclusive de veículos e cargas.",3.0],["110401","Armazenamento, depósito, guarda de bens de qualquer espécie.",3.0],["110402","Carga, descarga, arrumação de bens de qualquer espécie.",3.0],["110501","Serviços relacionados ao monitoramento e rastreamento a distância de veículos, cargas, pessoas e semoventes.",3.0],["120101","Espetáculos teatrais.",2.0],["120201","Exibições cinematográficas.",2.0],["120301","Espetáculos circenses.",2.0],["120401","Programas de auditório.",2.0],["120501","Parques de diversões, centros de lazer e congêneres.",2.0],["120601","Boates, taxi-dancing e congêneres.",3.0],["120701","Shows, ballet, danças, desfiles, bailes, óperas, concertos, recitais, festivais e congêneres.",2.0],["120801","Feiras, exposições, congressos e congêneres.",2.0],["120901","Bilhares.",3.0],["120902","Boliches.",3.0],["120903","Diversões eletrônicas ou não.",3.0],["121001","Corridas e competições de animais.",2.0],["121101","Competições esportivas ou de destreza física ou intelectual, com ou sem participação do espectador.",2.0],["121201","Execução de música.",2.0],["121301","Produção, mediante ou sem encomenda prévia, de eventos, espetáculos, entrevistas, shows, ballet, danças, desfiles, bailes, teatros, óperas, concertos, recitais, festivais e congêneres.",2.0],["121401","Fornecimento de música para ambientes fechados ou não, mediante transmissão por qualquer processo.",2.0],["121501","Desfiles de blocos carnavalescos ou folclóricos, trios elétricos e congêneres.",2.0],["121601","Exibição de filmes, entrevistas, musicais, espetáculos, shows, concertos, desfiles, óperas, competições esportivas ou congêneres.",2.0],["121701","Recreação e animação, inclusive em festas e eventos de qualquer natureza.",2.0],["130201","Fonografia ou gravação de sons, inclusive trucagem, dublagem, mixagem e congêneres.",3.0],["130301","Fotografia e cinematografia, inclusive revelação, ampliação, cópia, reprodução, trucagem e congêneres.",3.0],["130401","Reprografia, microfilmagem e digitalização.",3.0],["130501","Composição gráfica, inclusive confecção de impressos gráficos, fotocomposição, clicheria, zincografia, litografia e fotolitografia.",3.0],["140101","Lubrificação, limpeza, lustração, revisão, carga e recarga, conserto, restauração, manutenção e conservação de máquinas, veículos, aparelhos, equipamentos, motores, elevadores.",3.0],["140201","Assistência técnica.",3.0],["140301","Recondicionamento de motores.",3.0],["140401","Recauchutagem ou regeneração de pneus.",2.0],["140501","Restauração, recondicionamento, acondicionamento, pintura, beneficiamento, lavagem, secagem, tingimento, galvanoplastia, corte e congêneres de objetos quaisquer.",5.0],["140601","Instalação e montagem de aparelhos, máquinas e equipamentos, inclusive montagem industrial, com material fornecido pelo usuário final.",3.0],["140701","Colocação de molduras e congêneres.",3.0],["140801","Encadernação, gravação e douração de livros, revistas e congêneres.",3.0],["140901","Alfaiataria e costura, quando o material for fornecido pelo usuário final, exceto aviamento.",2.0],["141001","Tinturaria e lavanderia.",3.0],["141101","Tapeçaria e reforma de estofamentos em geral.",3.0],["141201","Funilaria e lanternagem.",2.0],["141301","Carpintaria.",3.0],["141302","Serralheria.",3.0],["141401","Guincho intramunicipal.",3.0],["141402","Guindaste e içamento.",3.0],["150101","Administração de fundos quaisquer e congêneres.",5.0],["150102","Administração de consórcio e congêneres.",5.0],["150103","Administração de cartão de crédito ou débito e congêneres.",5.0],["150104","Administração de carteira de clientes e congêneres.",5.0],["150105","Administração de cheques pré-datados e congêneres.",5.0],["150201","Abertura de conta-corrente no País, bem como manutenção da conta ativa e inativa.",5.0],["150202","Abertura de conta-corrente no exterior, bem como manutenção da conta ativa e inativa.",5.0],["150203","Abertura de conta de investimentos e aplicação no País.",5.0],["150204","Abertura de conta de investimentos e aplicação no exterior.",5.0],["150205","Abertura de caderneta de poupança no País.",5.0],["150206","Abertura de caderneta de poupança no exterior.",5.0],["150207","Abertura de contas em geral no País, não abrangida em outro subitem.",5.0],["150208","Abertura de contas em geral no exterior, não abrangida em outro subitem.",5.0],["150301","Locação de cofres particulares.",5.0],["150302","Manutenção de cofres particulares.",5.0],["150303","Locação de terminais eletrônicos.",5.0],["150304","Manutenção de terminais eletrônicos.",5.0],["150305","Locação de terminais de atendimento.",5.0],["150306","Manutenção de terminais de atendimento.",5.0],["150307","Locação de bens e equipamentos em geral.",5.0],["150308","Manutenção de bens e equipamentos em geral.",5.0],["150401","Fornecimento ou emissão de atestados em geral, inclusive de idoneidade e de capacidade financeira.",5.0],["150501","Cadastro, elaboração de ficha cadastral, renovação cadastral e congêneres.",5.0],["150502","Inclusão no Cadastro de Emitentes de Cheques sem Fundos - CCF.",5.0],["150503","Exclusão no Cadastro de Emitentes de Cheques sem Fundos - CCF.",5.0],["150504","Inclusão em quaisquer outros bancos cadastrais.",5.0],["150505","Exclusão em quaisquer outros bancos cadastrais.",5.0],["150601","Emissão, reemissão e fornecimento de avisos, comprovantes e documentos em geral.",5.0],["150602","Abono de firmas.",5.0],["150603","Coleta e entrega de documentos, bens e valores.",5.0],["150604","Comunicação com outra agência ou com a administração central.",5.0],["150605","Licenciamento eletrônico de veículos.",5.0],["150606","Transferência de veículos.",5.0],["150607","Agenciamento fiduciário ou depositário.",5.0],["150608","Devolução de bens em custódia.",5.0],["150701","Acesso, movimentação, atendimento e consulta a contas em geral, por qualquer meio ou processo.",5.0],["150702","Acesso a terminais de atendimento, inclusive vinte e quatro horas.",5.0],["150703","Acesso a outro banco e à rede compartilhada.",5.0],["150704","Fornecimento de saldo, extrato e demais informações relativas a contas em geral.",5.0],["150801","Emissão, reemissão, alteração, cessão, substituição, cancelamento e registro de contrato de crédito.",5.0],["150802","Estudo, análise e avaliação de operações de crédito.",5.0],["150803","Emissão, concessão, alteração ou contratação de aval, fiança, anuência e congêneres.",5.0],["150804","Serviços relativos à abertura de crédito, para quaisquer fins.",5.0],["150901","Arrendamento mercantil (leasing) de quaisquer bens, inclusive cessão de direitos e obrigações.",5.0],["151001","Serviços relacionados a cobranças em geral, de títulos, contas, câmbio ou tributos.",5.0],["151002","Serviços relacionados a recebimentos em geral, de títulos, contas, câmbio ou tributos.",5.0],["151003","Serviços relacionados a pagamentos em geral, de títulos, contas, câmbio ou tributos.",5.0],["151004","Serviços relacionados a fornecimento de posição de cobrança, recebimento ou pagamento.",5.0],["151005","Serviços relacionados a emissão de carnês, fichas de compensação, impressos e documentos em geral.",5.0],["151101","Devolução de títulos, protesto de títulos, sustação de protesto, manutenção e reapresentação de títulos.",5.0],["151201","Custódia em geral, inclusive de títulos e valores mobiliários.",5.0],["151301","Serviços relacionados a operações de câmbio em geral.",5.0],["151302","Serviços relacionados a emissão de registro de exportação ou de crédito.",5.0],["151303","Serviços relacionados a cobrança ou depósito no exterior.",5.0],["151304","Serviços relacionados a emissão, fornecimento e cancelamento de cheques de viagem.",5.0],["151305","Serviços relacionados a carta de crédito de importação, exportação e garantias recebidas.",5.0],["151306","Serviços relacionados a envio e recebimento de mensagens relacionadas a operações de câmbio.",5.0],["151401","Fornecimento, emissão, reemissão de cartão magnético, cartão de crédito, cartão de débito, cartão salário e congêneres.",5.0],["151402","Renovação de cartão magnético, cartão de crédito, cartão de débito, cartão salário e congêneres.",5.0],["151403","Manutenção de cartão magnético, cartão de crédito, cartão de débito, cartão salário e congêneres.",5.0],["151501","Compensação de cheques e títulos quaisquer.",5.0],["151502","Serviços relacionados a depósito, inclusive identificado, a saque de contas quaisquer.",5.0],["151601","Emissão, reemissão, liquidação, alteração, cancelamento e baixa de ordens de pagamento, ordens de crédito e similares.",5.0],["151602","Serviços relacionados à transferência de valores, dados, fundos, pagamentos e similares.",5.0],["151701","Emissão e fornecimento de cheques quaisquer, avulso ou por talão.",5.0],["151702","Devolução de cheques quaisquer, avulso ou por talão.",5.0],["151703","Sustação, cancelamento e oposição de cheques quaisquer, avulso ou por talão.",5.0],["151801","Serviços relacionados a crédito imobiliário, de avaliação e vistoria de imóvel ou obra.",5.0],["151802","Serviços relacionados a crédito imobiliário, de análise técnica e jurídica.",5.0],["151803","Serviços relacionados a crédito imobiliário, de emissão, reemissão, alteração, transferência e renegociação de contrato.",5.0],["151804","Serviços relacionados a crédito imobiliário, de emissão e reemissão do termo de quitação.",5.0],["151805","Demais serviços relacionados a crédito imobiliário.",5.0],["160101","Serviços de transporte coletivo municipal rodoviário de passageiros.",2.0],["160102","Serviços de transporte coletivo municipal metroviário de passageiros.",2.0],["160103","Serviços de transporte coletivo municipal ferroviário de passageiros.",2.0],["160104","Serviços de transporte coletivo municipal aquaviário de passageiros.",2.0],["160201","Outros serviços de transporte de natureza municipal.",2.0],["170101","Assessoria ou consultoria de qualquer natureza, não contida em outros itens desta lista.",3.0],["170102","Análise, exame, pesquisa, coleta, compilação e fornecimento de dados e informações de qualquer natureza.",3.0],["170201","Datilografia, digitação, estenografia e congêneres.",3.0],["170202","Expediente, secretaria em geral, apoio e infra-estrutura administrativa e congêneres.",3.0],["170203","Resposta audível e congêneres.",3.0],["170204","Redação, edição, revisão e congêneres.",3.0],["170205","Interpretação, tradução e congêneres.",3.0],["170301","Planejamento, coordenação, programação ou organização técnica.",3.0],["170302","Planejamento, coordenação, programação ou organização financeira.",3.0],["170303","Planejamento, coordenação, programação ou organização administrativa.",3.0],["170401","Recrutamento, agenciamento, seleção e colocação de mão-de-obra.",3.0],["170501","Fornecimento de mão-de-obra, mesmo em caráter temporário, inclusive de empregados ou trabalhadores contratados pelo prestador.",3.0],["170601","Propaganda e publicidade, inclusive promoção de vendas, planejamento de campanhas ou sistemas de publicidade.",3.0],["170801","Franquia (franchising).",3.0],["170901","Perícias, laudos, exames técnicos e análises técnicas.",3.0],["171001","Planejamento, organização e administração de feiras, exposições e congêneres.",3.0],["171002","Planejamento, organização e administração de congressos e congêneres.",3.0],["171101","Organização de festas e recepções.",3.0],["171102","Bufê (exceto o fornecimento de alimentação e bebidas, que fica sujeito ao ICMS).",3.0],["171201","Administração em geral, inclusive de bens e negócios de terceiros.",5.0],["171301","Leilão e congêneres.",5.0],["171401","Advocacia.",2.0],["171501","Arbitragem de qualquer espécie, inclusive jurídica.",2.0],["171601","Auditoria.",2.0],["171701","Análise de Organização e Métodos.",3.0],["171801","Atuária e cálculos técnicos de qualquer natureza.",2.0],["171901","Contabilidade, inclusive serviços técnicos e auxiliares.",2.0],["172001","Consultoria e assessoria econômica ou financeira.",2.0],["172101","Estatística.",2.0],["172201","Cobrança em geral.",3.0],["172301","Assessoria, análise, avaliação, atendimento, consulta, cadastro, seleção, gerenciamento de informações relacionados a factoring.",3.0],["172401","Apresentação de palestras, conferências, seminários e congêneres.",3.0],["172501","Inserção de textos, desenhos e outros materiais de propaganda e publicidade, em qualquer meio.",3.0],["180101","Serviços de regulação de sinistros vinculados a contratos de seguros e congêneres.",3.0],["180102","Serviços de inspeção e avaliação de riscos para cobertura de contratos de seguros e congêneres.",3.0],["180103","Serviços de prevenção e gerência de riscos seguráveis e congêneres.",3.0],["190101","Serviços de distribuição e venda de bilhetes e demais produtos de loteria, cartões, pules ou cupons de apostas, sorteios e prêmios.",3.0],["190102","Serviços de distribuição e venda de bingos e congêneres.",3.0],["200101","Serviços portuários, ferroportuários, utilização de porto, movimentação de passageiros e mercadorias, logística e congêneres.",3.0],["200201","Serviços aeroportuários, utilização de aeroporto, movimentação de passageiros e mercadorias, logística e congêneres.",3.0],["200301","Serviços de terminais rodoviários, ferroviários, metroviários, movimentação de passageiros e mercadorias, logística e congêneres.",3.0],["210101","Serviços de registros públicos, cartorários e notariais.",2.0],["220101","Serviços de exploração de rodovia mediante cobrança de preço ou pedágio dos usuários.",5.0],["230101","Serviços de programação e comunicação visual e congêneres.",2.0],["230102","Serviços de desenho industrial e congêneres.",2.0],["240101","Serviços de chaveiros, confecção de carimbos e congêneres.",3.0],["240102","Serviços de placas, sinalização visual, banners, adesivos e congêneres.",3.0],["250101","Funerais, inclusive fornecimento de caixão, urna ou esquifes, transporte do corpo, flores e outros paramentos.",5.0],["250201","Translado intramunicipal de corpos e partes de corpos cadavéricos.",5.0],["250202","Cremação de corpos e partes de corpos cadavéricos.",5.0],["250301","Planos ou convênio funerários.",5.0],["250401","Manutenção e conservação de jazigos e cemitérios.",5.0],["250501","Cessão de uso de espaços em cemitérios para sepultamento.",5.0],["260101","Serviços de coleta, remessa ou entrega de correspondências, documentos, objetos, bens ou valores, inclusive correios.",5.0],["260102","Serviços de courrier e congêneres.",5.0],["270101","Serviços de assistência social.",2.0],["280101","Serviços de avaliação de bens e serviços de qualquer natureza.",3.0],["290101","Serviços de biblioteconomia.",3.0],["300101","Serviços de biologia e biotecnologia.",3.0],["300102","Serviços de química.",3.0],["310101","Serviços técnicos em edificações e congêneres.",5.0],["310102","Serviços técnicos em eletrônica, eletrotécnica e congêneres.",5.0],["310103","Serviços técnicos em mecânica e congêneres.",5.0],["310104","Serviços técnicos em telecomunicações e congêneres.",5.0],["320101","Serviços de desenhos técnicos.",3.0],["330101","Serviços de desembaraço aduaneiro, comissários, despachantes e congêneres.",3.0],["340101","Serviços de investigações particulares, detetives e congêneres.",3.0],["350101","Serviços de reportagem e jornalismo.",3.0],["350102","Serviços de assessoria de imprensa.",3.0],["350103","Serviços de relações públicas.",3.0],["360101","Serviços de meteorologia.",3.0],["370101","Serviços de artistas, atletas, modelos e manequins.",3.0],["380101","Serviços de museologia.",3.0],["390101","Serviços de ourivesaria e lapidação (quando o material for fornecido pelo tomador).",3.0],["400101","Obras de arte sob encomenda.",3.0],["990101","Serviços sem a incidência de ISSQN.",0.0]];
+
+let _nfseNotasCache = []; // notas da empresa aberta no momento, cacheadas pra "duplicar" sem outra chamada
+
+function nfseLimparFormNota(){
+  [
+    'nfse-nota-tom-doc','nfse-nota-tom-nome','nfse-nota-tom-email',
+    'nfse-nota-tom-cep','nfse-nota-tom-logradouro','nfse-nota-tom-numero',
+    'nfse-nota-tom-complemento','nfse-nota-tom-bairro','nfse-nota-tom-municipio','nfse-nota-tom-uf',
+    'nfse-nota-cod-servico-busca','nfse-nota-cod-servico','nfse-nota-aliquota',
+    'nfse-nota-descricao','nfse-nota-valor',
+    'nfse-nota-pis-cst','nfse-nota-pis-vbc','nfse-nota-pis-aliq','nfse-nota-pis-valor',
+    'nfse-nota-cofins-aliq','nfse-nota-cofins-valor','nfse-nota-pis-tpret',
+    'nfse-nota-irrf','nfse-nota-csll','nfse-nota-cp','nfse-nota-pct-sn',
+  ].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  const dd = document.getElementById('nfse-cod-servico-dropdown'); if(dd){ dd.style.display='none'; dd.innerHTML=''; }
+  const sel = document.getElementById('nfse-cod-servico-selecionado'); if(sel) sel.innerHTML='';
+  const stat = document.getElementById('nfse-cnpj-status'); if(stat) stat.innerHTML='';
+  const cepStat = document.getElementById('nfse-cep-status'); if(cepStat) cepStat.innerHTML='';
+  const locUf = document.getElementById('nfse-nota-loc-uf'); if(locUf) locUf.value='';
+  const locMun = document.getElementById('nfse-nota-loc-municipio'); if(locMun){ locMun.disabled=true; locMun.innerHTML='<option value="">Selecione a UF primeiro</option>'; }
+  const locIbge = document.getElementById('nfse-nota-loc-ibge'); if(locIbge) locIbge.value='';
+  const locStat = document.getElementById('nfse-loc-status'); if(locStat) locStat.innerHTML='';
+  const camposTrib = document.getElementById('nfse-tribfed-campos');
+  const seta = document.getElementById('nfse-tribfed-seta');
+  if(camposTrib && camposTrib.style.display !== 'none'){ camposTrib.style.display='none'; if(seta) seta.textContent='▸'; }
+}
+
+function nfseToggleTribFederal(){
+  const el = document.getElementById('nfse-tribfed-campos');
+  const seta = document.getElementById('nfse-tribfed-seta');
+  const aberto = el.style.display !== 'none';
+  el.style.display = aberto ? 'none' : 'block';
+  seta.textContent = aberto ? '▸' : '▾';
+}
+
+/* Busca no código de serviço (Tributação Nacional) por código OU palavra
+   no texto da descrição — evita ter que decorar/digitar o código de cor. */
+function nfseFiltrarCodigosServico(termo){
+  const dd = document.getElementById('nfse-cod-servico-dropdown');
+  const q = (termo||'').trim().toLowerCase();
+  if(q.length < 2){ dd.style.display='none'; dd.innerHTML=''; return; }
+  const norm = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const qNorm = norm(q);
+  const achados = NFSE_CODIGOS_SERVICO.filter(([c,d]) => c.includes(q) || norm(d).includes(qNorm)).slice(0,25);
+  if(!achados.length){
+    dd.innerHTML = '<div style="padding:10px 12px;font-size:11.5px;color:var(--t3)">Nenhum código encontrado pra essa busca.</div>';
+    dd.style.display='block';
+    return;
+  }
+  dd.innerHTML = achados.map(([c,d,a]) => `<div onclick="nfseSelecionarCodigoServico('${c}')" style="padding:8px 12px;font-size:11.5px;cursor:pointer;border-bottom:1px solid #F1F5F9" onmouseover="this.style.background='#F7F8FA'" onmouseout="this.style.background=''"><b>${c}</b> — ${_crmEsc(d)} <span style="color:var(--t3)">(ISS ${a.toFixed(2).replace('.',',')}%)</span></div>`).join('');
+  dd.style.display='block';
+}
+function nfseSelecionarCodigoServico(codigo){
+  const item = NFSE_CODIGOS_SERVICO.find(([c])=>c===codigo);
+  if(!item) return;
+  const [c,d,a] = item;
+  document.getElementById('nfse-nota-cod-servico').value = c;
+  document.getElementById('nfse-nota-cod-servico-busca').value = `${c} — ${d}`;
+  document.getElementById('nfse-cod-servico-selecionado').innerHTML = `✅ Selecionado: <b>${c}</b> — ${_crmEsc(d)} · alíquota padrão ISS ${a.toFixed(2).replace('.',',')}%`;
+  const aliqEl = document.getElementById('nfse-nota-aliquota');
+  if(aliqEl && !aliqEl.value) aliqEl.value = a;
+  const dd = document.getElementById('nfse-cod-servico-dropdown');
+  dd.style.display='none'; dd.innerHTML='';
+}
+document.addEventListener('click', (e)=>{
+  const busca = document.getElementById('nfse-nota-cod-servico-busca');
+  const dd = document.getElementById('nfse-cod-servico-dropdown');
+  if(dd && busca && e.target!==busca && !dd.contains(e.target)) dd.style.display='none';
+});
+
+/* Auto-preenchimento do nome (e, quando o CNPJ tem endereço, sugestão de
+   município) do tomador a partir do documento, via BrasilAPI (pública,
+   sem chave, dados oficiais da Receita Federal/CNPJ). Dispara em dois
+   casos:
+   - 14 dígitos (CNPJ): consulta de verdade na base pública da RFB.
+   - 11 dígitos (CPF): a Receita Federal NÃO disponibiliza consulta
+     pública gratuita de dados de CPF (LGPD) — não existe um "BrasilAPI
+     do CPF". Isso vale pra qualquer sistema, não é uma limitação nossa.
+     A única forma de consultar CPF na RFB de forma oficial é via SERPRO
+     Integra Contador, com o contrato + procuração eletrônica do
+     escritório (mesma integração já usada em Procurações) — ainda não
+     ligada aqui. Por enquanto, o campo só avisa isso e o nome deve ser
+     preenchido manualmente.
+   Só preenche o nome se ele ainda estiver vazio (não sobrescreve edição
+   manual do usuário). */
+/* Formata o CEP como 00000-000 enquanto o usuário digita e, assim que
+   completar 8 dígitos, busca o endereço automaticamente na ViaCEP
+   (API pública, sem chave, dos Correios) — preenche logradouro, bairro,
+   município e UF do tomador sem precisar digitar nada disso na mão.
+   Só sobrescreve o que estiver vazio (não atropela edição manual). */
+let _nfseCepBuscaTimeout = null;
+function nfseFormatarCep(el){
+  let d = el.value.replace(/\D/g,'').slice(0,8);
+  if(d.length > 5) d = d.slice(0,5) + '-' + d.slice(5);
+  el.value = d;
+  const statusEl = document.getElementById('nfse-cep-status');
+  clearTimeout(_nfseCepBuscaTimeout);
+  if(!statusEl) return;
+  if(d.length < 9){ statusEl.innerHTML=''; return; }
+  statusEl.innerHTML = '🔄 Buscando endereço...';
+  _nfseCepBuscaTimeout = setTimeout(async ()=>{
+    try{
+      const r = await fetch(`https://viacep.com.br/ws/${d.replace('-','')}/json/`);
+      if(!r.ok) throw new Error('ViaCEP retornou ' + r.status);
+      const dados = await r.json();
+      if(dados.erro){ statusEl.innerHTML = '⚠️ CEP não encontrado.'; return; }
+      const preencher=(id,v)=>{ const campo=document.getElementById(id); if(campo && !campo.value.trim() && v) campo.value = v; };
+      preencher('nfse-nota-tom-logradouro', dados.logradouro);
+      preencher('nfse-nota-tom-bairro', dados.bairro);
+      preencher('nfse-nota-tom-municipio', dados.localidade);
+      const ufEl = document.getElementById('nfse-nota-tom-uf');
+      if(ufEl && !ufEl.value && dados.uf) ufEl.value = dados.uf;
+      statusEl.innerHTML = `✅ ${_crmEsc([dados.logradouro,dados.bairro,dados.localidade+'/'+dados.uf].filter(Boolean).join(', '))}`;
+    }catch(e){
+      console.error('nfseFormatarCep (ViaCEP)', e);
+      statusEl.innerHTML = '⚠️ Não consegui consultar o CEP — preencha o endereço manualmente.';
+    }
+  }, 400); // debounce: só busca 0.4s depois de parar de digitar
+}
+
+let _nfseCnpjBuscaTimeout = null;
+function nfseAutoBuscarCnpj(valor){
+  clearTimeout(_nfseCnpjBuscaTimeout);
+  const digitos = String(valor||'').replace(/\D/g,'');
+  const statusEl = document.getElementById('nfse-cnpj-status');
+  if(!statusEl) return;
+  if(digitos.length === 11){
+    statusEl.innerHTML = 'ℹ️ CPF não tem consulta pública gratuita na Receita Federal (LGPD) — preencha o nome manualmente.';
+    return;
+  }
+  if(digitos.length !== 14){ statusEl.innerHTML=''; return; }
+  statusEl.innerHTML = '🔄 Consultando CNPJ na Receita Federal...';
+  _nfseCnpjBuscaTimeout = setTimeout(async ()=>{
+    try{
+      const r = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${digitos}`);
+      if(!r.ok){ statusEl.innerHTML = '⚠️ CNPJ não encontrado na base pública.'; return; }
+      const dados = await r.json();
+      const nomeEl = document.getElementById('nfse-nota-tom-nome');
+      const nomeAchado = dados.razao_social || dados.nome_fantasia || '';
+      if(nomeAchado && !nomeEl.value.trim()) nomeEl.value = nomeAchado;
+      // Preenche o endereço do tomador com o que veio da Receita Federal,
+      // sem sobrescrever o que o usuário já tiver digitado na mão.
+      const preencher=(id,v)=>{ const el=document.getElementById(id); if(el && !el.value.trim() && v) el.value = v; };
+      preencher('nfse-nota-tom-cep', dados.cep ? String(dados.cep).replace(/\D/g,'').replace(/(\d{5})(\d{3})/,'$1-$2') : '');
+      preencher('nfse-nota-tom-logradouro', [dados.descricao_tipo_de_logradouro, dados.logradouro].filter(Boolean).join(' '));
+      preencher('nfse-nota-tom-numero', dados.numero);
+      preencher('nfse-nota-tom-complemento', dados.complemento);
+      preencher('nfse-nota-tom-bairro', dados.bairro);
+      preencher('nfse-nota-tom-municipio', dados.municipio);
+      const ufEl = document.getElementById('nfse-nota-tom-uf');
+      if(ufEl && !ufEl.value && dados.uf) ufEl.value = dados.uf;
+      statusEl.innerHTML = `✅ ${_crmEsc(nomeAchado || 'CNPJ encontrado')}`;
+    }catch(e){
+      console.error('nfseAutoBuscarCnpj', e);
+      statusEl.innerHTML = '⚠️ Não consegui consultar automaticamente — preencha o nome manualmente.';
+    }
+  }, 500); // debounce: só busca 0.5s depois de parar de digitar
+}
+
+/* Carrega os municípios de uma UF (API pública do IBGE, sem chave) no
+   select de Local da Prestação. Se `preselecionarIbge` for informado
+   (código de 7 dígitos), já deixa esse município marcado — usado tanto
+   pro preenchimento padrão (sede da empresa) quanto ao duplicar/reabrir
+   uma nota existente. */
+async function nfseCarregarMunicipiosPrestacao(uf, preselecionarIbge){
+  const sel = document.getElementById('nfse-nota-loc-municipio');
+  const ibgeHidden = document.getElementById('nfse-nota-loc-ibge');
+  const statusEl = document.getElementById('nfse-loc-status');
+  if(!uf){
+    sel.innerHTML = '<option value="">Selecione a UF primeiro</option>';
+    sel.disabled = true;
+    ibgeHidden.value = '';
+    return;
+  }
+  sel.disabled = true;
+  sel.innerHTML = '<option value="">🔄 Carregando municípios do IBGE...</option>';
+  try{
+    const r = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${encodeURIComponent(uf)}/municipios`);
+    if(!r.ok) throw new Error('IBGE retornou ' + r.status);
+    const lista = await r.json();
+    lista.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+    sel.innerHTML = '<option value="">— Selecione o município —</option>'
+      + lista.map(m=>`<option value="${m.id}" ${preselecionarIbge && String(m.id)===String(preselecionarIbge)?'selected':''}>${_crmEsc(m.nome)}</option>`).join('');
+    sel.disabled = false;
+    ibgeHidden.value = (preselecionarIbge && lista.some(m=>String(m.id)===String(preselecionarIbge))) ? preselecionarIbge : '';
+    if(statusEl && !ibgeHidden.value) statusEl.innerHTML = '';
+  }catch(e){
+    console.error('nfseCarregarMunicipiosPrestacao', e);
+    sel.innerHTML = '<option value="">⚠️ Erro ao carregar — tente de novo</option>';
+    sel.disabled = false;
+    if(statusEl) statusEl.innerHTML = '⚠️ Não consegui carregar a lista de municípios do IBGE agora.';
+  }
+}
+function nfseSelecionarMunicipioPrestacao(codigoIbge){
+  document.getElementById('nfse-nota-loc-ibge').value = codigoIbge || '';
+  const statusEl = document.getElementById('nfse-loc-status');
+  if(statusEl) statusEl.innerHTML = '';
+}
+
+/* Preenche o Local da Prestação com a sede (UF/Cidade) já cadastrada da
+   empresa — vale pela regra geral do ISSQN (local do estabelecimento
+   prestador) e cobre a maioria dos casos. Continua editável: pra
+   serviços cuja LC116 manda tributar no local da execução (ex: obras de
+   construção civil, eventos, feiras), o usuário troca aqui. */
+async function nfsePreencherLocalPadrao(companyId){
+  try{
+    const co = await getCo(companyId);
+    if(!co || !co.uf) return;
+    let codigoIbge = co.codigo_ibge || null;
+    if(!codigoIbge && co.cidade){
+      try{ codigoIbge = await nfseResolverCodigoIBGE(companyId, co.uf, co.cidade); }
+      catch(e){ console.error('nfsePreencherLocalPadrao/resolverIBGE', e); }
+    }
+    const ufSel = document.getElementById('nfse-nota-loc-uf');
+    ufSel.value = co.uf.toUpperCase();
+    await nfseCarregarMunicipiosPrestacao(co.uf.toUpperCase(), codigoIbge);
+    const statusEl = document.getElementById('nfse-loc-status');
+    if(statusEl && codigoIbge) statusEl.innerHTML = '📍 Preenchido com a sede da empresa — troque se o serviço foi prestado em outro município.';
+  }catch(e){
+    console.error('nfsePreencherLocalPadrao', e);
+  }
+}
+
+/* Pergunta pra Edge Function qual é o ambiente REAL configurado no
+   Supabase (NFSE_AMBIENTE) — nunca assume nem deixa hardcoded na tela,
+   pra evitar o aviso ficar desatualizado se o ambiente for trocado
+   direto no painel do Supabase sem avisar quem mexe no HTML depois.
+   Também informa se o Relay Brasil está configurado — pré-requisito
+   pra emissão real funcionar em produção. */
+let _nfseAmbienteCache = null;
+async function nfseObterAmbiente(){
+  if(_nfseAmbienteCache) return _nfseAmbienteCache;
+  try{
+    const { data, error } = await sb.functions.invoke('emitir-nfse', { body:{ action:'status_ambiente' } });
+    if(error || !data || data.erro) throw new Error(await _nfseExtrairErro(error, data));
+    _nfseAmbienteCache = data;
+    return data;
+  }catch(e){
+    console.error('nfseObterAmbiente', e);
+    return null;
+  }
+}
+function _nfseAplicarBadgesAmbiente(info){
+  const badge = document.getElementById('nfsenac-badge-ambiente');
+  const desc = document.getElementById('nfsenac-desc-ambiente');
+  const avisoModal = document.getElementById('nfse-modal-aviso-ambiente');
+  if(!info){
+    if(badge){ badge.textContent='⚠️ Não verificado'; badge.style.background='#FFEBEE'; badge.style.color='#C62828'; }
+    if(desc) desc.textContent='Não consegui confirmar o ambiente configurado no Supabase agora — trate como homologação até confirmar manualmente.';
+    if(avisoModal){ avisoModal.innerHTML='⚠️ Não foi possível confirmar o ambiente (Supabase) — <strong>trate como homologação</strong> por segurança até confirmar.'; avisoModal.style.color='#C62828'; }
+    return;
+  }
+  const producao = info.ambiente === 'producao';
+  if(badge){
+    badge.textContent = producao ? '🔴 PRODUÇÃO' : 'EM TESTE (homologação)';
+    badge.style.background = producao ? '#FFEBEE' : '#FFF3CD';
+    badge.style.color = producao ? '#C62828' : '#856404';
+  }
+  if(desc){
+    desc.textContent = producao
+      ? `Integração com o Emissor Público Nacional NFS-e (Sefin Nacional) — AMBIENTE DE PRODUÇÃO: notas emitidas aqui têm valor fiscal real.${info.relayConfigurado?'':' ⚠️ Relay Brasil não configurado (NFSE_RELAY_URL) — a emissão real pode falhar.'}`
+      : 'Integração com o Emissor Público Nacional NFS-e (Sefin Nacional) — ainda em homologação. Nenhuma nota emitida aqui tem valor fiscal real.';
+  }
+  if(avisoModal){
+    avisoModal.innerHTML = producao
+      ? `🔴 Ambiente de <strong>PRODUÇÃO</strong> — as notas emitidas aqui têm <strong>valor fiscal real</strong> (ISS devido de verdade).${info.relayConfigurado?'':' ⚠️ Relay Brasil (NFSE_RELAY_URL) não está configurado — a emissão pode falhar mesmo assim.'}`
+      : 'Ambiente de <strong>homologação</strong> — nenhuma nota emitida aqui tem valor fiscal real.';
+    avisoModal.style.color = producao ? '#C62828' : 'var(--t2)';
+  }
+}
+async function nfseAtualizarBadgesAmbiente(){
+  const info = await nfseObterAmbiente();
+  _nfseAplicarBadgesAmbiente(info);
+}
+
+async function nfseAbrirNotas(companyId, coName){
+  document.getElementById('nfse-notas-company-id').value = companyId;
+  document.getElementById('nfse-notas-empresa-nome').textContent = coName;
+  nfseLimparFormNota();
+  openM('mod-nfse-notas');
+  await nfseCarregarNotas(companyId);
+  await nfsePreencherLocalPadrao(companyId);
+  await nfseAtualizarBadgesAmbiente();
+}
+
+/* Badge visual de status — mesmo vocabulário do banco (rascunho, enviada,
+   autorizada, rejeitada, cancelada). */
+function _nfseStatusBadge(status){
+  const map={
+    rascunho:{bg:'#F1F5F9',cor:'#475569',label:'📄 Rascunho'},
+    enviada:{bg:'#E3F2FD',cor:'#1565C0',label:'📤 Enviada'},
+    autorizada:{bg:'#E8F5E9',cor:'#2E7D32',label:'✅ Autorizada'},
+    rejeitada:{bg:'#FFEBEE',cor:'#C62828',label:'❌ Rejeitada'},
+    cancelada:{bg:'#F1F5F9',cor:'#64748B',label:'🚫 Cancelada'},
+  };
+  const m=map[status]||map.rascunho;
+  return `<span style="background:${m.bg};color:${m.cor};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap">${m.label}</span>`;
+}
+
+async function nfseCarregarNotas(companyId){
+  const el=document.getElementById('nfse-notas-lista');
+  el.innerHTML='<div style="text-align:center;padding:16px;color:var(--t3);font-size:12px">Carregando…</div>';
+  try{
+    const { data, error } = await sb.functions.invoke('emitir-nfse', { body:{ action:'listar_notas', companyId } });
+    if(error || !data || data.erro){
+      const msg = await _nfseExtrairErro(error, data);
+      el.innerHTML=`<div style="padding:14px;color:#C62828;font-size:12px">Erro ao carregar histórico: ${msg}</div>`;
+      return;
+    }
+    _nfseNotasCache = data || [];
+    if(!_nfseNotasCache.length){
+      el.innerHTML='<div style="padding:16px;text-align:center;color:var(--t3);font-size:12px">Nenhuma nota criada ainda pra essa empresa.</div>';
+      return;
+    }
+    el.innerHTML = _nfseNotasCache.map(n=>{
+      const dt = n.created_at ? new Date(n.created_at).toLocaleDateString('pt-BR') : '—';
+      const acts = [];
+      if(n.status==='rascunho'){
+        acts.push(`<button class="difal-btn ghost sm" onclick="nfseEmitirNotaExistente('${n.id}',this)">📤 Emitir</button>`);
+        acts.push(`<button class="difal-btn ghost sm" style="color:#C62828" onclick="nfseExcluirNotaExistente('${n.id}')">🗑 Excluir</button>`);
+      }
+      if(n.status==='rejeitada'){
+        acts.push(`<button class="difal-btn ghost sm" onclick="nfseVerErroNota('${n.id}')">⚠️ Ver motivo</button>`);
+        acts.push(`<button class="difal-btn ghost sm" style="color:#C62828" onclick="nfseExcluirNotaExistente('${n.id}')">🗑 Excluir</button>`);
+      }
+      acts.push(`<button class="difal-btn ghost sm" onclick="nfseDuplicarParaForm('${n.id}')">🔁 Duplicar</button>`);
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border-bottom:1px solid #F1F5F9;flex-wrap:wrap">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;color:var(--dark)">${_crmEsc(n.tomador_razao_social||'—')} ${_nfseStatusBadge(n.status)}</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:2px">${dt} · CNPJ/CPF ${n.tomador_cnpj_cpf||'—'} · R$ ${Number(n.valor_servico||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}${n.chave_acesso_nfse?` · Chave: ${n.chave_acesso_nfse.slice(0,12)}…`:''}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">${acts.join('')}</div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    console.error('nfseCarregarNotas', e);
+    el.innerHTML=`<div style="padding:14px;color:#C62828;font-size:12px">Erro inesperado: ${e.message}</div>`;
+  }
+}
+
+async function nfseSalvarNota(emitirDepois, btnEl){
+  const companyId = document.getElementById('nfse-notas-company-id').value;
+  const val = (id) => document.getElementById(id).value.trim();
+  const payload = {
+    companyId,
+    tomadorCnpjCpf: val('nfse-nota-tom-doc'),
+    tomadorRazaoSocial: val('nfse-nota-tom-nome'),
+    tomadorEmail: val('nfse-nota-tom-email'),
+    tomadorCep: val('nfse-nota-tom-cep'),
+    tomadorLogradouro: val('nfse-nota-tom-logradouro'),
+    tomadorNumero: val('nfse-nota-tom-numero'),
+    tomadorComplemento: val('nfse-nota-tom-complemento'),
+    tomadorBairro: val('nfse-nota-tom-bairro'),
+    tomadorMunicipio: val('nfse-nota-tom-municipio'),
+    tomadorUf: val('nfse-nota-tom-uf'),
+    codigoServicoLc116: val('nfse-nota-cod-servico'),
+    aliquota: val('nfse-nota-aliquota'),
+    descricaoServico: val('nfse-nota-descricao'),
+    valorServico: val('nfse-nota-valor'),
+    codigoMunicipioIbge: val('nfse-nota-loc-ibge'),
+    // Tributação Federal — opcional, manda só o que foi preenchido.
+    pisCofinsCst: val('nfse-nota-pis-cst'),
+    pisCofinsVbc: val('nfse-nota-pis-vbc'),
+    pisAliquota: val('nfse-nota-pis-aliq'),
+    pisValor: val('nfse-nota-pis-valor'),
+    cofinsAliquota: val('nfse-nota-cofins-aliq'),
+    cofinsValor: val('nfse-nota-cofins-valor'),
+    pisCofinsTpRetencao: val('nfse-nota-pis-tpret'),
+    irrfValor: val('nfse-nota-irrf'),
+    csllValor: val('nfse-nota-csll'),
+    cpValor: val('nfse-nota-cp'),
+    pctTribSn: val('nfse-nota-pct-sn'),
+  };
+  if(!payload.tomadorCnpjCpf||!payload.tomadorRazaoSocial||!payload.codigoServicoLc116||!payload.descricaoServico||!payload.valorServico){
+    alert('Preencha todos os campos marcados com * antes de salvar (incluindo escolher o código de serviço na busca).');
+    return;
+  }
+  if(!payload.codigoMunicipioIbge){
+    alert('Selecione o Município e a UF onde o serviço foi prestado.');
+    return;
+  }
+
+  const btnRasc=document.getElementById('nfse-nota-btn-rascunho'), btnEmit=document.getElementById('nfse-nota-btn-emitir');
+  const origR=btnRasc.textContent, origE=btnEmit.textContent;
+  btnRasc.disabled=true; btnEmit.disabled=true;
+  if(btnEl) btnEl.textContent = emitirDepois ? '🔄 Salvando e emitindo...' : '🔄 Salvando...';
+
+  try{
+    const cria = await sb.functions.invoke('emitir-nfse', { body:{ action:'criar_nota', ...payload } });
+    if(cria.error || !cria.data || cria.data.erro){
+      const msg = await _nfseExtrairErro(cria.error, cria.data);
+      alert('Não consegui salvar a nota:\n\n' + msg);
+      return;
+    }
+    const notaId = cria.data.id;
+
+    if(emitirDepois){
+      const emissao = await sb.functions.invoke('emitir-nfse', { body:{ action:'emitir', notaId } });
+      if(emissao.error || !emissao.data || emissao.data.erro){
+        const msg = await _nfseExtrairErro(emissao.error, emissao.data);
+        alert(`Nota salva como rascunho, mas a Sefin Nacional não aceitou a emissão:\n\n${msg}`);
+      }else{
+        alert(`✅ Nota emitida com sucesso!\n\nChave de acesso: ${emissao.data.chaveAcesso}`);
+      }
+    }else{
+      alert('💾 Rascunho salvo.');
+    }
+    nfseLimparFormNota();
+    await nfseCarregarNotas(companyId);
+  }catch(e){
+    console.error('nfseSalvarNota', e);
+    alert('Erro inesperado ao salvar: ' + e.message);
+  }finally{
+    btnRasc.disabled=false; btnEmit.disabled=false;
+    btnRasc.textContent=origR; btnEmit.textContent=origE;
+  }
+}
+
+async function nfseEmitirNotaExistente(notaId, btnEl){
+  const original=btnEl.textContent;
+  btnEl.disabled=true; btnEl.textContent='🔄 Emitindo...';
+  try{
+    const emissao = await sb.functions.invoke('emitir-nfse', { body:{ action:'emitir', notaId } });
+    if(emissao.error || !emissao.data || emissao.data.erro){
+      const msg = await _nfseExtrairErro(emissao.error, emissao.data);
+      alert('A Sefin Nacional não aceitou:\n\n' + msg);
+    }else{
+      alert(`✅ Nota emitida com sucesso!\n\nChave de acesso: ${emissao.data.chaveAcesso}`);
+    }
+    await nfseCarregarNotas(document.getElementById('nfse-notas-company-id').value);
+  }catch(e){
+    console.error('nfseEmitirNotaExistente', e);
+    alert('Erro inesperado ao emitir: ' + e.message);
+    btnEl.disabled=false; btnEl.textContent=original;
+  }
+}
+
+async function nfseExcluirNotaExistente(notaId){
+  if(!confirm('Excluir este rascunho? Não dá pra desfazer.')) return;
+  try{
+    const { data, error } = await sb.functions.invoke('emitir-nfse', { body:{ action:'excluir_nota', notaId } });
+    if(error || !data || data.erro){
+      alert('Erro ao excluir: ' + await _nfseExtrairErro(error, data));
+      return;
+    }
+    await nfseCarregarNotas(document.getElementById('nfse-notas-company-id').value);
+  }catch(e){
+    alert('Erro inesperado ao excluir: ' + e.message);
+  }
+}
+
+function nfseVerErroNota(notaId){
+  const nota=_nfseNotasCache.find(n=>n.id===notaId);
+  if(!nota) return;
+  alert('⚠️ Motivo da rejeição:\n\n' + (nota.motivo_rejeicao||'Não registrado.'));
+}
+
+/* "Duplicar" preenche o formulário do topo com os dados da nota escolhida,
+   pra editar (ex: trocar o valor ou o tomador) antes de salvar como nota
+   nova — não sobrescreve a nota original. */
+function nfseDuplicarParaForm(notaId){
+  const nota=_nfseNotasCache.find(n=>n.id===notaId);
+  if(!nota) return;
+  document.getElementById('nfse-nota-tom-doc').value = nota.tomador_cnpj_cpf||'';
+  document.getElementById('nfse-nota-tom-nome').value = nota.tomador_razao_social||'';
+  document.getElementById('nfse-nota-tom-email').value = nota.tomador_email||'';
+  document.getElementById('nfse-nota-tom-cep').value = nota.tomador_cep||'';
+  document.getElementById('nfse-nota-tom-logradouro').value = nota.tomador_logradouro||'';
+  document.getElementById('nfse-nota-tom-numero').value = nota.tomador_numero||'';
+  document.getElementById('nfse-nota-tom-complemento').value = nota.tomador_complemento||'';
+  document.getElementById('nfse-nota-tom-bairro').value = nota.tomador_bairro||'';
+  document.getElementById('nfse-nota-tom-municipio').value = nota.tomador_municipio||'';
+  document.getElementById('nfse-nota-tom-uf').value = nota.tomador_uf||'';
+  document.getElementById('nfse-nota-cod-servico').value = nota.codigo_servico_lc116||'';
+  if(nota.codigo_servico_lc116){
+    const item = NFSE_CODIGOS_SERVICO.find(([c])=>c===nota.codigo_servico_lc116);
+    document.getElementById('nfse-nota-cod-servico-busca').value = item ? `${item[0]} — ${item[1]}` : nota.codigo_servico_lc116;
+  }
+  document.getElementById('nfse-nota-aliquota').value = nota.aliquota!=null?nota.aliquota:'';
+  document.getElementById('nfse-nota-descricao').value = nota.descricao_servico||'';
+  document.getElementById('nfse-nota-valor').value = nota.valor_servico!=null?nota.valor_servico:'';
+  // Tributação Federal — se a nota anterior tinha algo preenchido, já
+  // abre a seção expandida pra mostrar.
+  const setVal=(id,v)=>{ const el=document.getElementById(id); if(el) el.value = (v!=null?v:''); };
+  setVal('nfse-nota-pis-cst', nota.pis_cofins_cst);
+  setVal('nfse-nota-pis-vbc', nota.pis_cofins_vbc);
+  setVal('nfse-nota-pis-aliq', nota.pis_aliquota);
+  setVal('nfse-nota-pis-valor', nota.pis_valor);
+  setVal('nfse-nota-cofins-aliq', nota.cofins_aliquota);
+  setVal('nfse-nota-cofins-valor', nota.cofins_valor);
+  setVal('nfse-nota-pis-tpret', nota.pis_cofins_tp_retencao);
+  setVal('nfse-nota-irrf', nota.irrf_valor);
+  setVal('nfse-nota-csll', nota.csll_valor);
+  setVal('nfse-nota-cp', nota.cp_valor);
+  setVal('nfse-nota-pct-sn', nota.pct_trib_sn);
+  const temTribFed = nota.pis_cofins_cst||nota.irrf_valor||nota.csll_valor||nota.cp_valor||nota.pct_trib_sn;
+  if(temTribFed){
+    document.getElementById('nfse-tribfed-campos').style.display='block';
+    document.getElementById('nfse-tribfed-seta').textContent='▾';
+  }
+  if(nota.codigo_municipio_ibge) nfseRestaurarLocalPorIbge(nota.codigo_municipio_ibge);
+  document.getElementById('nfse-nota-tom-doc').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* Descobre a UF de um código IBGE de município (API pública do IBGE) e
+   preenche o par UF/Município do formulário com ele — usado ao duplicar
+   uma nota existente, que já tem o município de prestação gravado. */
+async function nfseRestaurarLocalPorIbge(codigoIbge){
+  try{
+    const r = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios/${codigoIbge}`);
+    if(!r.ok) throw new Error('IBGE retornou ' + r.status);
+    const m = await r.json();
+    const uf = m?.microrregiao?.mesorregiao?.UF?.sigla || m?.["regiao-imediata"]?.["regiao-intermediaria"]?.UF?.sigla;
+    if(!uf) return;
+    document.getElementById('nfse-nota-loc-uf').value = uf;
+    await nfseCarregarMunicipiosPrestacao(uf, codigoIbge);
+  }catch(e){
+    console.error('nfseRestaurarLocalPorIbge', e);
   }
 }
 
@@ -18643,6 +19368,7 @@ async function certdigLoteImportar(){
 async function renderNFSeNacional(){
   const el=document.getElementById('nfsenac-content'); if(!el)return;
   el.innerHTML='<div style="text-align:center;padding:30px;color:var(--t3)">Carregando…</div>';
+  nfseAtualizarBadgesAmbiente();
   const [cos,map]=await Promise.all([getCompanies(),sbGetCertDigsBatch()]);
   const rows=[];
   map.forEach((arr,cid)=>{
@@ -18656,17 +19382,30 @@ async function renderNFSeNacional(){
     return;
   }
   rows.sort((a,b)=>a.coName.localeCompare(b.coName));
-  el.innerHTML=`<table class="difal-table"><thead><tr><th>Empresa</th><th>Certificado</th><th style="min-width:340px">Testes</th></tr></thead><tbody>${
-    rows.map(r=>`<tr>
-      <td style="white-space:normal;min-width:150px"><b>${_crmEsc(r.coName)}</b></td>
-      <td style="font-size:12px;color:var(--t2)">${_crmEsc(r.cert.titular||r.cert.tipo)}</td>
-      <td style="white-space:normal">
-        <button class="difal-btn ghost sm" id="nfse-test-${r.cid}" onclick="nfseTestarCertificado('${r.cid}',this)" title="Confere se este certificado consegue ser lido e usado pra emitir NFS-e">🧾 Testar NFS-e</button>
-        <button class="difal-btn ghost sm" id="nfse-param-${r.cid}" onclick="nfseTestarParametrosMunicipio('${r.cid}',this)" title="Testa a chamada REAL (com mTLS) à Sefin Nacional, pedindo os parâmetros de um município/serviço">🏛️ Testar Sefin Nacional</button>
-        <button class="difal-btn ghost sm" id="nfse-emit-${r.cid}" onclick="nfseTestarEmissao('${r.cid}',this)" title="Cria uma nota de teste (dados fictícios de homologação) e tenta emitir de verdade contra a Sefin Nacional">📤 Testar Emissão (homolog.)</button>
-      </td>
-    </tr>`).join('')
-  }</tbody></table>`;
+  const iniciais=nome=>{
+    const partes=(nome||'').trim().split(/\s+/).filter(Boolean);
+    if(!partes.length) return '·';
+    return partes.length===1 ? partes[0].slice(0,2).toUpperCase() : (partes[0][0]+partes[1][0]).toUpperCase();
+  };
+  el.innerHTML=`<div class="nfsenac-list">${
+    rows.map(r=>`<div class="nfsenac-row">
+      <div class="nfsenac-info">
+        <div class="nfsenac-avatar">${_crmEsc(iniciais(r.coName))}</div>
+        <div>
+          <div class="nfsenac-name">${_crmEsc(r.coName)}</div>
+          <div class="nfsenac-cert">🪪 ${_crmEsc(r.cert.titular||r.cert.tipo)}</div>
+        </div>
+      </div>
+      <div class="nfsenac-actions">
+        <button class="nfsenac-btn-notas" data-coname="${_crmEsc(r.coName)}" onclick="nfseAbrirNotas('${r.cid}',this.dataset.coname)" title="Criar, emitir e consultar notas de serviço desta empresa">📝 Notas de Serviço</button>
+        <div class="nfsenac-tests">
+          <button class="nfsenac-test" id="nfse-test-${r.cid}" onclick="nfseTestarCertificado('${r.cid}',this)" title="Confere se este certificado consegue ser lido e usado pra emitir NFS-e">🧾 NFS-e</button>
+          <button class="nfsenac-test" id="nfse-param-${r.cid}" onclick="nfseTestarParametrosMunicipio('${r.cid}',this)" title="Testa a chamada REAL (com mTLS) à Sefin Nacional, pedindo os parâmetros de um município/serviço">🏛️ Sefin Nacional</button>
+          <button class="nfsenac-test" id="nfse-emit-${r.cid}" onclick="nfseTestarEmissao('${r.cid}',this)" title="Cria uma nota de teste (dados fictícios de homologação) e tenta emitir de verdade contra a Sefin Nacional">📤 Emissão (homolog.)</button>
+        </div>
+      </div>
+    </div>`).join('')
+  }</div>`;
 }
 
 

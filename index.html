@@ -5650,6 +5650,22 @@ async function sbGetCertDigsBatch() {
   return map;
 }
 
+/* supabase-js, quando a Edge Function responde com status != 2xx, NÃO
+   preenche `data` — o corpo real do erro (nosso {erro:"..."} em JSON) fica
+   escondido dentro de `error.context`, que é a Response crua. Sem isso, o
+   usuário só vê a mensagem genérica "Edge Function returned a non-2xx
+   status code", que não ajuda em nada. */
+async function _nfseExtrairErro(error, data){
+  if(data && data.erro) return data.erro;
+  if(error && error.context && typeof error.context.json === 'function'){
+    try{
+      const corpo = await error.context.clone().json();
+      if(corpo && corpo.erro) return corpo.erro;
+    }catch(_e){ /* corpo não era JSON, ignora e cai no fallback abaixo */ }
+  }
+  return (error && error.message) || 'Erro desconhecido';
+}
+
 /* Testa se um certificado e-CNPJ de uma empresa consegue ser lido e usado
    pela integração da NFS-e Nacional — sem emitir nada, só valida que o
    .pfx abre com a senha cadastrada e que a validade ainda não expirou.
@@ -5662,7 +5678,7 @@ async function nfseTestarCertificado(companyId, btnEl){
       body: { action:'verificar_certificado', companyId },
     });
     if(error || !data || data.erro){
-      const msg = (data && data.erro) || (error && error.message) || 'Erro desconhecido';
+      const msg = await _nfseExtrairErro(error, data);
       alert('🧾 Teste de certificado para NFS-e — não foi possível concluir:\n\n' + msg);
       console.error('nfseTestarCertificado', error || data);
       return;
@@ -5744,7 +5760,7 @@ async function nfseTestarParametrosMunicipio(companyId, btnEl){
       body: { action:'parametros_municipio', companyId, codigoMunicipio, codigoServico },
     });
     if(error || !data || data.erro){
-      const msg = (data && data.erro) || (error && error.message) || 'Erro desconhecido';
+      const msg = await _nfseExtrairErro(error, data);
       alert('🏛️ Teste Sefin Nacional — não foi possível concluir:\n\n' + msg);
       console.error('nfseTestarParametrosMunicipio', error || data);
       return;

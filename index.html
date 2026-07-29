@@ -2526,7 +2526,13 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
 
 <!-- MODAL: Notas de Serviço (NFS-e Nacional) — criar/emitir/duplicar por empresa -->
 <div class="mov" id="mod-nfse-notas"><div class="modal" style="max-width:820px;max-height:88vh;overflow-y:auto">
-  <div class="mtit">📝 Notas de Serviço — <span id="nfse-notas-empresa-nome"></span> <button class="mclose" onclick="closeM('mod-nfse-notas')">✕</button></div>
+<div class="mtit" style="align-items:flex-start">
+    <div style="min-width:0;flex:1;padding-right:12px">
+      <div style="font-family:'Playfair Display',serif;font-weight:700;color:var(--dark)">📝 Notas de Serviço</div>
+      <div id="nfse-notas-empresa-nome" style="font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;color:var(--t2);margin-top:3px;line-height:1.4;overflow-wrap:anywhere"></div>
+    </div>
+    <button class="mclose" onclick="closeM('mod-nfse-notas')" style="flex-shrink:0">✕</button>
+  </div>
   <input type="hidden" id="nfse-notas-company-id">
   <p id="nfse-modal-aviso-ambiente" style="font-size:11.5px;color:var(--t2);margin:-6px 0 14px">🔄 Verificando ambiente…</p>
 
@@ -2625,6 +2631,17 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
       <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Valor do Serviço (R$) *</label><input id="nfse-nota-valor" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
       <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Alíquota ISS % (opcional — vem do código)</label><input id="nfse-nota-aliquota" type="number" step="0.01" placeholder="Ex: 5.00" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
       <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Data de Competência <span style="font-weight:600;color:var(--t3);text-transform:none">(opcional — padrão: hoje)</span></label><input id="nfse-nota-data-competencia" type="date" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+    </div>
+
+    <!-- ── CÓDIGO DA OBRA (só aparece pra subitens de construção civil — a
+         Sefin Nacional rejeita com E0370 "grupo de informações de obra
+         obrigatório" se faltar em 07.02.01, 07.02.02, 07.04.01, 07.05.01,
+         07.05.02, 07.06.01, 07.06.02, 07.07.01, 07.08.01, 07.17.01,
+         07.19.01, 14.14.03 e 14.14.04) ── -->
+    <div id="nfse-nota-obra-wrap" style="display:none;margin-bottom:14px;padding:10px 12px;border:1.5px solid #F5C177;background:#FFF8ED;border-radius:8px">
+      <label style="font-size:11px;color:#8A5A00;font-weight:800;display:block;margin-bottom:3px">🏗️ Código da Obra (CNO/CEI) *</label>
+      <div style="font-size:10.5px;color:#8A5A00;margin-bottom:6px">Esse código de serviço é de construção civil — a Sefin Nacional exige o Cadastro Nacional de Obras (CNO) ou, na falta dele, um código de controle interno da obra.</div>
+      <input id="nfse-nota-obra" placeholder="Ex: número do CNO/CEI, ou um código interno da obra" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
     </div>
 
     <!-- ── ITEM DA NBS (Nomenclatura Brasileira de Serviços) ── -->
@@ -6159,7 +6176,7 @@ function nfseLimparFormNota(){
     'nfse-nota-tom-cep','nfse-nota-tom-logradouro','nfse-nota-tom-numero',
     'nfse-nota-tom-complemento','nfse-nota-tom-bairro','nfse-nota-tom-municipio','nfse-nota-tom-uf',
     'nfse-nota-cod-servico-busca','nfse-nota-cod-servico','nfse-nota-aliquota','nfse-nota-data-competencia',
-    'nfse-nota-descricao','nfse-nota-valor',
+    'nfse-nota-descricao','nfse-nota-valor','nfse-nota-obra',
     'nfse-nota-nbs-busca','nfse-nota-nbs',
     'nfse-nota-pis-cst','nfse-nota-pis-vbc','nfse-nota-pis-aliq','nfse-nota-pis-valor',
     'nfse-nota-cofins-aliq','nfse-nota-cofins-valor','nfse-nota-pis-tpret',
@@ -6169,6 +6186,7 @@ function nfseLimparFormNota(){
   });
   const dd = document.getElementById('nfse-cod-servico-dropdown'); if(dd){ dd.style.display='none'; dd.innerHTML=''; }
   const sel = document.getElementById('nfse-cod-servico-selecionado'); if(sel) sel.innerHTML='';
+  const obraWrap = document.getElementById('nfse-nota-obra-wrap'); if(obraWrap) obraWrap.style.display='none';
   const nbsDd = document.getElementById('nfse-nbs-dropdown'); if(nbsDd){ nbsDd.style.display='none'; nbsDd.innerHTML=''; }
   const nbsSel = document.getElementById('nfse-nbs-selecionado'); if(nbsSel) nbsSel.innerHTML='';
   nfseFecharCadastroTribMun();
@@ -6196,6 +6214,20 @@ function nfseToggleTribFederal(){
 
 /* Busca no código de serviço (Tributação Nacional) por código OU palavra
    no texto da descrição — evita ter que decorar/digitar o código de cor. */
+/* Subitens da LC116 (sem pontos) em que a Sefin Nacional exige o grupo de
+   "Informações de Obra" na DPS — rejeição real confirmada: E0370 ("O grupo
+   de informações de obra é obrigatório quando o código de tributação
+   nacional pertencer a um dos subitens 07.02.01, 07.02.02, 07.04.01,
+   07.05.01, 07.05.02, 07.06.01, 07.06.02, 07.07.01, 07.08.01, 07.17.01,
+   07.19.01, 14.14.03 e 14.14.04 da lista de serviços"). Precisa bater com
+   NFSE_SUBITENS_OBRA no edge function emitir-nfse. */
+const NFSE_SUBITENS_OBRA = new Set(['070201','070202','070401','070501','070502','070601','070602','070701','070801','071701','071901','141403','141404']);
+function nfseAtualizarVisibilidadeObra(){
+  const codigo = document.getElementById('nfse-nota-cod-servico')?.value || '';
+  const wrap = document.getElementById('nfse-nota-obra-wrap');
+  if(!wrap) return;
+  wrap.style.display = NFSE_SUBITENS_OBRA.has(codigo) ? 'block' : 'none';
+}
 function nfseFiltrarCodigosServico(termo){
   const dd = document.getElementById('nfse-cod-servico-dropdown');
   const q = (termo||'').trim().toLowerCase();
@@ -6223,6 +6255,7 @@ function nfseSelecionarCodigoServico(codigo){
   const dd = document.getElementById('nfse-cod-servico-dropdown');
   dd.style.display='none'; dd.innerHTML='';
   nfseCarregarCodigosMunicipais();
+  nfseAtualizarVisibilidadeObra();
 }
 document.addEventListener('click', (e)=>{
   const busca = document.getElementById('nfse-nota-cod-servico-busca');
@@ -6646,6 +6679,7 @@ async function nfseSalvarNota(emitirDepois, btnEl){
     valorServico: val('nfse-nota-valor'),
     codigoMunicipioIbge: val('nfse-nota-loc-ibge'),
     codigoNbs: val('nfse-nota-nbs'),
+    codigoObra: val('nfse-nota-obra'),
     codigoTributacaoMunicipal: val('nfse-nota-trib-mun'),
     // Tributação Federal — opcional, manda só o que foi preenchido.
     pisCofinsCst: val('nfse-nota-pis-cst'),
@@ -6666,6 +6700,10 @@ async function nfseSalvarNota(emitirDepois, btnEl){
   }
   if(!payload.codigoMunicipioIbge){
     alert('Selecione o Município e a UF onde o serviço foi prestado.');
+    return;
+  }
+  if(NFSE_SUBITENS_OBRA.has(payload.codigoServicoLc116) && !payload.codigoObra){
+    alert('Esse código de serviço é de construção civil e exige o Código da Obra (CNO/CEI, ou um código de controle interno se ainda não houver CNO) — preencha o campo "🏗️ Código da Obra" antes de salvar.');
     return;
   }
 
@@ -6778,6 +6816,8 @@ function nfseDuplicarParaForm(notaId){
   document.getElementById('nfse-nota-data-competencia').value = nota.data_competencia||'';
   document.getElementById('nfse-nota-descricao').value = nota.descricao_servico||'';
   document.getElementById('nfse-nota-valor').value = nota.valor_servico!=null?nota.valor_servico:'';
+  const obraEl = document.getElementById('nfse-nota-obra'); if(obraEl) obraEl.value = nota.codigo_obra||'';
+  nfseAtualizarVisibilidadeObra();
   document.getElementById('nfse-nota-nbs').value = nota.codigo_nbs||'';
   if(nota.codigo_nbs){
     const itemNbs = NFSE_NBS_ITENS.find(([c])=>c===nota.codigo_nbs);

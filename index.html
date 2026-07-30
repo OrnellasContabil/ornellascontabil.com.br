@@ -2011,7 +2011,7 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
         <button class="aptab-flyout-item" data-tab="leg" onclick="sTabFromGroup('leg','trabalho')"><span class="aptab-flyout-ico"><i class="ti ti-scale"></i></span><span>Legalizações</span></button>
         <button class="aptab-flyout-item" data-tab="crm" data-modulo="crm" id="aptab-crm" onclick="sTabFromGroup('crm','trabalho')"><span class="aptab-flyout-ico"><i class="ti ti-users"></i></span><span>CRM Contábil</span></button>
         <button class="aptab-flyout-item" data-tab="fluxo" data-modulo="fluxocaixa" id="aptab-fluxo" onclick="sTabFromGroup('fluxo','trabalho')"><span class="aptab-flyout-ico"><i class="ti ti-cash"></i></span><span>Fluxo de Caixa</span></button>
-        <button class="aptab-flyout-item" data-tab="nfsenac" id="aptab-nfsenac" onclick="sTabFromGroup('nfsenac','trabalho')" style="display:none"><span class="aptab-flyout-ico"><i class="ti ti-file-invoice"></i></span><span>NFS-e Nacional <span style="font-size:9px;background:#FFF3CD;color:#856404;padding:1px 5px;border-radius:6px;margin-left:2px">TESTE</span></span></button>
+        <button class="aptab-flyout-item" data-tab="nfsenac" data-modulo="nfsenac" id="aptab-nfsenac" onclick="sTabFromGroup('nfsenac','trabalho')"><span class="aptab-flyout-ico"><i class="ti ti-file-invoice"></i></span><span>NFS-e Nacional</span></button>
       </div>
     </div>
 
@@ -2519,7 +2519,7 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
     <div class="tpanel" id="panel-nfsenac">
       <div style="margin-bottom:14px">
         <h2 style="font-size:16px;font-weight:800;color:var(--dark);margin-bottom:0">🧾 NFS-e Nacional <span id="nfsenac-badge-ambiente" style="font-size:11px;background:#FFF3CD;color:#856404;padding:2px 8px;border-radius:8px;margin-left:4px;font-weight:700">🔄 Verificando…</span></h2>
-        <p id="nfsenac-desc-ambiente" style="font-size:12px;color:var(--t2);margin-top:3px">Integração com o Emissor Público Nacional NFS-e (Sefin Nacional). Visível só pra você enquanto validamos.</p>
+        <p id="nfsenac-desc-ambiente" style="font-size:12px;color:var(--t2);margin-top:3px">Integração com o Emissor Público Nacional NFS-e (Sefin Nacional).</p>
       </div>
       <div class="card"><div id="nfsenac-content"></div></div>
     </div>
@@ -2529,15 +2529,56 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
 <div class="mtit" style="align-items:flex-start">
     <div style="min-width:0;flex:1;padding-right:12px">
       <div style="font-family:'Playfair Display',serif;font-weight:700;color:var(--dark)">📝 Notas de Serviço</div>
-      <div id="nfse-notas-empresa-nome" style="font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;color:var(--t2);margin-top:3px;line-height:1.4;overflow-wrap:anywhere"></div>
+      <select id="nfse-notas-empresa-select" onchange="nfseTrocarEmpresa(this.value)" style="margin-top:5px;max-width:100%;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;color:var(--t2);border:1.5px solid var(--bdr);border-radius:7px;padding:5px 8px;background:#fff;cursor:pointer"></select>
     </div>
     <button class="mclose" onclick="closeM('mod-nfse-notas')" style="flex-shrink:0">✕</button>
   </div>
   <input type="hidden" id="nfse-notas-company-id">
-  <p id="nfse-modal-aviso-ambiente" style="font-size:11.5px;color:var(--t2);margin:-6px 0 14px">🔄 Verificando ambiente…</p>
+  <p id="nfse-modal-aviso-ambiente" style="font-size:11.5px;color:var(--t2);margin:-6px 0 12px">🔄 Verificando ambiente…</p>
 
+  <!-- ── ABAS — reforma pra reduzir a carga cognitiva: antes o cofre do
+       Portal Manual e o Histórico ficavam sempre visíveis, empurrando o
+       formulário de Nova Nota pra baixo mesmo pra quem só queria emitir
+       rápido. Agora cada tarefa fica isolada na sua aba. ── -->
+  <div style="display:flex;gap:2px;border-bottom:1.5px solid var(--bdr);margin-bottom:16px">
+    <button type="button" class="nfsemodal-tab nfsemodal-tab-ativa" id="nfsemodal-tab-nova" onclick="nfseModalTrocarAba('nova')" style="all:unset;cursor:pointer;padding:9px 14px;font-size:12.5px;font-weight:700;color:var(--dark);border-bottom:2.5px solid var(--gold);display:flex;align-items:center;gap:5px">➕ Nova nota</button>
+    <button type="button" class="nfsemodal-tab" id="nfsemodal-tab-hist" onclick="nfseModalTrocarAba('hist')" style="all:unset;cursor:pointer;padding:9px 14px;font-size:12.5px;font-weight:700;color:var(--t3);border-bottom:2.5px solid transparent;display:flex;align-items:center;gap:5px">📋 Histórico <span id="nfsemodal-hist-badge" style="font-size:10px;background:var(--bg);color:var(--t3);padding:1px 6px;border-radius:8px"></span></button>
+    <button type="button" class="nfsemodal-tab" id="nfsemodal-tab-portal" onclick="nfseModalTrocarAba('portal')" style="all:unset;cursor:pointer;padding:9px 14px;font-size:12.5px;font-weight:700;color:var(--t3);border-bottom:2.5px solid transparent;display:flex;align-items:center;gap:5px">🔑 Acesso manual</button>
+  </div>
+
+  <!-- ═══ ABA: ACESSO MANUAL (Portal Nacional) ═══ -->
+  <div id="nfsemodal-painel-portal" class="nfsemodal-painel" style="display:none">
+  <div style="background:#EAF2F8;border:1px solid #C9DCE8;border-radius:10px;padding:12px 14px;margin-bottom:14px">
+    <div style="font-size:12.5px;font-weight:800;color:var(--dark);margin-bottom:3px">🔑 Portal Nacional NFS-e — acesso manual (sem certificado digital)</div>
+    <div style="font-size:11px;color:var(--t2);margin-bottom:8px;line-height:1.5">Não existe login automático por CNPJ/senha pra emitir por aqui — a Sefin Nacional só integra por certificado digital (é o que o botão "Emitir" já usa). O site do governo é um domínio diferente, então o navegador não deixa preencher o formulário de lá por aqui — mas ao abrir o portal, o CNPJ já vai copiado, e cada campo abaixo tem um botão de copiar pra colar rapidinho lá.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+      <div>
+        <label style="font-size:10.5px;color:var(--t3);font-weight:700;display:block;margin-bottom:2px">CNPJ/CPF de login</label>
+        <div style="display:flex;gap:4px">
+          <input id="nfse-portal-login" placeholder="Só números ou com pontuação" style="width:100%;padding:7px 8px;border:1.5px solid var(--bdr);border-radius:6px;font-size:12px;box-sizing:border-box">
+          <button type="button" onclick="nfsePortalCopiar('nfse-portal-login',this)" title="Copiar CNPJ/CPF" style="border:1.5px solid var(--bdr);border-radius:6px;background:#fff;cursor:pointer;padding:0 8px">📋</button>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:10.5px;color:var(--t3);font-weight:700;display:block;margin-bottom:2px">Senha</label>
+        <div style="display:flex;gap:4px">
+          <input id="nfse-portal-senha" type="password" style="width:100%;padding:7px 8px;border:1.5px solid var(--bdr);border-radius:6px;font-size:12px;box-sizing:border-box">
+          <button type="button" onclick="nfsePortalTogglePw()" title="Mostrar/ocultar senha" style="border:1.5px solid var(--bdr);border-radius:6px;background:#fff;cursor:pointer;padding:0 8px"><span id="nfse-portal-senha-olho">👁</span></button>
+          <button type="button" onclick="nfsePortalCopiar('nfse-portal-senha',this)" title="Copiar senha" style="border:1.5px solid var(--bdr);border-radius:6px;background:#fff;cursor:pointer;padding:0 8px">📋</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button type="button" class="difal-btn ghost sm" onclick="nfsePortalSalvar(this)">💾 Salvar</button>
+        <button type="button" class="difal-btn sm" style="background:var(--pri);color:#fff" onclick="nfseAbrirPortalNacional()">🔗 Abrir Portal ↗</button>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--t3);margin-top:4px">💡 "Abrir Portal" já copia o CNPJ/CPF pro cabeçalho — é só colar lá no campo de usuário (Ctrl+V) e voltar aqui pra copiar a senha.</div>
+  </div>
+  </div>
+
+  <!-- ═══ ABA: NOVA NOTA ═══ -->
+  <div id="nfsemodal-painel-nova" class="nfsemodal-painel">
   <div style="background:var(--bg);border:1px solid var(--bdr);border-radius:12px;padding:16px;margin-bottom:14px">
-    <div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:12px">➕ Nova nota</div>
 
     <!-- ── TOMADOR ── -->
     <div style="font-size:11px;font-weight:800;color:var(--pri);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bdr)">👤 Tomador do Serviço</div>
@@ -2554,8 +2595,13 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
     </div>
     <div style="margin-bottom:14px"><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">E-mail do Tomador (opcional)</label><input id="nfse-nota-tom-email" type="email" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
 
-    <!-- ── ENDEREÇO DO TOMADOR ── -->
-    <div style="font-size:11px;font-weight:800;color:var(--pri);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bdr)">🏠 Endereço do Tomador <span style="font-weight:600;text-transform:none;color:var(--t3);font-size:10.5px">(opcional — preenchido automático pelo CNPJ, se encontrado)</span></div>
+    <!-- ── ENDEREÇO DO TOMADOR (colapsável — opcional na maioria dos casos,
+         já vem preenchido automático pelo CNPJ; abrir só quando precisar
+         corrigir ou completar) ── -->
+    <div onclick="nfseToggleEndTomador()" style="cursor:pointer;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--pri);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--bdr);user-select:none">
+      <span id="nfse-endtom-seta">▸</span> 🏠 Endereço do Tomador <span id="nfse-endtom-resumo" style="font-weight:600;text-transform:none;color:var(--t3);font-size:10.5px">(opcional — preenchido automático pelo CNPJ, se encontrado)</span>
+    </div>
+    <div id="nfse-endtom-campos" style="display:none">
     <div style="display:grid;grid-template-columns:0.6fr 1.4fr;gap:10px;margin-bottom:10px">
       <div>
         <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">CEP</label>
@@ -2593,6 +2639,7 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
           <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option>
         </select>
       </div>
+    </div>
     </div>
 
     <!-- ── LOCAL DA PRESTAÇÃO ── -->
@@ -2633,15 +2680,35 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
       <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Data de Competência <span style="font-weight:600;color:var(--t3);text-transform:none">(opcional — padrão: hoje)</span></label><input id="nfse-nota-data-competencia" type="date" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
     </div>
 
-    <!-- ── CÓDIGO DA OBRA (só aparece pra subitens de construção civil — a
-         Sefin Nacional rejeita com E0370 "grupo de informações de obra
-         obrigatório" se faltar em 07.02.01, 07.02.02, 07.04.01, 07.05.01,
-         07.05.02, 07.06.01, 07.06.02, 07.07.01, 07.08.01, 07.17.01,
-         07.19.01, 14.14.03 e 14.14.04) ── -->
+    <!-- ── INFORMAÇÕES PARA OBRA (só aparece pra subitens de construção
+         civil — a Sefin Nacional rejeita com E0370 "grupo de informações
+         de obra obrigatório" se faltar em 07.02.01, 07.02.02, 07.04.01,
+         07.05.01, 07.05.02, 07.06.01, 07.06.02, 07.07.01, 07.08.01,
+         07.17.01, 07.19.01, 14.14.03 e 14.14.04). Campos conforme o grupo
+         <obra> do schema oficial da DPS: cObra + endereço nacional da
+         obra (CEP/xLgr/nro/xCpl/xBairro) — o endereço é o que muitos
+         municípios pedem por escrito, então aceita digitar direto. ── -->
     <div id="nfse-nota-obra-wrap" style="display:none;margin-bottom:14px;padding:10px 12px;border:1.5px solid #F5C177;background:#FFF8ED;border-radius:8px">
-      <label style="font-size:11px;color:#8A5A00;font-weight:800;display:block;margin-bottom:3px">🏗️ Código da Obra (CNO/CEI) *</label>
-      <div style="font-size:10.5px;color:#8A5A00;margin-bottom:6px">Esse código de serviço é de construção civil — a Sefin Nacional exige o Cadastro Nacional de Obras (CNO) ou, na falta dele, um código de controle interno da obra.</div>
-      <input id="nfse-nota-obra" placeholder="Ex: número do CNO/CEI, ou um código interno da obra" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+      <div style="font-size:11px;color:#8A5A00;font-weight:800;margin-bottom:3px">🏗️ Informações para Obra</div>
+      <div style="font-size:10.5px;color:#8A5A00;margin-bottom:8px">Esse código de serviço é de construção civil — a Sefin Nacional exige o Código da Obra e, na maioria dos municípios, também o endereço da obra.</div>
+      <div style="margin-bottom:8px">
+        <label style="font-size:11px;color:#8A5A00;font-weight:700;display:block;margin-bottom:3px">Código da Obra (CNO/CEI) *</label>
+        <input id="nfse-nota-obra" placeholder="Ex: número do CNO/CEI, ou um código interno da obra" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+      </div>
+      <div style="font-size:10.5px;color:#8A5A00;font-weight:700;margin-bottom:4px">Endereço da Obra <span style="font-weight:600">(opcional — alguns municípios exigem)</span></div>
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-bottom:8px">
+        <div><label style="font-size:10px;color:var(--t3);display:block;margin-bottom:2px">CEP</label><input id="nfse-nota-obra-cep" placeholder="00000-000" maxlength="9" oninput="nfseFormatarCep(this)" style="width:100%;padding:7px 8px;border:1.5px solid var(--bdr);border-radius:6px;font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:10px;color:var(--t3);display:block;margin-bottom:2px">Logradouro</label><input id="nfse-nota-obra-logradouro" placeholder="Rua, avenida, etc." style="width:100%;padding:7px 8px;border:1.5px solid var(--bdr);border-radius:6px;font-size:12px;box-sizing:border-box"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+        <div><label style="font-size:10px;color:var(--t3);display:block;margin-bottom:2px">Número</label><input id="nfse-nota-obra-numero" style="width:100%;padding:7px 8px;border:1.5px solid var(--bdr);border-radius:6px;font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:10px;color:var(--t3);display:block;margin-bottom:2px">Complemento</label><input id="nfse-nota-obra-complemento" placeholder="(opcional)" style="width:100%;padding:7px 8px;border:1.5px solid var(--bdr);border-radius:6px;font-size:12px;box-sizing:border-box"></div>
+        <div><label style="font-size:10px;color:var(--t3);display:block;margin-bottom:2px">Bairro</label><input id="nfse-nota-obra-bairro" style="width:100%;padding:7px 8px;border:1.5px solid var(--bdr);border-radius:6px;font-size:12px;box-sizing:border-box"></div>
+      </div>
+      <div>
+        <label style="font-size:11px;color:#8A5A00;font-weight:700;display:block;margin-bottom:3px">Número do Documento de Responsabilidade Técnica <span style="font-weight:600">(ART/RRT/DRT — opcional)</span></label>
+        <input id="nfse-nota-obra-doctec" placeholder="Ex: número da ART/RRT" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+      </div>
     </div>
 
     <!-- ── ITEM DA NBS (Nomenclatura Brasileira de Serviços) ── -->
@@ -2697,15 +2764,16 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
         </div>
         <div>
           <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Base de Cálculo PIS/COFINS (R$)</label>
-          <input id="nfse-nota-pis-vbc" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+          <input id="nfse-nota-pis-vbc" type="number" step="0.01" oninput="nfseCalcularPisCofins()" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:8px">
-        <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">PIS Alíquota %</label><input id="nfse-nota-pis-aliq" type="number" step="0.0001" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:2px">
+        <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">PIS Alíquota %</label><input id="nfse-nota-pis-aliq" type="number" step="0.0001" oninput="nfseCalcularPisCofins()" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
         <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">PIS Débito (R$)</label><input id="nfse-nota-pis-valor" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
-        <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">COFINS Alíquota %</label><input id="nfse-nota-cofins-aliq" type="number" step="0.0001" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">COFINS Alíquota %</label><input id="nfse-nota-cofins-aliq" type="number" step="0.0001" oninput="nfseCalcularPisCofins()" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
         <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">COFINS Débito (R$)</label><input id="nfse-nota-cofins-valor" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
       </div>
+      <div style="font-size:10px;color:var(--t3);margin:-2px 0 8px">🧮 PIS e COFINS débito calculados automaticamente (Base × Alíquota) — edite depois se precisar de um valor diferente.</div>
       <div style="margin-bottom:8px">
         <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Tipo de Retenção PIS/COFINS</label>
         <select id="nfse-nota-pis-tpret" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box;background:#fff">
@@ -2727,18 +2795,38 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
         <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Contrib. Social Retida — CSLL (R$)</label><input id="nfse-nota-csll" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
         <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Contrib. Previdenciária Retida (R$)</label><input id="nfse-nota-cp" type="number" step="0.01" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
       </div>
-      <div><label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">% Aproximado Total de Tributos (alíquota do Simples Nacional)</label><input id="nfse-nota-pct-sn" type="number" step="0.01" placeholder="Ex: 6.00" style="width:220px;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+      <div style="margin-bottom:10px;padding:10px 12px;background:var(--bg);border:1px solid var(--bdr);border-radius:8px">
+        <div style="font-size:11px;font-weight:800;color:var(--t2);margin-bottom:2px">💰 Tributos Aproximados (Lei da Transparência — Lei 12.741/2012)</div>
+        <div style="font-size:10px;color:var(--t3);margin-bottom:8px">Preencha SÓ UMA das duas opções, conforme o regime da empresa — a Sefin Nacional rejeita se vierem as duas.</div>
+        <div style="margin-bottom:8px">
+          <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Empresas do Simples Nacional — % Aproximado Total (alíquota efetiva do SN)</label>
+          <input id="nfse-nota-pct-sn" type="number" step="0.01" placeholder="Ex: 6.00" style="width:220px;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">Empresas FORA do Simples Nacional — % aproximado por esfera (tabela IBPT)</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+            <div><label style="font-size:10px;color:var(--t3);display:block;margin-bottom:2px">Federal %</label><input id="nfse-nota-pct-fed" type="number" step="0.01" placeholder="Ex: 7.85" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+            <div><label style="font-size:10px;color:var(--t3);display:block;margin-bottom:2px">Estadual %</label><input id="nfse-nota-pct-est" type="number" step="0.01" placeholder="Ex: 0.00" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+            <div><label style="font-size:10px;color:var(--t3);display:block;margin-bottom:2px">Municipal %</label><input id="nfse-nota-pct-mun" type="number" step="0.01" placeholder="Ex: 3.85" style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;position:sticky;bottom:-1px;background:var(--bg);padding-top:8px">
       <button class="difal-btn ghost sm" id="nfse-nota-btn-rascunho" onclick="nfseSalvarNota(false,this)">💾 Salvar rascunho</button>
       <button class="difal-btn sm" id="nfse-nota-btn-emitir" style="background:var(--pri);color:#fff" onclick="nfseSalvarNota(true,this)">📤 Salvar e Emitir</button>
       <button class="difal-btn ghost sm" onclick="nfseLimparFormNota()">🧹 Limpar formulário</button>
     </div>
   </div>
+  </div>
+  <!-- ═══ FIM ABA: NOVA NOTA ═══ -->
 
-  <div style="font-size:12.5px;font-weight:700;color:var(--t2);margin-bottom:8px">📋 Histórico desta empresa</div>
-  <div id="nfse-notas-lista" style="max-height:280px;overflow-y:auto"></div>
+  <!-- ═══ ABA: HISTÓRICO ═══ -->
+  <div id="nfsemodal-painel-hist" class="nfsemodal-painel" style="display:none">
+  <div id="nfse-notas-lista" style="max-height:460px;overflow-y:auto"></div>
+  </div>
+  <!-- ═══ FIM ABA: HISTÓRICO ═══ -->
 
   <div class="mfooter"><button class="btn-mcanc" onclick="closeM('mod-nfse-notas')">Fechar</button></div>
 </div></div>
@@ -6177,10 +6265,13 @@ function nfseLimparFormNota(){
     'nfse-nota-tom-complemento','nfse-nota-tom-bairro','nfse-nota-tom-municipio','nfse-nota-tom-uf',
     'nfse-nota-cod-servico-busca','nfse-nota-cod-servico','nfse-nota-aliquota','nfse-nota-data-competencia',
     'nfse-nota-descricao','nfse-nota-valor','nfse-nota-obra',
+    'nfse-nota-obra-cep','nfse-nota-obra-logradouro','nfse-nota-obra-numero',
+    'nfse-nota-obra-complemento','nfse-nota-obra-bairro','nfse-nota-obra-doctec',
     'nfse-nota-nbs-busca','nfse-nota-nbs',
     'nfse-nota-pis-cst','nfse-nota-pis-vbc','nfse-nota-pis-aliq','nfse-nota-pis-valor',
     'nfse-nota-cofins-aliq','nfse-nota-cofins-valor','nfse-nota-pis-tpret',
     'nfse-nota-irrf','nfse-nota-csll','nfse-nota-cp','nfse-nota-pct-sn',
+    'nfse-nota-pct-fed','nfse-nota-pct-est','nfse-nota-pct-mun',
   ].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
@@ -6202,14 +6293,56 @@ function nfseLimparFormNota(){
   const camposTrib = document.getElementById('nfse-tribfed-campos');
   const seta = document.getElementById('nfse-tribfed-seta');
   if(camposTrib && camposTrib.style.display !== 'none'){ camposTrib.style.display='none'; if(seta) seta.textContent='▸'; }
+  const camposEnd = document.getElementById('nfse-endtom-campos');
+  const setaEnd = document.getElementById('nfse-endtom-seta');
+  if(camposEnd && camposEnd.style.display !== 'none'){ camposEnd.style.display='none'; if(setaEnd) setaEnd.textContent='▸'; }
 }
 
+/* Troca de aba dentro do modal "Notas de Serviço" (Nova nota / Histórico
+   / Acesso manual) — mostra um painel, esconde os outros dois, e marca
+   visualmente o botão da aba ativa. */
+function nfseModalTrocarAba(aba){
+  ['nova','hist','portal'].forEach(a=>{
+    const painel = document.getElementById('nfsemodal-painel-'+a);
+    const tab = document.getElementById('nfsemodal-tab-'+a);
+    if(painel) painel.style.display = (a===aba) ? '' : 'none';
+    if(tab){
+      tab.style.color = (a===aba) ? 'var(--dark)' : 'var(--t3)';
+      tab.style.borderBottom = (a===aba) ? '2.5px solid var(--gold)' : '2.5px solid transparent';
+    }
+  });
+}
+function nfseToggleEndTomador(){
+  const el = document.getElementById('nfse-endtom-campos');
+  const seta = document.getElementById('nfse-endtom-seta');
+  const aberto = el.style.display !== 'none';
+  el.style.display = aberto ? 'none' : 'block';
+  seta.textContent = aberto ? '▸' : '▾';
+}
 function nfseToggleTribFederal(){
   const el = document.getElementById('nfse-tribfed-campos');
   const seta = document.getElementById('nfse-tribfed-seta');
   const aberto = el.style.display !== 'none';
   el.style.display = aberto ? 'none' : 'block';
   seta.textContent = aberto ? '▸' : '▾';
+}
+
+/* Calcula automaticamente o débito de PIS e COFINS (Base × Alíquota/100)
+   sempre que a base de cálculo ou uma das alíquotas mudar — evita ter que
+   fazer a conta na mão toda vez que muda a nota. Só recalcula se a base
+   e a alíquota daquele tributo estiverem preenchidas; do contrário deixa
+   o campo de débito como estava (pra não apagar um valor digitado à mão
+   quando só a base ainda não foi informada). */
+function nfseCalcularPisCofins(){
+  const vbc = parseFloat(document.getElementById('nfse-nota-pis-vbc').value);
+  const aliqPis = parseFloat(document.getElementById('nfse-nota-pis-aliq').value);
+  const aliqCofins = parseFloat(document.getElementById('nfse-nota-cofins-aliq').value);
+  if(!isNaN(vbc) && !isNaN(aliqPis)){
+    document.getElementById('nfse-nota-pis-valor').value = (vbc * aliqPis / 100).toFixed(2);
+  }
+  if(!isNaN(vbc) && !isNaN(aliqCofins)){
+    document.getElementById('nfse-nota-cofins-valor').value = (vbc * aliqCofins / 100).toFixed(2);
+  }
 }
 
 /* Busca no código de serviço (Tributação Nacional) por código OU palavra
@@ -6466,6 +6599,10 @@ function nfseAutoBuscarCnpj(valor){
       preencher('nfse-nota-tom-municipio', dados.municipio);
       const ufEl = document.getElementById('nfse-nota-tom-uf');
       if(ufEl && !ufEl.value && dados.uf) ufEl.value = dados.uf;
+      if(dados.cep||dados.logradouro||dados.municipio){
+        const campos = document.getElementById('nfse-endtom-campos');
+        if(campos && campos.style.display==='none') nfseToggleEndTomador();
+      }
       statusEl.innerHTML = `✅ ${_crmEsc(nomeAchado || 'CNPJ encontrado')}`;
     }catch(e){
       console.error('nfseAutoBuscarCnpj', e);
@@ -6594,12 +6731,121 @@ async function nfseAtualizarBadgesAmbiente(){
 
 async function nfseAbrirNotas(companyId, coName){
   document.getElementById('nfse-notas-company-id').value = companyId;
-  document.getElementById('nfse-notas-empresa-nome').textContent = coName;
+  await nfsePopularSeletorEmpresas(companyId);
   nfseLimparFormNota();
+  nfseModalTrocarAba('nova');
   openM('mod-nfse-notas');
   await nfseCarregarNotas(companyId);
   await nfsePreencherLocalPadrao(companyId);
   await nfseAtualizarBadgesAmbiente();
+  await nfseCarregarPortalManual(companyId);
+}
+
+/* Preenche o <select> de empresas no topo do modal (ordenado por nome,
+   sem as inativas) e deixa a empresa atual selecionada — permite trocar
+   de empresa sem fechar e reabrir o modal de Notas de Serviço. */
+async function nfsePopularSeletorEmpresas(companyIdAtual){
+  const sel = document.getElementById('nfse-notas-empresa-select');
+  if(!sel) return;
+  const cos = (await getCompanies()).filter(c=>!c.inactive).sort((a,b)=>(a.name||'').localeCompare(b.name||'', 'pt-BR'));
+  sel.innerHTML = cos.map(c=>`<option value="${c.id}">${_crmEsc(c.name)}</option>`).join('');
+  sel.value = companyIdAtual;
+}
+
+/* Chamado pelo <select> de empresas — troca a empresa ativa dentro do
+   modal já aberto, recarregando histórico, local padrão, badges de
+   ambiente e o cofre de acesso manual do Portal Nacional, sem perder o
+   rascunho de "Nova nota" que porventura já esteja sendo digitado só
+   por trocar de empresa sem querer (mas confirma antes, se houver algo
+   preenchido). */
+async function nfseTrocarEmpresa(novoCompanyId){
+  const companyIdAtual = document.getElementById('nfse-notas-company-id').value;
+  if(!novoCompanyId || novoCompanyId===companyIdAtual) return;
+  const algoDigitado = document.getElementById('nfse-nota-tom-doc').value.trim() || document.getElementById('nfse-nota-descricao').value.trim();
+  if(algoDigitado && !confirm('Trocar de empresa vai limpar o formulário de "Nova nota" que você começou a preencher. Continuar?')){
+    document.getElementById('nfse-notas-empresa-select').value = companyIdAtual;
+    return;
+  }
+  document.getElementById('nfse-notas-company-id').value = novoCompanyId;
+  nfseLimparFormNota();
+  await nfseCarregarNotas(novoCompanyId);
+  await nfsePreencherLocalPadrao(novoCompanyId);
+  await nfseAtualizarBadgesAmbiente();
+  await nfseCarregarPortalManual(novoCompanyId);
+}
+
+/* ── Portal Nacional NFS-e (acesso manual, sem certificado digital) ──
+   O Sistema Nacional NFS-e (nfse.gov.br/EmissorNacional) só tem DUAS
+   formas de acesso: certificado digital (mTLS, é o que a ação "emitir"
+   já usa) ou GOV.BR/senha própria — e essa segunda é feita só pelo
+   navegador do próprio governo, não existe API pública de login por
+   senha pra automatizar por aqui. Por isso isto é só um "cofre" de
+   lembrete: guarda o CNPJ/login e a senha que o contribuinte já criou
+   lá (em "Fazer primeiro acesso"), pra abrir o portal com um clique e
+   copiar/colar na hora de emitir manualmente uma empresa sem e-CNPJ. */
+async function nfseCarregarPortalManual(companyId){
+  try{
+    const { data, error } = await sb.from('companies').select('portal_nfse_login, portal_nfse_senha, cnpj').eq('id', companyId).maybeSingle();
+    if(error) throw error;
+    document.getElementById('nfse-portal-login').value = data?.portal_nfse_login || data?.cnpj || '';
+    document.getElementById('nfse-portal-senha').value = data?.portal_nfse_senha || '';
+    document.getElementById('nfse-portal-senha').type = 'password';
+    document.getElementById('nfse-portal-senha-olho').textContent = '👁';
+  }catch(e){
+    console.error('nfseCarregarPortalManual', e);
+  }
+}
+function nfsePortalTogglePw(){
+  const el = document.getElementById('nfse-portal-senha');
+  const olho = document.getElementById('nfse-portal-senha-olho');
+  const mostrando = el.type === 'text';
+  el.type = mostrando ? 'password' : 'text';
+  olho.textContent = mostrando ? '👁' : '🙈';
+}
+/* Copia o valor de um campo (CNPJ ou senha) pra área de transferência —
+   não dá pra preencher o formulário do site do governo direto por JS
+   (é outro domínio, o navegador bloqueia por segurança), então isso é
+   o mais perto de "automático" que dá pra fazer: um clique copia, e o
+   contador só cola (Ctrl+V) lá no campo certo do portal. */
+async function nfsePortalCopiar(campoId, btnEl){
+  const valor = document.getElementById(campoId).value;
+  if(!valor){ alert('Esse campo está vazio — preencha e salve antes de copiar.'); return; }
+  try{
+    await navigator.clipboard.writeText(valor);
+    if(btnEl){ const orig=btnEl.textContent; btnEl.textContent='✅'; setTimeout(()=>{btnEl.textContent=orig;},1200); }
+  }catch(e){
+    alert('Não consegui copiar automaticamente — selecione o campo e copie manualmente (Ctrl+C).');
+  }
+}
+async function nfsePortalSalvar(btnEl){
+  const companyId = document.getElementById('nfse-notas-company-id').value;
+  const login = document.getElementById('nfse-portal-login').value.trim();
+  const senha = document.getElementById('nfse-portal-senha').value.trim();
+  const orig = btnEl?.textContent;
+  if(btnEl){ btnEl.disabled=true; btnEl.textContent='Salvando...'; }
+  try{
+    const { error } = await sb.from('companies').update({ portal_nfse_login: login || null, portal_nfse_senha: senha || null }).eq('id', companyId);
+    if(error) throw error;
+    _cacheDel('companies');
+    if(btnEl) btnEl.textContent = '✅ Salvo';
+  }catch(e){
+    console.error('nfsePortalSalvar', e);
+    alert('Não consegui salvar o acesso do portal: ' + e.message);
+    if(btnEl) btnEl.textContent = orig;
+  }finally{
+    if(btnEl) setTimeout(()=>{ if(btnEl){ btnEl.disabled=false; btnEl.textContent = orig; } }, 1500);
+  }
+}
+/* Abre o Portal Nacional numa aba nova e já copia o CNPJ/CPF de login pra
+   área de transferência (o mais tedioso de digitar) — o navegador não
+   deixa ir além disso (preencher o formulário de outro domínio) por
+   questão de segurança, então isso aqui é o autofill possível. */
+async function nfseAbrirPortalNacional(){
+  const login = document.getElementById('nfse-portal-login').value.trim();
+  if(login){
+    try{ await navigator.clipboard.writeText(login); }catch(e){ /* silencioso — o campo continua lá pra copiar manualmente */ }
+  }
+  window.open('https://www.nfse.gov.br/EmissorNacional', '_blank', 'noopener');
 }
 
 /* Badge visual de status — mesmo vocabulário do banco (rascunho, enviada,
@@ -6619,6 +6865,7 @@ function _nfseStatusBadge(status){
 async function nfseCarregarNotas(companyId){
   const el=document.getElementById('nfse-notas-lista');
   el.innerHTML='<div style="text-align:center;padding:16px;color:var(--t3);font-size:12px">Carregando…</div>';
+  const badge = document.getElementById('nfsemodal-hist-badge');
   try{
     const { data, error } = await sb.functions.invoke('emitir-nfse', { body:{ action:'listar_notas', companyId } });
     if(error || !data || data.erro){
@@ -6627,6 +6874,7 @@ async function nfseCarregarNotas(companyId){
       return;
     }
     _nfseNotasCache = data || [];
+    if(badge) badge.textContent = _nfseNotasCache.length ? String(_nfseNotasCache.length) : '';
     if(!_nfseNotasCache.length){
       el.innerHTML='<div style="padding:16px;text-align:center;color:var(--t3);font-size:12px">Nenhuma nota criada ainda pra essa empresa.</div>';
       return;
@@ -6680,6 +6928,12 @@ async function nfseSalvarNota(emitirDepois, btnEl){
     codigoMunicipioIbge: val('nfse-nota-loc-ibge'),
     codigoNbs: val('nfse-nota-nbs'),
     codigoObra: val('nfse-nota-obra'),
+    obraCep: val('nfse-nota-obra-cep'),
+    obraLogradouro: val('nfse-nota-obra-logradouro'),
+    obraNumero: val('nfse-nota-obra-numero'),
+    obraComplemento: val('nfse-nota-obra-complemento'),
+    obraBairro: val('nfse-nota-obra-bairro'),
+    docTecnico: val('nfse-nota-obra-doctec'),
     codigoTributacaoMunicipal: val('nfse-nota-trib-mun'),
     // Tributação Federal — opcional, manda só o que foi preenchido.
     pisCofinsCst: val('nfse-nota-pis-cst'),
@@ -6693,6 +6947,9 @@ async function nfseSalvarNota(emitirDepois, btnEl){
     csllValor: val('nfse-nota-csll'),
     cpValor: val('nfse-nota-cp'),
     pctTribSn: val('nfse-nota-pct-sn'),
+    pctTribFed: val('nfse-nota-pct-fed'),
+    pctTribEst: val('nfse-nota-pct-est'),
+    pctTribMun: val('nfse-nota-pct-mun'),
   };
   if(!payload.tomadorCnpjCpf||!payload.tomadorRazaoSocial||!payload.codigoServicoLc116||!payload.descricaoServico||!payload.valorServico){
     alert('Preencha todos os campos marcados com * antes de salvar (incluindo escolher o código de serviço na busca).');
@@ -6704,6 +6961,10 @@ async function nfseSalvarNota(emitirDepois, btnEl){
   }
   if(NFSE_SUBITENS_OBRA.has(payload.codigoServicoLc116) && !payload.codigoObra){
     alert('Esse código de serviço é de construção civil e exige o Código da Obra (CNO/CEI, ou um código de controle interno se ainda não houver CNO) — preencha o campo "🏗️ Código da Obra" antes de salvar.');
+    return;
+  }
+  if(payload.pctTribSn && (payload.pctTribFed || payload.pctTribEst || payload.pctTribMun)){
+    alert('Preencha só uma das opções de "Tributos Aproximados": ou o % do Simples Nacional, ou os % Federal/Estadual/Municipal — não os dois juntos.');
     return;
   }
 
@@ -6792,6 +7053,7 @@ function nfseVerErroNota(notaId){
 function nfseDuplicarParaForm(notaId){
   const nota=_nfseNotasCache.find(n=>n.id===notaId);
   if(!nota) return;
+  nfseModalTrocarAba('nova');
   document.getElementById('nfse-nota-tom-doc').value = nota.tomador_cnpj_cpf||'';
   document.getElementById('nfse-nota-tom-nome').value = nota.tomador_razao_social||'';
   document.getElementById('nfse-nota-tom-email').value = nota.tomador_email||'';
@@ -6807,6 +7069,10 @@ function nfseDuplicarParaForm(notaId){
   document.getElementById('nfse-nota-tom-bairro').value = end.bairro||'';
   document.getElementById('nfse-nota-tom-municipio').value = end.municipio||'';
   document.getElementById('nfse-nota-tom-uf').value = end.uf||'';
+  if(end.cep||end.logradouro||end.numero||end.complemento||end.bairro||end.municipio||end.uf){
+    const campos = document.getElementById('nfse-endtom-campos');
+    if(campos && campos.style.display==='none') nfseToggleEndTomador();
+  }
   document.getElementById('nfse-nota-cod-servico').value = nota.codigo_servico_lc116||'';
   if(nota.codigo_servico_lc116){
     const item = NFSE_CODIGOS_SERVICO.find(([c])=>c===nota.codigo_servico_lc116);
@@ -6817,6 +7083,13 @@ function nfseDuplicarParaForm(notaId){
   document.getElementById('nfse-nota-descricao').value = nota.descricao_servico||'';
   document.getElementById('nfse-nota-valor').value = nota.valor_servico!=null?nota.valor_servico:'';
   const obraEl = document.getElementById('nfse-nota-obra'); if(obraEl) obraEl.value = nota.codigo_obra||'';
+  const setValObra=(id,v)=>{ const el=document.getElementById(id); if(el) el.value = v||''; };
+  setValObra('nfse-nota-obra-cep', nota.obra_cep);
+  setValObra('nfse-nota-obra-logradouro', nota.obra_logradouro);
+  setValObra('nfse-nota-obra-numero', nota.obra_numero);
+  setValObra('nfse-nota-obra-complemento', nota.obra_complemento);
+  setValObra('nfse-nota-obra-bairro', nota.obra_bairro);
+  setValObra('nfse-nota-obra-doctec', nota.doc_tecnico);
   nfseAtualizarVisibilidadeObra();
   document.getElementById('nfse-nota-nbs').value = nota.codigo_nbs||'';
   if(nota.codigo_nbs){
@@ -6842,7 +7115,10 @@ function nfseDuplicarParaForm(notaId){
   setVal('nfse-nota-csll', nota.csll_valor);
   setVal('nfse-nota-cp', nota.cp_valor);
   setVal('nfse-nota-pct-sn', nota.pct_trib_sn);
-  const temTribFed = nota.pis_cofins_cst||nota.irrf_valor||nota.csll_valor||nota.cp_valor||nota.pct_trib_sn;
+  setVal('nfse-nota-pct-fed', nota.pct_trib_fed);
+  setVal('nfse-nota-pct-est', nota.pct_trib_est);
+  setVal('nfse-nota-pct-mun', nota.pct_trib_mun);
+  const temTribFed = nota.pis_cofins_cst||nota.irrf_valor||nota.csll_valor||nota.cp_valor||nota.pct_trib_sn||nota.pct_trib_fed||nota.pct_trib_est||nota.pct_trib_mun;
   if(temTribFed){
     document.getElementById('nfse-tribfed-campos').style.display='block';
     document.getElementById('nfse-tribfed-seta').textContent='▾';
@@ -7709,6 +7985,7 @@ const MODULOS_DISPONIVEIS = [
   {key:'protocolo', tab:'protocolo', label:'Protocolo (Robô de Baixa)'},
   {key:'ferias', tab:'ferias', label:'Controle de Férias'},
   {key:'fluxocaixa', tab:'fluxo', label:'Fluxo de Caixa'},
+  {key:'nfsenac', tab:'nfsenac', label:'NFS-e Nacional'},
   {key:'tutoriais', tab:'tut', label:'Central de Tutoriais (vídeos de ajuda)'},
   {key:'whatsapp', tab:'whats', label:'WhatsApp (Cloud API oficial da Meta)'},
   {key:'difalxml', tab:null, label:'Armazenamento de XML (DIFAL / Monofásico)'},
@@ -7752,10 +8029,6 @@ function moduleBlockedHTML(nome){
 function atualizarVisibilidadeAbaEscritorios(){
   const tab = document.getElementById('aptab-escritorios');
   if(tab) tab.style.display = isMasterAdmin() ? '' : 'none';
-  // NFS-e Nacional ainda está em fase de teste — só o Matheus enxerga
-  // enquanto validamos a integração com a Sefin Nacional.
-  const nfseTab = document.getElementById('aptab-nfsenac');
-  if(nfseTab) nfseTab.style.display = isMasterAdmin() ? '' : 'none';
   // A aba "Configurações" é o self-service de CADA escritório (inclusive
   // o próprio Ornellas) para editar seus dados/marca — diferente da aba
   // "Escritórios", que é só do admin master para gerenciar todos.
@@ -19637,8 +19910,7 @@ async function certdigLoteImportar(){
     + (erros?`\n❌ ${erros} não puderam ser lidos (senha incorreta ou arquivo inválido).`:'')
     + (falhas?`\n⚠️ ${falhas} tiveram erro no envio do arquivo — os dados foram salvos, mas o .pfx não subiu.`:''));
 }
-/* ── PAINEL "NFS-e Nacional" (Trabalho, visível só pro Matheus enquanto
-   em teste) — lista as empresas com certificado e-CNPJ cadastrado e
+/* ── PAINEL "NFS-e Nacional" (Trabalho) — lista as empresas com certificado e-CNPJ cadastrado e
    oferece os 3 testes da integração (certificado / Sefin Nacional /
    emissão de homologação). Reaproveita os mesmos handlers que já
    existiam na tela de Certificados Digitais. ── */
@@ -19647,43 +19919,106 @@ async function renderNFSeNacional(){
   el.innerHTML='<div style="text-align:center;padding:30px;color:var(--t3)">Carregando…</div>';
   nfseAtualizarBadgesAmbiente();
   const [cos,map]=await Promise.all([getCompanies(),sbGetCertDigsBatch()]);
-  const rows=[];
-  map.forEach((arr,cid)=>{
-    const cert=(arr||[]).find(c=>(c.tipo||'').toUpperCase().includes('E-CNPJ'));
-    if(!cert) return;
-    const co=cos.find(c=>c.id===cid);
-    rows.push({cid, coName:co?co.name:'(empresa removida)', cert});
+  // Lista TODAS as empresas ativas — não só as com e-CNPJ. Empresas sem
+  // certificado ainda precisam entrar em "Notas de Serviço" pra usar o
+  // cofre de acesso manual do Portal Nacional (é exatamente o caso delas:
+  // sem e-CNPJ, o jeito de emitir é logando manualmente no portal do
+  // governo). Só os 3 testes de integração (que dependem de mTLS) ficam
+  // escondidos quando não há certificado.
+  const rows = cos.filter(c=>!c.inactive).map(co=>{
+    const arr = map.get(co.id);
+    const cert = (arr||[]).find(c=>(c.tipo||'').toUpperCase().includes('E-CNPJ'));
+    return { cid: co.id, coName: co.name, cert: cert||null };
   });
   if(!rows.length){
-    el.innerHTML='<div class="empty"><div class="empty-ico">🧾</div><div class="empty-t">Nenhuma empresa com e-CNPJ cadastrado</div><div class="empty-s">Cadastre um certificado do tipo "e-CNPJ A1" em Certificados Digitais pra poder testar aqui.</div></div>';
+    el.innerHTML='<div class="empty"><div class="empty-ico">🧾</div><div class="empty-t">Nenhuma empresa ativa cadastrada</div></div>';
     return;
   }
   rows.sort((a,b)=>a.coName.localeCompare(b.coName));
+  // Por padrão, mostra só a empresa selecionada no seletor global do topo
+  // (a mesma usada no resto do sistema) — evita a lista ficar suja com
+  // todas as empresas toda vez que só se quer emitir pra uma. Um link
+  // deixa alternar pra ver todas, pra quem realmente precisa da visão geral.
+  const mostrarTodas = !!window._nfsenacMostrarTodas;
+  const rowsExibidas = mostrarTodas ? rows : rows.filter(r=>r.cid===CC);
   const iniciais=nome=>{
     const partes=(nome||'').trim().split(/\s+/).filter(Boolean);
     if(!partes.length) return '·';
     return partes.length===1 ? partes[0].slice(0,2).toUpperCase() : (partes[0][0]+partes[1][0]).toUpperCase();
   };
-  el.innerHTML=`<div class="nfsenac-list">${
-    rows.map(r=>`<div class="nfsenac-row">
+  const toggleLink = mostrarTodas
+    ? `<div style="font-size:12px;margin-bottom:10px"><a href="#" onclick="window._nfsenacMostrarTodas=false;renderNFSeNacional();return false" style="color:var(--pri);text-decoration:none">← Mostrar só a empresa selecionada</a></div>`
+    : `<div style="font-size:12px;margin-bottom:10px;color:var(--t3)">Mostrando só <b>${_crmEsc(cos.find(c=>c.id===CC)?.name||'a empresa selecionada')}</b> (a que está escolhida no topo) — <a href="#" onclick="window._nfsenacMostrarTodas=true;renderNFSeNacional();return false" style="color:var(--pri);text-decoration:none">ver todas as ${rows.length} empresas</a></div>`;
+  window._nfsenacRows = rows; // usado pelo filtro de busca do seletor abaixo
+  const seletorEmpresa = !mostrarTodas ? `
+    <div style="position:relative;margin-bottom:12px;max-width:420px">
+      <label style="font-size:11px;color:var(--t3);font-weight:700;display:block;margin-bottom:3px">🔁 Trocar empresa</label>
+      <input id="nfsenac-busca-empresa" placeholder="Digite pra buscar pelo nome..." autocomplete="off"
+        value="${_crmEsc(cos.find(c=>c.id===CC)?.name||'')}"
+        oninput="nfsenacFiltrarEmpresa(this.value)" onfocus="nfsenacFiltrarEmpresa(this.value)"
+        style="width:100%;padding:8px 9px;border:1.5px solid var(--bdr);border-radius:7px;font-size:12.5px;box-sizing:border-box">
+      <div id="nfsenac-empresa-dropdown" style="display:none;position:absolute;z-index:20;left:0;right:0;top:100%;margin-top:2px;background:#fff;border:1.5px solid var(--bdr);border-radius:8px;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)"></div>
+    </div>` : '';
+  if(!rowsExibidas.length){
+    el.innerHTML = toggleLink + seletorEmpresa + '<div class="empty"><div class="empty-ico">🧾</div><div class="empty-t">Empresa não encontrada</div></div>';
+    return;
+  }
+  el.innerHTML= toggleLink + seletorEmpresa + `<div class="nfsenac-list">${
+    rowsExibidas.map(r=>`<div class="nfsenac-row">
       <div class="nfsenac-info">
         <div class="nfsenac-avatar">${_crmEsc(iniciais(r.coName))}</div>
         <div>
           <div class="nfsenac-name">${_crmEsc(r.coName)}</div>
-          <div class="nfsenac-cert">🪪 ${_crmEsc(r.cert.titular||r.cert.tipo)}</div>
+          <div class="nfsenac-cert">${r.cert ? `🪪 ${_crmEsc(r.cert.titular||r.cert.tipo)}` : `<span style="color:var(--t3)">⚠️ Sem e-CNPJ cadastrado — só acesso manual ao Portal Nacional</span>`}</div>
         </div>
       </div>
       <div class="nfsenac-actions">
         <button class="nfsenac-btn-notas" data-coname="${_crmEsc(r.coName)}" onclick="nfseAbrirNotas('${r.cid}',this.dataset.coname)" title="Criar, emitir e consultar notas de serviço desta empresa">📝 Notas de Serviço</button>
-        <div class="nfsenac-tests">
+        ${r.cert ? `<div class="nfsenac-tests">
           <button class="nfsenac-test" id="nfse-test-${r.cid}" onclick="nfseTestarCertificado('${r.cid}',this)" title="Confere se este certificado consegue ser lido e usado pra emitir NFS-e">🧾 NFS-e</button>
           <button class="nfsenac-test" id="nfse-param-${r.cid}" onclick="nfseTestarParametrosMunicipio('${r.cid}',this)" title="Testa a chamada REAL (com mTLS) à Sefin Nacional, pedindo os parâmetros de um município/serviço">🏛️ Sefin Nacional</button>
           <button class="nfsenac-test" id="nfse-emit-${r.cid}" onclick="nfseTestarEmissao('${r.cid}',this)" title="Cria uma nota de teste (dados fictícios de homologação) e tenta emitir de verdade contra a Sefin Nacional">📤 Emissão (homolog.)</button>
-        </div>
+        </div>` : ''}
       </div>
     </div>`).join('')
   }</div>`;
 }
+/* Troca a empresa ativa direto pelo seletor deste painel — mantém em
+   sincronia com o seletor global do topo (mesma variável CC), pra não
+   ter dois lugares com "empresa atual" divergentes. */
+async function nfsenacTrocarEmpresa(coId){
+  if(!coId) return;
+  CC = coId;
+  const selTopo = document.getElementById('cosel'); if(selTopo) selTopo.value = coId;
+  await renderNFSeNacional();
+}
+/* Busca por nome no campo "Trocar empresa" — mesmo padrão do campo de
+   código de serviço, com dropdown filtrado em vez de <select> nativo
+   (mais rápido de usar quando tem muita empresa cadastrada). */
+function nfsenacFiltrarEmpresa(termo){
+  const dd = document.getElementById('nfsenac-empresa-dropdown');
+  if(!dd) return;
+  const rows = window._nfsenacRows || [];
+  const t = (termo||'').trim().toLowerCase();
+  const achados = t ? rows.filter(r=>(r.coName||'').toLowerCase().includes(t)) : rows;
+  if(!achados.length){
+    dd.innerHTML = '<div style="padding:10px;font-size:12px;color:var(--t3)">Nenhuma empresa encontrada</div>';
+  }else{
+    dd.innerHTML = achados.slice(0,50).map(r=>
+      `<div onclick="nfsenacSelecionarEmpresa('${r.cid}')" style="padding:8px 10px;font-size:12.5px;cursor:pointer;border-bottom:1px solid var(--bg)" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='#fff'">${_crmEsc(r.coName)}</div>`
+    ).join('');
+  }
+  dd.style.display = 'block';
+}
+async function nfsenacSelecionarEmpresa(coId){
+  const dd = document.getElementById('nfsenac-empresa-dropdown'); if(dd){ dd.style.display='none'; dd.innerHTML=''; }
+  await nfsenacTrocarEmpresa(coId);
+}
+document.addEventListener('click', function(e){
+  const dd = document.getElementById('nfsenac-empresa-dropdown');
+  const busca = document.getElementById('nfsenac-busca-empresa');
+  if(dd && busca && e.target!==busca && !dd.contains(e.target)) dd.style.display='none';
+});
 
 
 async function certdigOpen(cid,id){

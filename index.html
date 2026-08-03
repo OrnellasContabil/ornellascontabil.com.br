@@ -24108,6 +24108,7 @@ async function renderLegDetail(el) {
 
 /* Atualiza a barra de progresso e os visuais das etapas na tela (sem recarregar tudo) */
 function _legRefreshProgressUI(leg) {
+  const tipo = (_legCacheProc && _legCacheProc.tipoProcesso) || 'abertura';
   const listaEt = legGetEtapas(tipo).concat(leg.etapasExtras||[]);
   const done    = listaEt.filter(e=>_legEtapaConcluida(leg.etapas[e.id])).length;
   const pct     = Math.round((done/listaEt.length)*100);

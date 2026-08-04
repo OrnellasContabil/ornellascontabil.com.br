@@ -1532,6 +1532,29 @@ select[multiple]{background-image:none !important;padding-right:12px !important}
 .pend-atrib-form.on{display:block}
 .pend-atrib-form select{width:100%;max-width:220px;padding:6px 8px;border:1px solid var(--bdr);border-radius:6px;font-size:12px;font-family:'Inter',sans-serif;margin-bottom:8px}
 @media(max-width:768px){.wa-layout{flex-direction:column;height:auto}.wa-side{width:100%;max-height:260px}.wa-chat{min-height:420px}}
+/* ── WhatsApp · Envio Rápido (link externo wa.me, sem Cloud API) ── */
+.wl-aviso{display:flex;gap:9px;align-items:flex-start;background:#FFF8E1;border:1px solid #FFE0B2;color:#8A5A00;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.5;margin-bottom:14px}
+.wl-card{background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:16px;max-width:640px}
+.wl-row{display:flex;gap:10px;flex-wrap:wrap}
+.wl-fg{margin-bottom:12px}
+.wl-fg label{display:block;font-size:11px;font-weight:700;color:var(--t2);margin-bottom:5px}
+.wl-fg select,.wl-fg input,.wl-fg textarea{width:100%;border:1px solid var(--bdr);border-radius:8px;padding:8px 11px;font-size:12.5px;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box}
+.wl-fg textarea{resize:vertical;line-height:1.5}
+.wl-hint{font-size:10.5px;color:var(--t3);margin-top:5px}
+.wl-send-btn{background:#25D366;color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:7px}
+.wl-send-btn:hover{background:#1FB855}
+.wl-tpl-list{display:flex;flex-direction:column;gap:8px;max-width:640px}
+.wl-tpl-item{background:#fff;border:1px solid var(--bdr);border-radius:10px;padding:11px 14px}
+.wl-tpl-item-hdr{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}
+.wl-tpl-nome{font-size:12.5px;font-weight:800;color:var(--dark)}
+.wl-tpl-corpo{font-size:12px;color:var(--t2);white-space:pre-wrap;line-height:1.5}
+.wl-tpl-acoes{display:flex;gap:6px;flex-shrink:0}
+.wl-tpl-acoes button{background:none;border:1px solid var(--bdr);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;color:var(--t2);cursor:pointer}
+.wl-tpl-acoes button:hover{border-color:var(--pri);color:var(--pri)}
+.wl-hist-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--bdr);border-radius:12px;overflow:hidden;font-size:12px}
+.wl-hist-table th{text-align:left;padding:9px 12px;background:var(--bg);color:var(--t2);font-weight:700;font-size:11px}
+.wl-hist-table td{padding:9px 12px;border-top:1px solid #F1F5F9;color:var(--t1);vertical-align:top}
+.wl-hist-msg{max-width:340px;color:var(--t2);white-space:pre-wrap}
 /* ── CHAT INTERNO DA EQUIPE (canais por departamento) ── */
 .tc-layout{display:flex;gap:12px;height:calc(100vh - 200px);min-height:460px}
 .tc-side{width:230px;flex-shrink:0;background:#fff;border:1px solid var(--bdr);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
@@ -7995,7 +8018,10 @@ const MODULOS_DISPONIVEIS = [
    desligados), começam DESLIGADOS até o admin master habilitar
    explicitamente — usados para recursos que geram custo de armazenamento
    e que por isso devem ser opt-in por escritório. */
-const MODULOS_DESLIGADOS_POR_PADRAO = new Set(['difalxml','consultacert','whatsapp']);
+const MODULOS_DESLIGADOS_POR_PADRAO = new Set(['difalxml','consultacert']);
+/* 'whatsapp' saiu da lista de desligados por padrão: a aba agora abre
+   direto na versão "Envio Rápido" (link wa.me), que não depende da
+   aprovação da Cloud API pela Meta — ver MÓDULO WHATSAPP mais abaixo. */
 function moduleEnabled(key){
   if(isMasterAdmin()) return true;
   const mods = CURRENT_TENANT && CURRENT_TENANT.modulos;
@@ -12596,7 +12622,7 @@ async function renderObrig(){
     let banner=document.getElementById('co-banner');
     if(!banner){banner=document.createElement('div');banner.id='co-banner';banner.style.cssText='background:linear-gradient(135deg,#0D1E2C,#1a4060);color:#fff;border-radius:14px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px';document.getElementById('co-title').insertAdjacentElement('afterend',banner);}
     const statusBadge=co.inactive?`<span style="background:#FFEBEE;border:1px solid #C62828;color:#C62828;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-left:8px">INATIVA</span>`:'';
-    banner.innerHTML=`<div style="display:flex;align-items:center;gap:10px;min-width:0"><button onclick="_navCo(-1)" title="Empresa anterior" style="flex-shrink:0;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:6px;width:26px;height:26px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button><div style="min-width:0"><div style="display:flex;align-items:center"><div style="font-size:13px;font-weight:700">${co.name}</div>${statusBadge}</div><div style="font-size:11px;opacity:.65;font-family:monospace">${co.cnpj||'CNPJ não cadastrado'}</div></div><button onclick="_navCo(1)" title="Próxima empresa" style="flex-shrink:0;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:6px;width:26px;height:26px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${co.regime?`<span style="background:rgba(201,169,110,.2);border:1px solid rgba(201,169,110,.4);color:#C9A96E;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">${co.regime}</span>`:''}<button onclick="openFatModal('fat')" title="Lançar faturamento mensal" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer">💰 Faturamento</button><button onclick="openApplyGroupModal()" title="Aplicar grupo de obrigações" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer">📋 Aplicar Grupo</button><button onclick="copiarObgMesAnterior()" title="Copiar a lista de obrigações do mês anterior para este mês" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer">📆 Copiar Mês Anterior</button><button onclick="openCopyObgModal()" title="Copiar obrigações desta empresa para outra" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer">📤 Copiar p/ Empresa</button><button onclick="openGroupsModal()" title="Gerenciar grupos" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:7px;padding:4px 8px;font-size:12px;cursor:pointer">⚙️</button><button onclick="openBulkDeleteObgModal()" title="Excluir todas as obrigações do mês" style="background:rgba(198,40,40,.25);border:1px solid rgba(198,40,40,.5);color:#fff;border-radius:7px;padding:4px 8px;font-size:12px;cursor:pointer">🗑️</button><button onclick="openEditCompanyModal()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:7px;padding:4px 8px;font-size:12px;cursor:pointer">✏️</button></div>`;
+    banner.innerHTML=`<div style="display:flex;align-items:center;gap:10px;min-width:0"><button onclick="_navCo(-1)" title="Empresa anterior" style="flex-shrink:0;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:6px;width:26px;height:26px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button><div style="min-width:0"><div style="display:flex;align-items:center"><div style="font-size:13px;font-weight:700">${co.name}</div>${statusBadge}</div><div style="font-size:11px;opacity:.65;font-family:monospace">${co.cnpj||'CNPJ não cadastrado'}</div></div><button onclick="_navCo(1)" title="Próxima empresa" style="flex-shrink:0;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:6px;width:26px;height:26px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${co.regime?`<span style="background:rgba(201,169,110,.2);border:1px solid rgba(201,169,110,.4);color:#C9A96E;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">${co.regime}</span>`:''}<button onclick="openFatModal('fat')" title="Lançar faturamento mensal" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer">💰 Faturamento</button><button onclick="openApplyGroupModal()" title="Aplicar grupo de obrigações" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer">📋 Aplicar Grupo</button><button onclick="copiarObgMesAnterior()" title="Copiar a lista de obrigações do mês anterior para este mês" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer">📆 Copiar Mês Anterior</button><button onclick="abrirProtocoloObrigacoesPDF()" title="Gerar PDF com o status atual e o histórico de alterações (data/hora/quem) de cada obrigação, para enviar ao cliente" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer">📄 Protocolo Geral</button><button onclick="openCopyObgModal()" title="Copiar obrigações desta empresa para outra" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer">📤 Copiar p/ Empresa</button><button onclick="openGroupsModal()" title="Gerenciar grupos" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:7px;padding:4px 8px;font-size:12px;cursor:pointer">⚙️</button><button onclick="openBulkDeleteObgModal()" title="Excluir todas as obrigações do mês" style="background:rgba(198,40,40,.25);border:1px solid rgba(198,40,40,.5);color:#fff;border-radius:7px;padding:4px 8px;font-size:12px;cursor:pointer">🗑️</button><button onclick="openEditCompanyModal()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:7px;padding:4px 8px;font-size:12px;cursor:pointer">✏️</button></div>`;
   }
   renderMonthSel();
   const data=await getOblig(CC,CY,CM);
@@ -12706,6 +12732,104 @@ function renderObgItem(item,sec,year,month){
   }
   return`<div class="obg-item" style="${rowStyle}"><div class="obg-row">${chk}<div style="flex:1">${nm}${due}${alertTag}${monthTag}${compTag}${pagoClienteTag}${obsTag}</div><div class="obg-act">${respSel}${act}${guiaBtn}${editBtn}${delBtn}</div></div></div>`;
 }
+/* ══════════════════════════════════════════════════════════════════
+   PROTOCOLO GERAL DE OBRIGAÇÕES (PDF)
+   ────────────────────────────────────────────────────────────────
+   Reúne o status atual de cada obrigação da empresa/competência em
+   exibição + o histórico de alterações de status (data/hora/quem),
+   gravado em item.statusLog por _obgLogStatus (togObg/updObgStatus).
+   Serve como comprovante formal para enviar ao cliente. Usa o mesmo
+   padrão de impressão (nova aba + window.print()) dos demais
+   documentos do sistema — ver gerCtrAbrirImpressao mais acima.
+════════════════════════════════════════════════════════════════════ */
+const OBG_STATUS_LABEL_PDF={pending:'⏳ Pendente',ok:'✅ OK',na:'🚫 Não necessário',late:'⚠️ Atrasado'};
+async function abrirProtocoloObrigacoesPDF(){
+  if(!CC){alert('Selecione uma empresa primeiro.');return;}
+  const co=await getCo(CC);
+  if(!co){alert('Empresa não encontrada.');return;}
+  const data=await getOblig(CC,CY,CM);
+  const secs=[{key:'fiscal',label:'Departamento Fiscal'},{key:'dp',label:'Departamento Pessoal'},{key:'contabil',label:'Departamento Contábil'},{key:'anual',label:'Obrigações Anuais'}];
+
+  const linhasLog=[];
+  let corpoTabelas='';
+  secs.forEach(s=>{
+    const items=_filterSecItems(data[s.key], s.key, CM);
+    if(!items.length)return;
+    corpoTabelas+=`<h3>${s.label}</h3><table class="pt-tab"><thead><tr><th>Obrigação</th><th>Vencimento</th><th>Responsável</th><th>Status atual</th></tr></thead><tbody>`;
+    items.forEach(item=>{
+      let statusTxt;
+      if(item.type==='status'||item.type==='status_pdf'){
+        const alertInfo=_obgAlertState(item,s.key,CY,CM);
+        const effStatus=alertInfo.state==='late'?'late':(item.status||'pending');
+        statusTxt=OBG_STATUS_LABEL_PDF[effStatus]||effStatus;
+      }else{
+        statusTxt=item.done?'✅ Concluída':'⏳ Pendente';
+      }
+      corpoTabelas+=`<tr><td>${_crmEsc(item.name)}</td><td>${_crmEsc(item.due||'—')}</td><td>${_crmEsc(item.resp||'—')}</td><td>${statusTxt}</td></tr>`;
+      (item.statusLog||[]).forEach(l=>linhasLog.push({obg:item.name,...l}));
+    });
+    corpoTabelas+='</tbody></table>';
+  });
+
+  linhasLog.sort((a,b)=>new Date(a.at)-new Date(b.at));
+  const logHtml=linhasLog.length
+    ? `<h3>Histórico de Alterações de Status</h3><table class="pt-tab"><thead><tr><th>Data/Hora</th><th>Obrigação</th><th>Novo Status</th><th>Alterado por</th></tr></thead><tbody>${linhasLog.map(l=>`<tr><td>${new Date(l.at).toLocaleString('pt-BR')}</td><td>${_crmEsc(l.obg)}</td><td>${_crmEsc(l.status)}</td><td>${_crmEsc(l.who)}</td></tr>`).join('')}</tbody></table>`
+    : `<h3>Histórico de Alterações de Status</h3><p style="color:#666;font-size:9.5pt">Nenhuma alteração de status registrada neste período até o momento (o registro começa a valer a partir de agora, para todo clique feito no seletor de status ou no checkbox).</p>`;
+
+  const T=CURRENT_TENANT||{};
+  const nomeEsc=T.nome_escritorio||'Escritório de Contabilidade';
+  const crcEsc=T.crc||'';
+  const LOGO_B64=T.logo_base64||(typeof LOGO_SRC!=='undefined'?LOGO_SRC:'');
+  const agora=new Date().toLocaleString('pt-BR');
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Protocolo de Obrigações — ${co.name}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  @page{size:A4;margin:1.5cm 1.7cm 1.8cm 1.7cm}
+  body{font-family:Arial,sans-serif;font-size:10.5pt;line-height:1.5;color:#111}
+  .cab{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:2px solid #5E8FA3;margin-bottom:16px}
+  .cab-nome{color:#5E8FA3;font-size:9pt;font-weight:bold;line-height:1.4}
+  .cab-nome span{display:block;font-weight:normal;font-size:7.5pt;color:#808080}
+  .cab img{height:44px;object-fit:contain}
+  h1{font-size:14pt;text-align:center;margin-bottom:4px;text-transform:uppercase}
+  .sub{text-align:center;font-size:10pt;color:#555;margin-bottom:18px}
+  .meta{background:#F5F7FA;border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:10pt}
+  .meta b{color:#0D1E2C}
+  h3{font-size:11pt;margin:18px 0 8px;color:#0D1E2C;border-left:3px solid #5E8FA3;padding-left:8px}
+  table.pt-tab{width:100%;border-collapse:collapse;margin-bottom:6px}
+  table.pt-tab th{background:#F0F3F6;text-align:left;padding:6px 8px;font-size:9pt;border-bottom:1px solid #D5DCE3}
+  table.pt-tab td{padding:6px 8px;font-size:9.5pt;border-bottom:1px solid #EEF1F4}
+  .rodape{margin-top:26px;font-size:8.5pt;color:#777;border-top:1px solid #ddd;padding-top:8px}
+  .no-print{display:flex;background:#1565C0;color:#fff;padding:10px 20px;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:9999}
+  @media print{.no-print{display:none!important}}
+</style></head><body>
+<div class="no-print">
+  <span>📄 Protocolo de Obrigações — ${_crmEsc(co.name)}</span>
+  <button onclick="window.print()" style="background:#fff;color:#1565C0;border:none;padding:6px 16px;border-radius:6px;font-weight:700;cursor:pointer">🖨️ Imprimir / Salvar PDF</button>
+</div>
+<div class="cab">
+  <div class="cab-nome">${nomeEsc}${crcEsc?`<span>${crcEsc}</span>`:''}</div>
+  ${LOGO_B64?`<img src="${LOGO_B64}">`:''}
+</div>
+<h1>Protocolo Geral de Obrigações</h1>
+<div class="sub">Competência: ${MONTH_NAMES_FULL[CM]}/${CY}</div>
+<div class="meta">
+  <div><b>Empresa:</b> ${_crmEsc(co.name)}</div>
+  <div><b>CNPJ:</b> ${_crmEsc(co.cnpj||'—')}</div>
+  <div><b>Regime Tributário:</b> ${_crmEsc(co.regime||'—')}</div>
+  <div><b>Emitido em:</b> ${agora}</div>
+</div>
+${corpoTabelas||'<p style="color:#666;font-size:10pt">Nenhuma obrigação lançada para esta competência.</p>'}
+${logHtml}
+<div class="rodape">Documento gerado automaticamente pelo sistema de gestão do escritório, com base no registro de alterações de status realizadas pela equipe responsável — cada linha do histórico acima traz a data, o horário e o usuário que alterou o status. Serve como protocolo de acompanhamento das obrigações fiscais, trabalhistas e contábeis da empresa acima.<br>${nomeEsc}${T.cnpj?` | CNPJ ${T.cnpj}`:''}${crcEsc?` | ${crcEsc}`:''}</div>
+</body></html>`;
+
+  const w=window.open('','_blank','width=900,height=800');
+  if(!w){alert('Seu navegador bloqueou a nova janela. Permita pop-ups para este site e tente de novo.');return;}
+  w.document.write(html);
+  w.document.close();
+}
+
 /* Chamada real à API do SERPRO (Integra Contador) para emitir a guia
    desta obrigação — AINDA NÃO IMPLEMENTADA. Quando a integração entrar
    no ar, esta função deve fazer a chamada de verdade e devolver
@@ -12780,11 +12904,22 @@ async function copiarObgMesAnterior(){
   await renderObrig();
   alert(`✅ ${copiados} obrigação(ões) copiada(s) de ${MONTH_NAMES_FULL[prevM]}/${prevY}.`);
 }
+/* Registro de auditoria por obrigação: cada alteração de status (seja pelo
+   checkbox ou pelo seletor) grava quem mudou e o horário exato dentro do
+   próprio item (item.statusLog), independente do activity_history geral —
+   é o que alimenta o "Protocolo Geral" (PDF) mais abaixo. */
+function _obgLogStatus(item,statusLabel){
+  if(!Array.isArray(item.statusLog)) item.statusLog=[];
+  item.statusLog.push({status:statusLabel, who:(CU?CU.name:'Sistema'), at:new Date().toISOString()});
+  if(item.statusLog.length>200) item.statusLog=item.statusLog.slice(-200); // limite de segurança
+}
 async function togObg(sec,id){const d=await getOblig(CC,CY,CM);const i=d[sec].find(x=>x.id===id);if(i){i.done=!i.done;
   // Mão dupla: nos itens de Status (e Status + Anexo), ticar o checkbox também
   // move o seletor para "✅ OK" — e desticar volta para "⏳ Pendente".
   if(String(i.type||'').toLowerCase().includes('status')) i.status = i.done ? 'ok' : 'pending';
-  await saveOblig(CC,CY,CM,d);const _who=CU?CU.name:'Sistema';const _st=i.done?'✅ Concluída':'⏳ Pendente';await addHistory(CC,`[${_who}] alterou "${i.name}" → ${_st}`);await renderObrig();}}
+  const _st=i.done?'✅ Concluída':'⏳ Pendente';
+  if(String(i.type||'').toLowerCase().includes('status')) _obgLogStatus(i,_st);
+  await saveOblig(CC,CY,CM,d);const _who=CU?CU.name:'Sistema';await addHistory(CC,`[${_who}] alterou "${i.name}" → ${_st}`);await renderObrig();}}
 async function updObgVal(sec,id,v){const d=await getOblig(CC,CY,CM);const i=d[sec].find(x=>x.id===id);if(i){i.value=v;await saveOblig(CC,CY,CM,d);await addHistory(CC, `Alterou valor de ${i.name} para ${v}`);}}
 /* Status e checkbox andam juntos: marcar "✅ OK" no seletor já dá o item
    como concluído (ticado/verde, com o nome riscado), e voltar para
@@ -12797,9 +12932,10 @@ async function updObgStatus(sec,id,v){
   i.status=v;
   const doneAntes=!!i.done;
   i.done=(v==='ok'||v==='na');
+  const _stMap={pending:'⏳ Pendente',ok:'✅ OK',na:'🚫 Não necessário',late:'⚠️ Atrasado'};
+  _obgLogStatus(i,_stMap[v]||v);
   await saveOblig(CC,CY,CM,d);
   const _who2=CU?CU.name:'Sistema';
-  const _stMap={pending:'⏳ Pendente',ok:'✅ OK',na:'🚫 Não necessário',late:'⚠️ Atrasado'};
   await addHistory(CC,`[${_who2}] alterou "${i.name}" → ${_stMap[v]||v}`);
   if(doneAntes!==i.done) await renderObrig();
 }
@@ -31369,47 +31505,256 @@ async function waEnviar({para, texto, template, params, company_id}){
 }
 
 /* ── Render principal ──────────────────────────────────────────────── */
+/* NOTA (ago/2026): enquanto o App Review da Cloud API não é aprovado pela
+   Meta, a aba abre direto no bloco "Envio Rápido" (link wa.me), que não
+   depende da API oficial — ver WA_LINK_* logo abaixo. As abas antigas da
+   Cloud API (Conversas, Pendentes, Templates aprovados, Conexão) continuam
+   implementadas e funcionando (waRenderConversas/waRenderPendentes/
+   waRenderTemplates/waRenderConexao, mais abaixo neste arquivo) — só foram
+   tiradas do menu. Para reativar quando a Meta aprovar, troque
+   WA_MODO_CLOUD_API para true.
+────────────────────────────────────────────────────────────────────── */
+const WA_MODO_CLOUD_API = false;
+
 async function renderWhats(){
   const el=document.getElementById('whats-content');
   if(!el) return;
-  if(!moduleEnabled('whatsapp')){ el.innerHTML=moduleBlockedHTML('WhatsApp (Cloud API)'); return; }
 
-  await waCarregarConta();
-  await waCarregarPendentesCount();
-
-  const abas=[
+  const abasDef = WA_MODO_CLOUD_API ? [
     ['conversas','💬 Conversas'],
     ['pendentes','🕓 Pendentes'+(WA_ST.pendentesCount>0?` <span class="wa-tab-count">${WA_ST.pendentesCount}</span>`:'')],
     ['templates','📋 Templates'],
     ['conexao','🔌 Conexão'],
-  ].map(([k,l])=>`<button class="wa-tab ${WA_ST.aba===k?'on':''}" onclick="waSetAba('${k}')">${l}</button>`).join('');
+  ] : [
+    ['envio','📤 Envio Rápido'],
+    ['modelos','📝 Modelos de Mensagem'],
+    ['historico','🕘 Histórico'],
+  ];
+  if(!abasDef.find(([k])=>k===WA_ST.aba)) WA_ST.aba = abasDef[0][0];
 
-  const status = WA_ST.conta
-    ? `<span class="wa-badge on">● Conectado — ${_crmEsc(WA_ST.conta.display_number||'')}</span>`
-    : `<span class="wa-badge off">● Não conectado</span>`;
+  if(WA_MODO_CLOUD_API){ await waCarregarConta(); await waCarregarPendentesCount(); }
+
+  const abas = abasDef.map(([k,l])=>`<button class="wa-tab ${WA_ST.aba===k?'on':''}" onclick="waSetAba('${k}')">${l}</button>`).join('');
+
+  const status = WA_MODO_CLOUD_API
+    ? (WA_ST.conta
+        ? `<span class="wa-badge on">● Conectado — ${_crmEsc(WA_ST.conta.display_number||'')}</span>`
+        : `<span class="wa-badge off">● Não conectado</span>`)
+    : `<span class="wa-badge off">🔗 Envio por link (Cloud API pendente de aprovação)</span>`;
 
   el.innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
       <div>
-        <h2 style="font-size:16px;font-weight:800;color:var(--dark);margin-bottom:0">🟢 WhatsApp — Cloud API</h2>
-        <p style="font-size:12px;color:var(--t2);margin-top:3px">Atendimento pelo número oficial do escritório, com histórico vinculado às empresas.</p>
+        <h2 style="font-size:16px;font-weight:800;color:var(--dark);margin-bottom:0">🟢 WhatsApp</h2>
+        <p style="font-size:12px;color:var(--t2);margin-top:3px">${WA_MODO_CLOUD_API?'Atendimento pelo número oficial do escritório, com histórico vinculado às empresas.':'Envio rápido de mensagens por link direto do WhatsApp, com histórico local por empresa.'}</p>
       </div>
       ${status}
     </div>
+    ${WA_MODO_CLOUD_API?'':`<div class="wl-aviso">⚠️ <div>O módulo completo (conversas em tempo real, templates aprovados pela Meta e caixa de pendentes da IA) está pronto no sistema, mas <b>aguardando a aprovação do App Review da Cloud API</b> junto à Meta. Enquanto isso, use o <b>Envio Rápido</b> abaixo: ele abre o WhatsApp já com a mensagem pronta, do mesmo jeito que os botões de envio de guia e de honorário.</div></div>`}
     <div class="wa-tabs">${abas}</div>
     <div id="wa-body"></div>`;
 
   await waRenderAba();
-  waSubscribe();
+  if(WA_MODO_CLOUD_API) waSubscribe();
 }
 function waSetAba(a){ WA_ST.aba=a; waRenderAba(); }
 
 async function waRenderAba(){
   const b=document.getElementById('wa-body'); if(!b) return;
+  if(!WA_MODO_CLOUD_API){
+    if(WA_ST.aba==='modelos')   return waLinkRenderModelos(b);
+    if(WA_ST.aba==='historico') return waLinkRenderHistorico(b);
+    return waLinkRenderEnvio(b);
+  }
   if(WA_ST.aba==='conexao')  return waRenderConexao(b);
   if(WA_ST.aba==='templates') return waRenderTemplates(b);
   if(WA_ST.aba==='pendentes') return waRenderPendentes(b);
   return waRenderConversas(b);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   WHATSAPP · ENVIO RÁPIDO (link wa.me — sem Cloud API)
+   ────────────────────────────────────────────────────────────────
+   Mesmo padrão já usado em openSendPaymentWhatsApp/openSendHonorarioWhatsApp:
+   monta o texto, abre `https://wa.me/<numero>?text=...` em nova aba (o
+   próprio WhatsApp Web/App cuida do envio) e grava um registro local em
+   wa_link_envios só para histórico — não há recebimento nem status de
+   leitura, porque isso exige a Cloud API oficial.
+════════════════════════════════════════════════════════════════════ */
+const WA_LINK_ST = { templates:[], historico:[], companies:[] };
+
+async function waLinkCarregarTemplates(){
+  const {data} = await sb.from('wa_link_templates').select('*').order('nome');
+  WA_LINK_ST.templates = data || [];
+}
+async function waLinkCarregarHistorico(){
+  const {data} = await sb.from('wa_link_envios').select('*').order('created_at',{ascending:false}).limit(50);
+  WA_LINK_ST.historico = data || [];
+}
+
+/* ── Aba: Envio Rápido ─────────────────────────────────────────────── */
+async function waLinkRenderEnvio(b){
+  await waLinkCarregarTemplates();
+  WA_LINK_ST.companies = await getCompanies();
+
+  const cosOptions = WA_LINK_ST.companies.slice().sort((a,c)=>a.name.localeCompare(c.name))
+    .map(c=>`<option value="${c.id}">${_crmEsc(c.name)}${c.whatsapp?'':' — sem WhatsApp cadastrado'}</option>`).join('');
+  const tplOptions = WA_LINK_ST.templates.map(t=>`<option value="${t.id}">${_crmEsc(t.nome)}</option>`).join('');
+
+  b.innerHTML=`
+    <div class="wl-card">
+      <div class="wl-fg">
+        <label>Empresa (opcional — preenche o WhatsApp automaticamente se estiver cadastrado)</label>
+        <select id="wl-empresa" onchange="waLinkSelecionarEmpresa()">
+          <option value="">— Digitar manualmente —</option>
+          ${cosOptions}
+        </select>
+      </div>
+      <div class="wl-row">
+        <div class="wl-fg" style="flex:1;min-width:180px">
+          <label>Nome do contato</label>
+          <input id="wl-nome" placeholder="Ex: João (financeiro)">
+        </div>
+        <div class="wl-fg" style="flex:1;min-width:180px">
+          <label>WhatsApp *</label>
+          <input id="wl-numero" placeholder="(21) 99999-9999">
+        </div>
+      </div>
+      <div class="wl-fg">
+        <label>Modelo de mensagem</label>
+        <select id="wl-modelo" onchange="waLinkAplicarModelo()">
+          <option value="">— Mensagem em branco —</option>
+          ${tplOptions}
+        </select>
+      </div>
+      <div class="wl-fg">
+        <label>Mensagem</label>
+        <textarea id="wl-msg" rows="7" placeholder="Escreva a mensagem..."></textarea>
+        <div class="wl-hint">Dica: use <b>{NOME}</b> no modelo — ao enviar, é trocado pelo nome da empresa selecionada.</div>
+      </div>
+      <button class="wl-send-btn" onclick="waLinkAbrir()">📤 Abrir WhatsApp</button>
+    </div>`;
+}
+function waLinkSelecionarEmpresa(){
+  const sel=document.getElementById('wl-empresa');
+  const co=WA_LINK_ST.companies.find(c=>c.id===sel.value);
+  document.getElementById('wl-nome').value = co ? co.name : '';
+  document.getElementById('wl-numero').value = co && co.whatsapp ? co.whatsapp : '';
+}
+function waLinkAplicarModelo(){
+  const sel=document.getElementById('wl-modelo');
+  const t=WA_LINK_ST.templates.find(x=>x.id===sel.value);
+  if(!t) return;
+  const coSel=document.getElementById('wl-empresa');
+  const co=WA_LINK_ST.companies.find(c=>c.id===(coSel&&coSel.value));
+  document.getElementById('wl-msg').value = t.corpo.replace(/\{NOME\}/g, co?co.name:'{NOME}');
+}
+async function waLinkAbrir(){
+  const coSel=document.getElementById('wl-empresa');
+  const co=WA_LINK_ST.companies.find(c=>c.id===(coSel&&coSel.value)) || null;
+  const nome=(document.getElementById('wl-nome').value||'').trim();
+  const numero=(document.getElementById('wl-numero').value||'').trim();
+  if(!numero){ alert('Informe o WhatsApp do destinatário.'); return; }
+  const digits=numero.replace(/\D/g,'');
+  if(!digits){ alert('Número inválido.'); return; }
+  const phoneFull = digits.length<=11 ? '55'+digits : digits; // sem DDI informado, assume Brasil
+  let msg=(document.getElementById('wl-msg').value||'').trim();
+  if(!msg){ alert('Escreva a mensagem.'); return; }
+  msg = msg.replace(/\{NOME\}/g, co?co.name:(nome||''));
+
+  // Se a empresa foi selecionada e ainda não tinha WhatsApp cadastrado,
+  // salva pra já vir pronto da próxima vez (mesmo padrão do envio de guias).
+  if(co && !co.whatsapp && numero){
+    try{ const cos=await getCompanies(); const alvo=cos.find(c=>c.id===co.id); if(alvo){ alvo.whatsapp=numero; await saveCompanies(cos); } }catch(e){}
+  }
+
+  window.open(`https://wa.me/${phoneFull}?text=${encodeURIComponent(msg)}`,'_blank');
+
+  const tplSel=document.getElementById('wl-modelo');
+  const tpl=WA_LINK_ST.templates.find(t=>t.id===(tplSel&&tplSel.value));
+  try{
+    await sb.from('wa_link_envios').insert({
+      tenant_id: CURRENT_TENANT.id,
+      company_id: co?co.id:null,
+      numero: phoneFull,
+      nome_contato: co?co.name:(nome||null),
+      mensagem: msg,
+      template_nome: tpl?tpl.nome:null,
+      autor: (CU&&CU.name)||null
+    });
+  }catch(e){ console.error('wa_link_envios insert', e); }
+}
+
+/* ── Aba: Modelos de mensagem ──────────────────────────────────────── */
+async function waLinkRenderModelos(b){
+  await waLinkCarregarTemplates();
+  const lista = WA_LINK_ST.templates.length ? WA_LINK_ST.templates.map(t=>`
+    <div class="wl-tpl-item">
+      <div class="wl-tpl-item-hdr">
+        <div class="wl-tpl-nome">${_crmEsc(t.nome)}</div>
+        <div class="wl-tpl-acoes">
+          <button onclick="waLinkEditarModelo('${t.id}')">✏️ Editar</button>
+          <button onclick="waLinkExcluirModelo('${t.id}')">🗑️ Excluir</button>
+        </div>
+      </div>
+      <div class="wl-tpl-corpo">${_crmEsc(t.corpo)}</div>
+    </div>`).join('') : '<div style="padding:16px;font-size:12px;color:var(--t3)">Nenhum modelo salvo ainda.</div>';
+
+  b.innerHTML=`
+    <div class="wl-card" style="margin-bottom:16px">
+      <div class="wl-fg"><label>Nome do modelo</label><input id="wl-tpl-nome" placeholder="Ex: Cobrança de honorários"></div>
+      <div class="wl-fg">
+        <label>Mensagem</label>
+        <textarea id="wl-tpl-corpo" rows="6" placeholder="Olá {NOME}! ..."></textarea>
+        <div class="wl-hint">Use <b>{NOME}</b> onde quiser que entre o nome da empresa automaticamente.</div>
+      </div>
+      <input type="hidden" id="wl-tpl-id">
+      <button class="wl-send-btn" style="background:var(--pri)" onclick="waLinkSalvarModelo()">💾 Salvar modelo</button>
+    </div>
+    <div class="wl-tpl-list">${lista}</div>`;
+}
+function waLinkEditarModelo(id){
+  const t=WA_LINK_ST.templates.find(x=>x.id===id); if(!t) return;
+  document.getElementById('wl-tpl-id').value=t.id;
+  document.getElementById('wl-tpl-nome').value=t.nome;
+  document.getElementById('wl-tpl-corpo').value=t.corpo;
+  document.getElementById('wl-tpl-nome').scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function waLinkSalvarModelo(){
+  const id=document.getElementById('wl-tpl-id').value||null;
+  const nome=(document.getElementById('wl-tpl-nome').value||'').trim();
+  const corpo=(document.getElementById('wl-tpl-corpo').value||'').trim();
+  if(!nome||!corpo){ alert('Preencha o nome e o texto do modelo.'); return; }
+  if(id){
+    await sb.from('wa_link_templates').update({nome,corpo,updated_at:new Date().toISOString()}).eq('id',id);
+  }else{
+    await sb.from('wa_link_templates').insert({tenant_id:CURRENT_TENANT.id,nome,corpo});
+  }
+  await waLinkRenderModelos(document.getElementById('wa-body'));
+}
+async function waLinkExcluirModelo(id){
+  if(!confirm('Excluir este modelo de mensagem?')) return;
+  await sb.from('wa_link_templates').delete().eq('id',id);
+  await waLinkRenderModelos(document.getElementById('wa-body'));
+}
+
+/* ── Aba: Histórico ────────────────────────────────────────────────── */
+async function waLinkRenderHistorico(b){
+  await waLinkCarregarHistorico();
+  if(!WA_LINK_ST.historico.length){
+    b.innerHTML='<div style="padding:16px;font-size:12px;color:var(--t3)">Nenhum envio registrado ainda.</div>';
+    return;
+  }
+  const linhas = WA_LINK_ST.historico.map(r=>`
+    <tr>
+      <td>${new Date(r.created_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</td>
+      <td>${_crmEsc(r.nome_contato||waFmt(r.numero))}<br><span style="color:var(--t3);font-size:10.5px">${waFmt(r.numero)}</span></td>
+      <td class="wl-hist-msg">${_crmEsc((r.mensagem||'').slice(0,180))}${(r.mensagem||'').length>180?'…':''}</td>
+      <td>${_crmEsc(r.autor||'—')}</td>
+    </tr>`).join('');
+  b.innerHTML=`<div style="overflow-x:auto"><table class="wl-hist-table">
+    <thead><tr><th>Quando</th><th>Contato</th><th>Mensagem</th><th>Enviado por</th></tr></thead>
+    <tbody>${linhas}</tbody></table></div>`;
 }
 
 /* ── Aba: Conversas ────────────────────────────────────────────────── */
